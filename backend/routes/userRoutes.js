@@ -16,7 +16,7 @@ router.post('/register', async (req, res) => {
         // Check if the user already exists in the database
         const existingUser = await User.findOne({ username });
         if (existingUser) {
-            return res.status(400).json({ error: 'User already exists' });
+            return res.status(400).json({ error: 'المستخدم موجود بالفعل' });
         }
 
         // Hash the password
@@ -29,7 +29,7 @@ router.post('/register', async (req, res) => {
         // Generate JWT
         const token = jwt.sign({ id: newUser._id, username: newUser.username }, 'your_secret_key', { expiresIn: '1h' });
 
-        res.status(201).json({ message: 'User registered successfully', token });
+        res.status(201).json({ message: 'تم تسجيل المستخدم بنجاح', token });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
@@ -43,20 +43,20 @@ router.post('/login', async (req, res) => {
         // Find the user by username
         const user = await User.findOne({ username });
         if (!user) {
-            return res.status(404).json({ message: 'Invalid username or password' });
+            return res.status(404).json({ message: 'اسم المستخدم أو كلمة المرور غير صالحة' });
         }
 
         // Compare the hashed password
         const match = await bcrypt.compare(password, user.password);
         if (!match) {
-            return res.status(401).json({ message: 'Invalid credentials' });
+            return res.status(401).json({ message: 'كلمة المرور غير صالحة' });
         }
 
         // Generate JWT
         const token = jwt.sign({ id: user._id, username: user.username }, 'your_secret_key', { expiresIn: '1h' });
 
         // If successful, you can create a token or return user data
-        res.status(200).json({ message: 'Login successful', token , user: { id: user._id, username: user.username, role: user.role } });
+        res.status(200).json({ message: 'تم تسجيل الدخول بنجاح', token , user: { id: user._id, username: user.username, role: user.role } });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

@@ -3,6 +3,8 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
+const transactionRoutes = require('./routes/transactionRoutes');
+
 
 
 dotenv.config();  // Load environment variables from .env file
@@ -23,8 +25,12 @@ app.get('/', (req, res) => {
     res.send('مرحباً بك في تطبيق الطارق');
 });
 
-// Use routes
+// Use Routes
 app.use('/api/users', userRoutes);
+
+// Tranactions Routes
+app.use('/api/transactions', transactionRoutes);
+
 
 
 

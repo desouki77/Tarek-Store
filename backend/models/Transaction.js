@@ -9,7 +9,7 @@ const transactionSchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ['sale', 'purchase', 'return', 'input', 'output','service'], // Define transaction types
+        enum: ['بيع', ,'مدخلات','مخرجات', 'شحن', 'صيانة', 'سداد عملاء','سداد موردين','مشتروات','مرتجعات'], // Define transaction types
         required: true,
     },
     amount: {
@@ -22,7 +22,7 @@ const transactionSchema = new mongoose.Schema({
     },
     branch: {
         type: String,
-        enum:['balas branch','nemsa branch'],
+        enum:['فرع بالاس','فرع النمسا '],
         required: true,
     },
 }, {
