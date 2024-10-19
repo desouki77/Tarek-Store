@@ -1,9 +1,10 @@
 import React from 'react';
+import './App.css';
 
 function App() {
   return (
     <div>
-      {/* Your components will go here */}
+   
       <h1>مرحباً بك في تطبيق الطارق</h1>
     </div>
   );

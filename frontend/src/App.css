@@ -1,0 +1,12 @@
+body {
+    font-family: 'Cairo', sans-serif;
+    text-align: center;
+    direction: rtl;
+  }
+  
+  .App {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
