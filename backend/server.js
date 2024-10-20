@@ -22,7 +22,7 @@ connectDB();
 
 // Sample Route
 app.get('/', (req, res) => {
-    res.send('مرحباً بك في تطبيق الطارق');
+    res.send('مرحبا بك في تطبيق الطارق باك اند');
 });
 
 // Use Routes
