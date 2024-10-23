@@ -16,10 +16,7 @@ const userSchema = new mongoose.Schema({
         enum: ['admin', 'sales'], // Define roles
         required: true,
     },
-    branch: {
-        type: String,
-        required: true,
-    },
+
 }, {
     timestamps: true,
 });

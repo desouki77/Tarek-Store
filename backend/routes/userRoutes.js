@@ -9,7 +9,7 @@ const authenticateJWT  = require('../middlewares/userAuth');
 
 // Register a new user
 router.post('/register', async (req, res) => {
-    const { username, password, role, branch } = req.body;
+    const { username, password, role} = req.body;
 
     try {
 
@@ -23,7 +23,7 @@ router.post('/register', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Create a new user
-        const newUser = new User({ username, password: hashedPassword, role, branch });
+        const newUser = new User({ username, password: hashedPassword, role });
         await newUser.save();
 
         // Generate JWT
@@ -52,13 +52,18 @@ router.post('/login', async (req, res) => {
             return res.status(401).json({ message: 'كلمة المرور غير صالحة' });
         }
 
-        // Generate JWT
-        const token = jwt.sign({ id: user._id, username: user.username }, 'your_secret_key', { expiresIn: '1h' });
+         // Generate JWT Token
+         const token = jwt.sign(
+            { id: user._id, role: user.role },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' } // Token expiration
+        );
 
         // If successful, you can create a token or return user data
         res.status(200).json({ message: 'تم تسجيل الدخول بنجاح', token , user: { id: user._id, username: user.username, role: user.role } });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error('Login error:', error); // Log the error
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 

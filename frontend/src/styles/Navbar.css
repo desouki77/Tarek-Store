@@ -1,0 +1,87 @@
+/* Navbar styles */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #343a40;
+    padding: 15px 30px;
+    direction: rtl;
+}
+  
+/* Logo on the right side */
+.logo {
+    order: 2;
+}
+  
+.logo-img {
+    width: 100px;
+    height: auto;
+}
+  
+/* Navigation links */
+.nav-links {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    order: 1;
+}
+  
+.nav-item {
+    margin-left: 25px;
+}
+  
+.nav-link {
+    color: #fff;
+    text-decoration: none;
+    font-size: 18px;
+    font-family: 'Cairo', sans-serif;
+    padding: 10px;
+    transition: color 0.3s ease-in-out;
+}
+  
+.nav-link:hover {
+    color: #ffc107;
+}
+  
+/* User Menu */
+.user-menu {
+    position: relative;
+    order: 0;
+}
+  
+.user-icon {
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+}
+  
+.dropdown {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    list-style-type: none;
+    padding: 10px 0;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    width: 160px;
+    z-index: 100;
+}
+  
+.dropdown li {
+    padding: 10px;
+    cursor: pointer; /* Ensures cursor pointer for all dropdown items */
+}
+  
+.dropdown li a {
+    color: #000;
+    text-decoration: none;
+    font-size: 16px;
+    cursor: pointer; /* Ensures cursor pointer for links too */
+}
+  
+.dropdown li:hover {
+    background-color: #f8f9fa;
+}

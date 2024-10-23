@@ -1,47 +1,71 @@
-import React, { useState } from 'react';
+// Login.js
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { toast } from 'react-toastify'; // Assuming you have React Toastify installed
-import { useNavigate } from 'react-router-dom'; // Correct hook
+import '../styles/Login.css';
 
-
-
-
-function Login() {
+const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate(); // Initialize the hook here
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
+  // Check if the user is already logged in
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      navigate('/dashboard'); // Redirect to dashboard if logged in
+    }
+  }, [navigate]);
 
-  const handleLogin = async () => {
-    
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
     try {
-      const response = await axios.post('/api/users/login', { username, password });
-  
-      // Check for successful login based on your API response
-      if (response.data.success) { // Replace this with your actual success condition
-        // Handle successful login
-        toast.success('Login Successful!'); // Display toast notification
-        // Redirect to the dashboard component
-        navigate('/dashboard');
-      } else {
-        // Handle login error
-        toast.error('Invalid username or password!'); // Display toast notification
+      const response = await axios.post('http://localhost:5000/api/users/login', {
+        username,
+        password,
+      });
+
+      if (response.status === 200) {
+        localStorage.setItem('token', response.data.token); // Store token
+        localStorage.setItem('role', response.data.user.role); // Store user role
+        navigate('/dashboard'); // Redirect to dashboard
       }
     } catch (error) {
-      // Handle other errors (e.g., network issues)
-      toast.error('An error occurred! Please try again.'); // Display toast notification
+      setError('Login failed. Please check your credentials.');
     }
   };
 
   return (
-    <div>
-      <h1>تسجيل الدخول</h1>
-      <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder='username'/>
-      <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder='password'/>
-      <button onClick={handleLogin}>Login</button>
+    <div className="login-container">
+      <h2>تسجيل الدخول</h2>
+      {error && <p className="error">{error}</p>}
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label htmlFor="username">اسم المستخدم</label>
+          <input
+            type="text"
+            id="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="password">كلمة المرور</label>
+          <input
+            type="password"
+            id="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+        <button type="submit" className="btn">دخول</button>
+      </form>
     </div>
   );
-}
+};
 
 export default Login;
