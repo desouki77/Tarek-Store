@@ -9,12 +9,24 @@ const transactionSchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ['بيع', ,'مدخلات','مخرجات', 'شحن', 'صيانة', 'سداد عملاء','سداد موردين','مشتروات','مرتجعات'], // Define transaction types
+        enum: ['selling', 'input', 'output', 'recharge', 'maintenance', 'customer_payment', 'supplier_payment', 'purchasing', 'returns'],
         required: true,
+    },
+    code: {
+        type: String,
+        required: false,
+    },
+    description: {
+        type: String,
+        required: false,
     },
     amount: {
         type: Number,
         required: true,
+    },
+    remaining: {
+        type: Number,
+        required: false,
     },
     date: {
         type: Date,
@@ -22,8 +34,18 @@ const transactionSchema = new mongoose.Schema({
     },
     branch: {
         type: String,
-        enum:['فرع بالاس','فرع النمسا '],
+        enum: ['فرع بالاس', 'فرع النمسا'],
         required: true,
+    },
+    client: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Client',
+        required: false, // Not all transactions will involve a client
+    },
+    supplier: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Supplier',
+        required: false, // Not all transactions will involve a supplier
     },
 }, {
     timestamps: true,

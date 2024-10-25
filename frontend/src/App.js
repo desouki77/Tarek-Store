@@ -1,15 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import {  Route, Routes, useLocation } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router-dom';
 import './styles/App.css';
 import Loader from './components/Loader'; // Import the Loader component
 
 import Dashboard from './components/Dashboard';
 import Login from './components/Login';
-import TransactionForm from './components/TransactionForm';
-import TransactionList from './components/TransactionList';
 import Registration from './components/Registration';
 import ProtectedRoute from './components/ProtectedRoute';
 import Welcome from './components/Welcome';
+
+import SellingTransaction from './components/ Transactions/SellingTransaction';
+import InputTransaction from './components/ Transactions/InputTransaction';
+import OutputTransaction from './components/ Transactions/OutputTransaction';
+import MaintenanceTransaction from './components/ Transactions/MaintenanceTransaction';
+import CustomerPaymentTransaction from './components/ Transactions/CustomerPaymentTransaction';
+import SupplierPaymentTransaction from './components/ Transactions/SupplierPaymentTransaction';
+import PurchasingTransaction from './components/ Transactions/PurchasingTransaction';
+import ReturnsTransaction from './components/ Transactions/ReturnsTransaction';
+import RechargeTransaction from './components/ Transactions/RechargeTransaction';
 
 function App() {
   const [loading, setLoading] = useState(false); // Track loading state
@@ -21,11 +29,11 @@ function App() {
     const timer = setTimeout(() => setLoading(false), 500); // Simulate a delay for loader
     return () => clearTimeout(timer); // Cleanup the timer
   }, [location]); // Re-run effect when location changes
-  
+
   return (
     <>
-      
-        {loading && <Loader />} {/* Show loader if loading is true */}
+      {loading && <Loader />} {/* Show loader if loading is true */}
+      {!loading && (
         <Routes>
           <Route path="/" element={<Welcome />} />
           <Route 
@@ -38,10 +46,20 @@ function App() {
           />
           <Route path="/login" element={<Login />} />
           <Route path="/registration" element={<Registration />} />
-          <Route path="/transactionForm" element={<TransactionForm />} />
-          <Route path="/transactionList" element={<TransactionList />} />
+          
+          {/*Transactions Routes */}
+          <Route path="/transactions/selling" element={<SellingTransaction />} />
+          <Route path="/transactions/input" element={<InputTransaction />} />
+          <Route path="/transactions/output" element={<OutputTransaction />} />
+          <Route path="/transactions/recharge" element={<RechargeTransaction />} />
+          <Route path="/transactions/maintenance" element={<MaintenanceTransaction />} />
+          <Route path="/transactions/customer_payment" element={<CustomerPaymentTransaction />} />
+          <Route path="/transactions/supplier_payment" element={<SupplierPaymentTransaction />} />
+          <Route path="/transactions/purchasing" element={<PurchasingTransaction />} />
+          <Route path="/transactions/returns" element={<ReturnsTransaction />} />
+
         </Routes>
-      
+      )}
     </>
   );
 }

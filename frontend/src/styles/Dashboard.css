@@ -1,0 +1,37 @@
+/* styles/Dashboard.css */
+
+.dashboard-container {
+    display: flex; /* Use flexbox for layout */
+    flex-direction: column; /* Arrange children vertically */
+    align-items: center; /* Center horizontally */
+    justify-content: flex-start; /* Align items to the top */
+  
+}
+
+.transaction-buttons {
+    display: grid; /* Use grid layout */
+    grid-template-columns: repeat(3, 1fr); /* 3 columns */
+    gap: 20px; /* Space between buttons */
+    width: 100%; /* Full width to center the grid */
+    max-width: 600px; /* Maximum width for the grid */
+    margin-top: 40px; /* Space from the navbar */
+}
+
+.transaction-button {
+    width: 150px; /* Width of the button */
+    height: 150px; /* Height of the button */
+    background-color: blue; /* Background color */
+    color: white; /* Text color */
+    border: none; /* No border */
+    border-radius: 5px; /* Optional: rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    display: flex; /* Flexbox for centering text */
+    justify-content: center; /* Center text horizontally */
+    align-items: center; /* Center text vertically */
+    font-size: 20px; /* Font size */
+    transition: background-color 0.3s; /* Transition for hover effect */
+}
+
+.transaction-button:hover {
+    background-color: darkblue; /* Darker blue on hover */
+}

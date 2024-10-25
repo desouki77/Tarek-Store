@@ -1,4 +1,3 @@
-// routes/transactionRoutes.js
 const express = require('express');
 const router = express.Router();
 const Transaction = require('../models/Transaction');
@@ -15,11 +14,29 @@ router.post('/', async (req, res) => {
     }
 });
 
-// Get all transactions
+// Get all transactions (with filtering and pagination)
 router.get('/', async (req, res) => {
+    const { page = 1, limit = 10, type } = req.query;
+
+    // Filter transactions by type if provided
+    const filter = type ? { type } : {};
+
     try {
-        const transactions = await Transaction.find();
-        res.json(transactions);
+        const transactions = await Transaction.find(filter)
+            .limit(limit * 1)
+            .skip((page - 1) * limit)
+            .populate('client') // Populate client or supplier details if referenced
+            .populate('supplier')
+            .exec();
+
+        // Get total number of documents
+        const count = await Transaction.countDocuments(filter);
+
+        res.json({
+            transactions,
+            totalPages: Math.ceil(count / limit),
+            currentPage: page
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

@@ -56,14 +56,21 @@ const Navbar = ({ isAdmin }) => {
                     </li>
                 )}
                 <li className="nav-item">
-                    <Link to="/returns" className="nav-link">مرتجعات</Link>
+                    <Link to="/dashboard" className="nav-link">المعاملات</Link>
                 </li>
                 <li className="nav-item">
-                    <Link to="/suppliers" className="nav-link">موردين</Link>
+                    <Link to="/suppliers" className="nav-link">الموردين</Link>
+                </li>
+                <li className="nav-item">
+                    <Link to="/customers" className="nav-link">العملاء</Link>
                 </li>
                 <li className="nav-item">
                     <Link to="/inventory" className="nav-link">المخزن</Link>
                 </li>
+                <li className="nav-item">
+                    <Link to="/account" className="nav-link">الجرد</Link>
+                </li>
+
             </ul>
 
             {/* User icon with dropdown */}
