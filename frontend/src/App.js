@@ -18,6 +18,7 @@ import SupplierPaymentTransaction from './components/ Transactions/SupplierPayme
 import PurchasingTransaction from './components/ Transactions/PurchasingTransaction';
 import ReturnsTransaction from './components/ Transactions/ReturnsTransaction';
 import RechargeTransaction from './components/ Transactions/RechargeTransaction';
+import Order from './components/ Transactions/Order';
 
 function App() {
   const [loading, setLoading] = useState(false); // Track loading state
@@ -57,6 +58,8 @@ function App() {
           <Route path="/transactions/supplier_payment" element={<SupplierPaymentTransaction />} />
           <Route path="/transactions/purchasing" element={<PurchasingTransaction />} />
           <Route path="/transactions/returns" element={<ReturnsTransaction />} />
+
+          <Route path='transactions/order' element={<Order/>} />
 
         </Routes>
       )}

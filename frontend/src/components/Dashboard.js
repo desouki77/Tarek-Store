@@ -3,6 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from './Navbar';
 import '../styles/Dashboard.css'
+import Order from './ Transactions/Order';
 
 function Dashboard() {
     const role = localStorage.getItem('role'); // Get role from localStorage
@@ -18,19 +19,27 @@ function Dashboard() {
         <>
           <Navbar isAdmin={isAdmin} /> {/* Pass isAdmin to Navbar */}
         <div className="dashboard-container">
-            <h1 className="dashboard-title">المعاملات</h1>
+            <div className='order'>
+                <Order />
+
+            </div>
+
+
 
             {/* Buttons for different transaction types */}
-            <div className="transaction-buttons">
-                <button className="transaction-button" onClick={() => handleTransactionClick('selling')}>بيع</button>
-                <button className="transaction-button" onClick={() => handleTransactionClick('input')}>مدخلات</button>
-                <button className="transaction-button" onClick={() => handleTransactionClick('output')}>مخرجات</button>
-                <button className="transaction-button" onClick={() => handleTransactionClick('recharge')}>شحن</button>
-                <button className="transaction-button" onClick={() => handleTransactionClick('maintenance')}>صيانة</button>
-                <button className="transaction-button" onClick={() => handleTransactionClick('customer_payment')}> سداد عملاء</button>
-                <button className="transaction-button" onClick={() => handleTransactionClick('supplier_payment')}> سداد موردين</button>
-                <button className="transaction-button" onClick={() => handleTransactionClick('purchasing')}> مشتروات</button>
-                <button className="transaction-button" onClick={() => handleTransactionClick('returns')}> مرتجعات</button>
+            <div className='transaction-container'>
+                <h1>المعاملات</h1>
+                <div className="transaction-buttons">
+                    <button className="transaction-button" onClick={() => handleTransactionClick('selling')}>بيع</button>
+                    <button className="transaction-button" onClick={() => handleTransactionClick('input')}>مدخلات</button>
+                    <button className="transaction-button" onClick={() => handleTransactionClick('output')}>مخرجات</button>
+                    <button className="transaction-button" onClick={() => handleTransactionClick('recharge')}>شحن</button>
+                    <button className="transaction-button" onClick={() => handleTransactionClick('maintenance')}>صيانة</button>
+                    <button className="transaction-button" onClick={() => handleTransactionClick('customer_payment')}> سداد عملاء</button>
+                    <button className="transaction-button" onClick={() => handleTransactionClick('supplier_payment')}> سداد موردين</button>
+                    <button className="transaction-button" onClick={() => handleTransactionClick('purchasing')}> مشتروات</button>
+                    <button className="transaction-button" onClick={() => handleTransactionClick('returns')}> مرتجعات</button>
+                </div>
             </div>
 
             {isAdmin && ( // Check if the user is an admin

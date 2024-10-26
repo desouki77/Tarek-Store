@@ -2,11 +2,26 @@
 
 .dashboard-container {
     display: flex; /* Use flexbox for layout */
-    flex-direction: column; /* Arrange children vertically */
+    flex-direction: row; /* Arrange children vertically */
     align-items: center; /* Center horizontally */
-    justify-content: flex-start; /* Align items to the top */
-  
+    justify-content: space-around; /* Align items to the top */
+    flex-wrap: wrap;
+    padding-right: 8vw;
+    
 }
+
+.order{
+  width: 40vw;
+}
+
+.order:hover {
+    background-color: #343a40;
+}
+
+.transaction-container{
+
+}
+
 
 .transaction-buttons {
     display: grid; /* Use grid layout */
@@ -15,12 +30,13 @@
     width: 100%; /* Full width to center the grid */
     max-width: 600px; /* Maximum width for the grid */
     margin-top: 40px; /* Space from the navbar */
+   
 }
 
 .transaction-button {
     width: 150px; /* Width of the button */
     height: 150px; /* Height of the button */
-    background-color: blue; /* Background color */
+    background-color: 007bff; /* Background color */
     color: white; /* Text color */
     border: none; /* No border */
     border-radius: 5px; /* Optional: rounded corners */
@@ -35,3 +51,4 @@
 .transaction-button:hover {
     background-color: darkblue; /* Darker blue on hover */
 }
+

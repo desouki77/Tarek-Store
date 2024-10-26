@@ -7,6 +7,7 @@ import '../styles/Login.css';
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [branch, setBranch] = useState(''); // State for branch selection
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -30,6 +31,8 @@ const Login = () => {
       if (response.status === 200) {
         localStorage.setItem('token', response.data.token); // Store token
         localStorage.setItem('role', response.data.user.role); // Store user role
+        localStorage.setItem('branchName', branch); // Store selected branch
+        localStorage.setItem('salesName', username); // Store username as salesName
         navigate('/dashboard'); // Redirect to dashboard
       }
     } catch (error) {
@@ -61,6 +64,19 @@ const Login = () => {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+        </div>
+        <div className="form-group">
+          <label htmlFor="branch">اختر الفرع</label>
+          <select
+            id="branch"
+            value={branch}
+            onChange={(e) => setBranch(e.target.value)}
+            required
+          >
+            <option value="">Select Branch</option>
+            <option value="فرع بالاس">فرع بالاس</option>
+            <option value="فرع النمسا">فرع النمسا</option>
+          </select>
         </div>
         <button type="submit" className="btn">دخول</button>
       </form>
