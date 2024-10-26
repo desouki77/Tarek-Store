@@ -14,15 +14,6 @@
   width: 40vw;
 }
 
-.order:hover {
-    background-color: #343a40;
-}
-
-.transaction-container{
-
-}
-
-
 .transaction-buttons {
     display: grid; /* Use grid layout */
     grid-template-columns: repeat(3, 1fr); /* 3 columns */
@@ -36,7 +27,7 @@
 .transaction-button {
     width: 150px; /* Width of the button */
     height: 150px; /* Height of the button */
-    background-color: 007bff; /* Background color */
+    background-color: #007bff; /* Background color */
     color: white; /* Text color */
     border: none; /* No border */
     border-radius: 5px; /* Optional: rounded corners */
