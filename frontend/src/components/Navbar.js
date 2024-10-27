@@ -53,6 +53,9 @@ const Navbar = ({ isAdmin }) => {
                 {isAdmin && (
                     <li className="nav-item">
                         <Link to="/registration" className="nav-link">تسجيل جديد</Link>
+                        <Link to="/sales" className="nav-link">الموظفين </Link>
+                        <Link to="/account" className="nav-link">التقارير</Link>
+
                     </li>
                 )}
                 <li className="nav-item">

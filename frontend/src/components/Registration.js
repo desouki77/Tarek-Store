@@ -6,7 +6,7 @@ import '../styles/Registration.css';
 const Registration = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('sales'); // Default to 'sales'
+  const [role, setRole] = useState(''); // Default to 'sales'
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -59,6 +59,7 @@ const Registration = () => {
         <div className="form-group">
           <label htmlFor="role">نوع الحساب</label>
           <select id="role" value={role} onChange={(e) => setRole(e.target.value)}>
+            <option value="">Select Type </option>
             <option value="sales">موظف مبيعات</option>
             <option value="admin">مدير</option>
           </select>
