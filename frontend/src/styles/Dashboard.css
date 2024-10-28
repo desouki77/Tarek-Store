@@ -18,7 +18,7 @@
    
 }
 .welcome p{
-    font-size: 2.5em;
+    font-size: 38px;
 }
 
 .transaction-buttons {
@@ -43,7 +43,7 @@
     display: flex; /* Flexbox for centering text */
     justify-content: center; /* Center text horizontally */
     align-items: center; /* Center text vertically */
-    font-size: 20px; /* Font size */
+    font-size: 24px; /* Font size */
     transition: background-color 0.3s; /* Transition for hover effect */
 }
 
@@ -62,7 +62,7 @@
     display: flex; /* Flexbox for centering text */
     justify-content: center; /* Center text horizontally */
     align-items: center; /* Center text vertically */
-    font-size: 20px; /* Font size */
+    font-size: 24px; /* Font size */
     transition: background-color 0.3s; /* Transition for hover effect */
 }
 
