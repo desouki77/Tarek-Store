@@ -4,13 +4,19 @@
     display: flex; /* Use flexbox for layout */
     flex-direction: row; /* Arrange children vertically */
     align-items: center; /* Center horizontally */
-    justify-content: space-around; /* Align items to the top */
+    justify-content: space-evenly; /* Align items to the top */
     flex-wrap: wrap;
-    padding-right: 12vw;
-    padding-top: 10vh;
+    padding-top: 5vh;
     
 }
 
+.welcome{
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 40px;
+    margin-top: 40px;
+   
+}
 .welcome p{
     font-size: 2.5em;
 }
@@ -20,9 +26,9 @@
     grid-template-columns: repeat(3, 1fr); /* 3 columns */
     gap: 20px; /* Space between buttons */
     width: 100%; /* Full width to center the grid */
-    max-width: 600px; /* Maximum width for the grid */
-    margin-top: 40px; /* Space from the navbar */
-   
+    max-width: 600px; /* Maximum width for the grid */   
+    margin-top: 40px;
+    
 }
 
 

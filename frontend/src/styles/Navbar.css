@@ -15,7 +15,7 @@
 }
   
 .logo-img {
-    width: 100px;
+    width: 150px;
     height: auto;
 }
   
@@ -35,7 +35,7 @@
 .nav-link {
     color: #fff;
     text-decoration: none;
-    font-size: 18px;
+    font-size: 22px;
     font-family: 'Cairo', sans-serif;
     padding: 10px;
     transition: color 0.3s ease-in-out;

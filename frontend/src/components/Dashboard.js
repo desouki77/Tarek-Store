@@ -9,7 +9,7 @@ function Dashboard() {
     const isAdmin = role === 'admin'; // Determine if the user is an admin
     const navigate = useNavigate(); // useNavigate hook for navigation
 
-    const [welcomeData, setWelcomeData] = useState({
+    const [welcomeData] = useState({
         storeName: "Tarek Phones",
         branchName: localStorage.getItem("branchName") || "Default Branch",
         salesName: localStorage.getItem("salesName") || "Default Sales",
@@ -27,13 +27,7 @@ function Dashboard() {
         return () => clearInterval(timerId);
       }, []);
     
-      const handleChange = (e) => {
-        const { name, value } = e.target;
-        setWelcomeData((prevData) => ({
-          ...prevData,
-          [name]: value,
-        }));
-      };
+    
 
     // Handler to navigate to specific transaction pages
     const handleTransactionClick = (transactionType) => {
@@ -74,16 +68,6 @@ function Dashboard() {
 
             </div>
 
-            {isAdmin && ( // Check if the user is an admin
-                <div className="admin-controls">
-                
-                </div>
-            )}
-            {role === 'sales' && ( // Check if the user is a sales role
-                <div className="sales-dashboard">
-                 
-                </div>
-            )}
         </div>
         </>
     );
