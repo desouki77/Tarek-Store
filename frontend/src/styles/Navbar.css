@@ -11,6 +11,7 @@
 /* Logo on the right side */
 .logo {
     order: 2;
+    
 }
   
 .logo-img {
@@ -50,10 +51,16 @@
     order: 0;
 }
   
-.user-icon {
-    width: 40px;
-    height: 40px;
-    cursor: pointer;
+.user-icon,
+.home-icon {
+    color: #ccc;
+    transition: color 0.3s ease; /* Smooth transition for color change */
+}
+
+.user-icon:hover,
+.home-icon:hover {
+    color: #ffc107; /* Change to your desired hover color */
+    transform: scale(1.1); /* Optional: Slightly increase the size on hover */
 }
   
 .dropdown {

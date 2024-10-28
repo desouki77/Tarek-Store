@@ -19,6 +19,7 @@ import PurchasingTransaction from './components/ Transactions/PurchasingTransact
 import ReturnsTransaction from './components/ Transactions/ReturnsTransaction';
 import RechargeTransaction from './components/ Transactions/RechargeTransaction';
 import Order from './components/ Transactions/Order';
+import Inventory from './components/Inventory';
 
 function App() {
   const [loading, setLoading] = useState(false); // Track loading state
@@ -60,6 +61,11 @@ function App() {
           <Route path="/transactions/returns" element={<ReturnsTransaction />} />
 
           <Route path='transactions/order' element={<Order/>} />
+
+          <Route path='inventory' element={<Inventory/>} />
+
+
+
 
         </Routes>
       )}

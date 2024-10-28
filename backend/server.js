@@ -31,7 +31,8 @@ app.use('/api/users', userRoutes);
 app.use('/api/transactions', transactionRoutes);
 
 // Products Routes
-app.use('api/products', products);
+app.use('/api/products', products);
+
 
 
 

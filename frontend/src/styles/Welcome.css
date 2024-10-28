@@ -2,14 +2,14 @@
 
 .welcome-container {
     display: flex;
+    background-color: #343a40;
     flex-direction: column;
     align-items: center; /* Center align items horizontally */
     justify-content: center; /* Center align items vertically */
-    height: 80vh; /* Full viewport height */
+    height: 100vh; /* Full viewport height */
     color: #333; /* Dark text color */
     text-align: center; /* Center the text */
     font-family: 'Arial', sans-serif; /* Font family */
-    padding: 20px; /* Padding around the container */
 }
 
 .welcome-container img {

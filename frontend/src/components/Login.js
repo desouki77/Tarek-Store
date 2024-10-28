@@ -36,7 +36,7 @@ const Login = () => {
         navigate('/dashboard'); // Redirect to dashboard
       }
     } catch (error) {
-      setError('Login failed. Please check your credentials.');
+      setError('خطا في اسم المستخدم ام كلمة المرور');
     }
   };
 
@@ -74,7 +74,7 @@ const Login = () => {
             required
           >
             <option value="">Select Branch</option>
-            <option value="فرع بالاس">فرع بالاس</option>
+            <option value="فرع باراديس">فرع باراديس</option>
             <option value="فرع النمسا">فرع النمسا</option>
           </select>
         </div>

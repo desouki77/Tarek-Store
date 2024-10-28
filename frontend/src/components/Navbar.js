@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import '../styles/Navbar.css'; // Importing the external CSS file
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserCircle } from '@fortawesome/free-solid-svg-icons';
+import { faHome } from '@fortawesome/free-solid-svg-icons'; // Import the home icon
 
 const Navbar = ({ isAdmin }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -50,17 +51,34 @@ const Navbar = ({ isAdmin }) => {
 
             {/* Links in Arabic */}
             <ul className="nav-links">
+            <li className="nav-item">
+                    <Link to="/dashboard" className="nav-link">
+                    <FontAwesomeIcon
+                        icon={faHome}
+                        size="2x"
+                        className="home-icon" // Optional: Add a custom class if needed
+                    />
+                    
+                    </Link>
+                </li>
+
                 {isAdmin && (
                     <li className="nav-item">
                         <Link to="/registration" className="nav-link">تسجيل جديد</Link>
-                        <Link to="/sales" className="nav-link">الموظفين </Link>
-                        <Link to="/account" className="nav-link">التقارير</Link>
-
                     </li>
                 )}
-                <li className="nav-item">
-                    <Link to="/dashboard" className="nav-link">المعاملات</Link>
-                </li>
+                 {isAdmin && (
+                    <li className="nav-item">
+                    <Link to="/sales" className="nav-link">الموظفين </Link>
+                    </li>
+                                    )}
+                {isAdmin && (
+                                        <li className="nav-item">
+                    <Link to="/account" className="nav-link">التقارير</Link>
+                    </li>
+                )}
+
+               
                 <li className="nav-item">
                     <Link to="/suppliers" className="nav-link">الموردين</Link>
                 </li>
@@ -80,10 +98,10 @@ const Navbar = ({ isAdmin }) => {
             <div className="user-menu" ref={dropdownRef}>
                 <FontAwesomeIcon
                     icon={faUserCircle}
-                    size="2x"
+                    size="3x"
                     className="user-icon"
                     onClick={toggleDropdown}
-                    style={{ cursor: 'pointer' }} // Make sure the cursor is a pointer
+                    style={{cursor:'pointer'}}
                 />
                 {dropdownOpen && (
                     <ul className="dropdown" onClick={(e) => e.stopPropagation()}>

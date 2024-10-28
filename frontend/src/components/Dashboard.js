@@ -1,14 +1,39 @@
 // Dashboard.js
-import React from 'react';
+import React ,{ useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from './Navbar';
 import '../styles/Dashboard.css'
-import Order from './ Transactions/Order';
 
 function Dashboard() {
     const role = localStorage.getItem('role'); // Get role from localStorage
     const isAdmin = role === 'admin'; // Determine if the user is an admin
     const navigate = useNavigate(); // useNavigate hook for navigation
+
+    const [welcomeData, setWelcomeData] = useState({
+        storeName: "Tarek Phones",
+        branchName: localStorage.getItem("branchName") || "Default Branch",
+        salesName: localStorage.getItem("salesName") || "Default Sales",
+        date: new Date().toLocaleDateString(),
+      });
+
+      const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
+
+      useEffect(() => {
+        const timerId = setInterval(() => {
+          setCurrentTime(new Date().toLocaleTimeString());
+        }, 1000);
+    
+        // Clear the interval on component unmount
+        return () => clearInterval(timerId);
+      }, []);
+    
+      const handleChange = (e) => {
+        const { name, value } = e.target;
+        setWelcomeData((prevData) => ({
+          ...prevData,
+          [name]: value,
+        }));
+      };
 
     // Handler to navigate to specific transaction pages
     const handleTransactionClick = (transactionType) => {
@@ -17,29 +42,36 @@ function Dashboard() {
 
     return ( 
         <>
-          <Navbar isAdmin={isAdmin} /> {/* Pass isAdmin to Navbar */}
+          <Navbar isAdmin={isAdmin} /> 
         <div className="dashboard-container">
-            <div className='order'>
-                <Order />
-
-            </div>
+         
 
 
 
             {/* Buttons for different transaction types */}
             <div className='transaction-container'>
-                <h1>المعاملات</h1>
                 <div className="transaction-buttons">
-                    <button className="transaction-button" onClick={() => handleTransactionClick('selling')}>بيع</button>
-                    <button className="transaction-button" onClick={() => handleTransactionClick('input')}>مدخلات</button>
-                    <button className="transaction-button" onClick={() => handleTransactionClick('output')}>مخرجات</button>
-                    <button className="transaction-button" onClick={() => handleTransactionClick('recharge')}>شحن</button>
-                    <button className="transaction-button" onClick={() => handleTransactionClick('maintenance')}>صيانة</button>
-                    <button className="transaction-button" onClick={() => handleTransactionClick('customer_payment')}> سداد عملاء</button>
-                    <button className="transaction-button" onClick={() => handleTransactionClick('supplier_payment')}> سداد موردين</button>
-                    <button className="transaction-button" onClick={() => handleTransactionClick('purchasing')}> مشتروات</button>
-                    <button className="transaction-button" onClick={() => handleTransactionClick('returns')}> مرتجعات</button>
+
+                    <button className="transaction-input" onClick={() => handleTransactionClick('input')}>مدخلات</button>
+                    <button className="transaction-input" onClick={() => handleTransactionClick('selling')}>بيع</button>
+                    <button className="transaction-input" onClick={() => handleTransactionClick('recharge')}>شحن</button>
+                    <button className="transaction-input" onClick={() => handleTransactionClick('maintenance')}>صيانة</button>
+                    <button className="transaction-output" onClick={() => handleTransactionClick('supplier_payment')}> سداد موردين</button>
+                    <button className="transaction-output" onClick={() => handleTransactionClick('returns')}> مرتجعات</button>
+                    <button className="transaction-input" onClick={() => handleTransactionClick('customer_payment')}> سداد عملاء</button>
+                    <button className="transaction-output" onClick={() => handleTransactionClick('purchasing')}> مشتروات</button>
+                    <button className="transaction-output" onClick={() => handleTransactionClick('output')}>مخرجات</button>
+
                 </div>
+            </div>
+
+            <div className='welcome'>
+            <p>{welcomeData.storeName}</p>
+            <p>{welcomeData.branchName}</p>
+            <p>{welcomeData.salesName}</p>
+            <p>Date: {welcomeData.date}</p>
+            <p>Time: {currentTime}</p>
+
             </div>
 
             {isAdmin && ( // Check if the user is an admin

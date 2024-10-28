@@ -6,12 +6,13 @@
     align-items: center; /* Center horizontally */
     justify-content: space-around; /* Align items to the top */
     flex-wrap: wrap;
-    padding-right: 8vw;
+    padding-right: 12vw;
+    padding-top: 10vh;
     
 }
 
-.order{
-  width: 40vw;
+.welcome p{
+    font-size: 2.5em;
 }
 
 .transaction-buttons {
@@ -24,10 +25,11 @@
    
 }
 
-.transaction-button {
+
+.transaction-input {
     width: 150px; /* Width of the button */
     height: 150px; /* Height of the button */
-    background-color: #007bff; /* Background color */
+    background-color: forestgreen; /* Background color */
     color: white; /* Text color */
     border: none; /* No border */
     border-radius: 5px; /* Optional: rounded corners */
@@ -39,7 +41,26 @@
     transition: background-color 0.3s; /* Transition for hover effect */
 }
 
-.transaction-button:hover {
-    background-color: darkblue; /* Darker blue on hover */
+.transaction-input:hover {
+    background-color: darkslategray; /* Darker blue on hover */
+}
+
+.transaction-output {
+    width: 150px; /* Width of the button */
+    height: 150px; /* Height of the button */
+    background-color:darkred; /* Background color */
+    color: white; /* Text color */
+    border: none; /* No border */
+    border-radius: 5px; /* Optional: rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    display: flex; /* Flexbox for centering text */
+    justify-content: center; /* Center text horizontally */
+    align-items: center; /* Center text vertically */
+    font-size: 20px; /* Font size */
+    transition: background-color 0.3s; /* Transition for hover effect */
+}
+
+.transaction-output:hover {
+    background-color: darkslategray; /* Darker blue on hover */
 }
 

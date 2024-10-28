@@ -34,7 +34,7 @@ const transactionSchema = new mongoose.Schema({
     },
     branch: {
         type: String,
-        enum: ['فرع بالاس', 'فرع النمسا'],
+        enum: ['فرع باراديس', 'فرع النمسا'],
         required: true,
     },
     client: {
