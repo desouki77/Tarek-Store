@@ -70,3 +70,23 @@
     background-color: darkslategray; /* Darker blue on hover */
 }
 
+
+.transaction-order{
+    width: 150px; /* Width of the button */
+    height: 150px; /* Height of the button */
+    background-color:darkgoldenrod; /* Background color */
+    color: white; /* Text color */
+    border: none; /* No border */
+    border-radius: 5px; /* Optional: rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    display: flex; /* Flexbox for centering text */
+    justify-content: center; /* Center text horizontally */
+    align-items: center; /* Center text vertically */
+    font-size: 24px; /* Font size */
+    transition: background-color 0.3s; /* Transition for hover effect */
+
+}
+
+.transaction-order:hover {
+    background-color: darkslategray; /* Darker blue on hover */
+}

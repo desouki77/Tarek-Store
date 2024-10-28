@@ -47,7 +47,7 @@ function Dashboard() {
                 <div className="transaction-buttons">
 
                     <button className="transaction-input" onClick={() => handleTransactionClick('input')}>مدخلات</button>
-                    <button className="transaction-input" onClick={() => handleTransactionClick('selling')}>بيع</button>
+                    <button className="transaction-order" onClick={() => handleTransactionClick('selling')}>بيع</button>
                     <button className="transaction-input" onClick={() => handleTransactionClick('recharge')}>شحن</button>
                     <button className="transaction-input" onClick={() => handleTransactionClick('maintenance')}>صيانة</button>
                     <button className="transaction-output" onClick={() => handleTransactionClick('supplier_payment')}> سداد موردين</button>
