@@ -7,18 +7,17 @@
     padding: 15px 30px;
     direction: rtl;
 }
-  
+
 /* Logo on the right side */
 .logo {
     order: 2;
-    
 }
-  
+
 .logo-img {
     width: 150px;
     height: auto;
 }
-  
+
 /* Navigation links */
 .nav-links {
     display: flex;
@@ -27,11 +26,11 @@
     padding: 0;
     order: 1;
 }
-  
+
 .nav-item {
     margin-left: 25px;
 }
-  
+
 .nav-link {
     color: #fff;
     text-decoration: none;
@@ -40,17 +39,17 @@
     padding: 10px;
     transition: color 0.3s ease-in-out;
 }
-  
+
 .nav-link:hover {
     color: #ffc107;
 }
-  
+
 /* User Menu */
 .user-menu {
     position: relative;
     order: 0;
 }
-  
+
 .user-icon,
 .home-icon {
     color: #ccc;
@@ -62,7 +61,7 @@
     color: #ffc107; /* Change to your desired hover color */
     transform: scale(1.1); /* Optional: Slightly increase the size on hover */
 }
-  
+
 .dropdown {
     position: absolute;
     top: 50px;
@@ -76,19 +75,82 @@
     width: 160px;
     z-index: 100;
 }
-  
+
 .dropdown li {
     padding: 10px;
     cursor: pointer; /* Ensures cursor pointer for all dropdown items */
 }
-  
+
 .dropdown li a {
     color: #000;
     text-decoration: none;
     font-size: 16px;
     cursor: pointer; /* Ensures cursor pointer for links too */
 }
-  
+
 .dropdown li:hover {
     background-color: #f8f9fa;
+}
+
+/* Burger Menu Icon */
+.burger {
+    display: none; /* Hidden on larger screens */
+    cursor: pointer;
+    color: #ccc;
+}
+
+/* Show the burger icon on smaller screens */
+@media (max-width: 768px) {
+    .burger {
+        display: block;
+        order: 0; /* Make sure it appears before the links */
+    }
+
+    .nav-links {
+        display: none; /* Hide nav links by default */
+        flex-direction: column; /* Stack links vertically */
+        position: absolute; /* Position the dropdown */
+        top: 60px; /* Adjust based on your navbar height */
+        right: 0; /* Align to the right */
+        background-color: #343a40; /* Same as navbar background */
+        width: 100%; /* Full width */
+        z-index: 10; /* Above other elements */
+    }
+
+    .nav-links.open {
+        display: flex; /* Show links when burger is open */
+    }
+
+    .nav-item {
+        margin-left: 0; /* Reset margin for vertical stacking */
+        padding: 15px; /* Add padding for touch targets */
+    }
+
+    /* Keep home button always visible */
+    .nav-item.home-button {
+        display: block; /* Show home button */
+        margin-left: auto; /* Align to the right */
+    }
+
+    /* Style for the user icon in the burger menu */
+    .user-menu {
+        order: 1; /* Ensure user icon appears after the burger */
+        margin: 15px 0; /* Add margin for touch targets */
+    }
+}
+
+
+/* Close Button Styles */
+.close-button {
+    position: absolute; /* Positioning the close button */
+    top: 15px; /* Adjust as needed */
+    left: 20px; /* Adjust as needed */
+    cursor: pointer; /* Pointer cursor */
+    color: #ccc; /* Change color to suit your design */
+    transition: color 0.3s ease; /* Smooth transition */
+    z-index: 15; /* Above the nav links */
+}
+
+.close-button:hover {
+    color: #ffc107; /* Change color on hover */
 }

@@ -1,84 +1,86 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import '../styles/Navbar.css'; // Importing the external CSS file
+import '../styles/Navbar.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUserCircle } from '@fortawesome/free-solid-svg-icons';
-import { faHome } from '@fortawesome/free-solid-svg-icons'; // Import the home icon
+import { faBars, faHome, faTimes } from '@fortawesome/free-solid-svg-icons'; // Import faTimes for close icon
 
 const Navbar = ({ isAdmin }) => {
-    const [dropdownOpen, setDropdownOpen] = useState(false);
-    const dropdownRef = useRef(null); // Create a reference to the dropdown element
-    const navigate = useNavigate(); // Initialize the useNavigate hook
+    const [burgerOpen, setBurgerOpen] = useState(false);
+    const burgerRef = useRef(null);
+    const navigate = useNavigate();
 
-    const toggleDropdown = (e) => {
-        e.stopPropagation(); // Prevent click event from reaching the window listener
-        setDropdownOpen(!dropdownOpen);
+    const toggleBurger = () => {
+        setBurgerOpen(!burgerOpen);
     };
 
-    const closeDropdown = (e) => {
-        // Close the dropdown if the click happens outside the dropdown element
-        if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-            setDropdownOpen(false);
+    const closeBurger = (e) => {
+        if (burgerRef.current && !burgerRef.current.contains(e.target)) {
+            setBurgerOpen(false);
         }
     };
 
-    // Add event listener when the dropdown opens
     useEffect(() => {
-        if (dropdownOpen) {
-            window.addEventListener('click', closeDropdown);
+        if (burgerOpen) {
+            window.addEventListener('click', closeBurger);
         } else {
-            window.removeEventListener('click', closeDropdown);
+            window.removeEventListener('click', closeBurger);
         }
 
-        // Cleanup event listener when the component unmounts or dropdown closes
         return () => {
-            window.removeEventListener('click', closeDropdown);
+            window.removeEventListener('click', closeBurger);
         };
-    }, [dropdownOpen]);
+    }, [burgerOpen]);
 
     const handleLogout = () => {
-        localStorage.removeItem('token'); // Clear the token
-        localStorage.removeItem('role'); // Clear the role
-        navigate('/login'); // Redirect to login page
+        localStorage.removeItem('token');
+        localStorage.removeItem('role');
+        navigate('/login');
     };
 
     return (
         <nav className="navbar">
-            {/* Logo in the right */}
+            {/* Logo on the right */}
             <div className="logo">
                 <img src={`${process.env.PUBLIC_URL}/TarekLogo.png`} alt="Store Logo" className="logo-img" />
             </div>
 
-            {/* Links in Arabic */}
-            <ul className="nav-links">
-            <li className="nav-item">
+            {/* Burger Icon */}
+            <div className="burger" onClick={toggleBurger} ref={burgerRef}>
+                <FontAwesomeIcon icon={faBars} size="2x" className="burger-icon" />
+            </div>
+
+            {/* Links in Arabic inside the burger menu */}
+            <ul className={`nav-links ${burgerOpen ? 'open' : ''}`}>
+                {/* Close button appears only when the burger menu is open */}
+                {burgerOpen && (
+                    <div className="close-button" onClick={() => setBurgerOpen(false)}>
+                        <FontAwesomeIcon icon={faTimes} size="2x" className="close-icon" />
+                    </div>
+                )}
+
+                {/* Home button always visible */}
+                <li className="nav-item home-button">
                     <Link to="/dashboard" className="nav-link">
-                    <FontAwesomeIcon
-                        icon={faHome}
-                        size="2x"
-                        className="home-icon" // Optional: Add a custom class if needed
-                    />
-                    
+                        <FontAwesomeIcon icon={faHome} size="2x" className="home-icon" />
                     </Link>
                 </li>
 
                 {isAdmin && (
-                    <li className="nav-item">
-                        <Link to="/registration" className="nav-link">تسجيل جديد</Link>
-                    </li>
+                    <>
+                        <li className="nav-item">
+                            <Link to="/registration" className="nav-link">تسجيل جديد</Link>
+                        </li>
+                        <li className="nav-item">
+                            <Link to="/sales" className="nav-link">الموظفين</Link>
+                        </li>
+                        <li className="nav-item">
+                            <Link to="/reports" className="nav-link">التقارير</Link>
+                        </li>
+                        <li className="nav-item">
+                            <Link to="/warranty" className="nav-link">الضمان</Link>
+                        </li>
+                    </>
                 )}
-                 {isAdmin && (
-                    <li className="nav-item">
-                    <Link to="/sales" className="nav-link">الموظفين </Link>
-                    </li>
-                                    )}
-                {isAdmin && (
-                                        <li className="nav-item">
-                    <Link to="/account" className="nav-link">التقارير</Link>
-                    </li>
-                )}
-
-               
                 <li className="nav-item">
                     <Link to="/suppliers" className="nav-link">الموردين</Link>
                 </li>
@@ -91,25 +93,14 @@ const Navbar = ({ isAdmin }) => {
                 <li className="nav-item">
                     <Link to="/account" className="nav-link">الجرد</Link>
                 </li>
-
+                {/* User menu links */}
+                <li className="nav-item">
+                    <Link to="/profile" className="nav-link">الملف الشخصي</Link>
+                </li>
+                <li className="nav-item" onClick={handleLogout}>
+                    <span className="nav-link" style={{ cursor: 'pointer' }}>تسجيل الخروج</span>
+                </li>
             </ul>
-
-            {/* User icon with dropdown */}
-            <div className="user-menu" ref={dropdownRef}>
-                <FontAwesomeIcon
-                    icon={faUserCircle}
-                    size="3x"
-                    className="user-icon"
-                    onClick={toggleDropdown}
-                    style={{cursor:'pointer'}}
-                />
-                {dropdownOpen && (
-                    <ul className="dropdown" onClick={(e) => e.stopPropagation()}>
-                        <li><Link to="/profile">الملف الشخصي</Link></li>
-                        <li onClick={handleLogout}>تسجيل الخروج</li>
-                    </ul>
-                )}
-            </div>
         </nav>
     );
 };

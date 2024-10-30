@@ -20,6 +20,7 @@ import ReturnsTransaction from './components/ Transactions/ReturnsTransaction';
 import RechargeTransaction from './components/ Transactions/RechargeTransaction';
 import Order from './components/ Transactions/Order';
 import Inventory from './components/Inventory';
+import Checkout from './components/ Transactions/Checkout';
 
 function App() {
   const [loading, setLoading] = useState(false); // Track loading state
@@ -64,6 +65,7 @@ function App() {
 
           <Route path='inventory' element={<Inventory/>} />
 
+          <Route path="/checkout" element={<Checkout />} />
 
 
 

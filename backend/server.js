@@ -5,6 +5,7 @@ const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
 const products = require('./routes/products');
+const order = require('./routes/order');
 
 
 dotenv.config();  // Load environment variables from .env file
@@ -32,6 +33,9 @@ app.use('/api/transactions', transactionRoutes);
 
 // Products Routes
 app.use('/api/products', products);
+
+// Order Routes
+app.use('/api' , order);
 
 
 
