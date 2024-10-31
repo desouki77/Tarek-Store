@@ -7,7 +7,7 @@ import '../styles/Login.css';
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [branch, setBranch] = useState(''); // State for branch selection
+  const [branchId, setBranchId] = useState(''); // Change branch state to branchId
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -31,7 +31,7 @@ const Login = () => {
       if (response.status === 200) {
         localStorage.setItem('token', response.data.token); // Store token
         localStorage.setItem('role', response.data.user.role); // Store user role
-        localStorage.setItem('branchName', branch); // Store selected branch
+        localStorage.setItem('branchId', branchId); // Store selected branch ID
         localStorage.setItem('salesName', username); // Store username as salesName
         navigate('/dashboard'); // Redirect to dashboard
       }
@@ -69,13 +69,13 @@ const Login = () => {
           <label htmlFor="branch">اختر الفرع</label>
           <select
             id="branch"
-            value={branch}
-            onChange={(e) => setBranch(e.target.value)}
+            value={branchId} // Update to branchId
+            onChange={(e) => setBranchId(e.target.value)} // Update to setBranchId
             required
           >
             <option value="">Select Branch</option>
-            <option value="فرع باراديس">فرع باراديس</option>
-            <option value="فرع النمسا">فرع النمسا</option>
+            <option value="60c72b2f9b1d4c001f8e4b8a">فرع باراديس</option> {/* Use actual branch IDs */}
+            <option value="60c72b2f9b1d4c001f8e4b8b">فرع النمسا</option> {/* Use actual branch IDs */}
           </select>
         </div>
         <button type="submit" className="btn">دخول</button>

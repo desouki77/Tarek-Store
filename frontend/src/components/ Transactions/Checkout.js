@@ -30,21 +30,34 @@ const Checkout = () => {
     const remaining = Number(paid) - totalAfterDiscount; // Calculate remaining amount to be paid
 
     const handleSubmit = async () => {
+        // Retrieve the branchId from local storage
+        const branchId = localStorage.getItem('branchId'); 
+
         const orderData = {
+            branchId: branchId, // Use the retrieved branchId
             checkoutItems,
-            discount: Number(discount) || 0,  // Convert to number
-            paid: Number(paid) || 0,          // Convert to number
-            remaining: (Number(paid) || 0) - totalAfterDiscount, // Calculate remaining
+            discount: Number(discount) || 0,
+            paid: Number(paid) || 0,
+            remaining: (Number(paid) || 0) - totalAfterDiscount,
             clientName,
             clientPhone,
             date: new Date().toLocaleDateString(),
-            time: currentTime
+            time: currentTime,
         };
-    
+
         try {
+            // Create the order and decrease product quantities in one go
             const response = await axios.post('http://localhost:5000/api/orders', orderData);
+
+            // If order creation is successful, update quantities
+            for (const item of checkoutItems) {
+                await axios.put(`http://localhost:5000/api/products/${item.barcode}/decrease`, {
+                    quantity: 1, // Specify quantity to decrease
+                });
+            }
+
             console.log(response.data.message);
-            
+
             // Clear session storage and reset state
             sessionStorage.removeItem('checkoutItems');
             setCheckoutItems([]);
@@ -52,14 +65,13 @@ const Checkout = () => {
             setPaid('');
             setClientName('');
             setClientPhone('');
-    
-            window.close();
-            
+
+            window.close(); // Close the window after submitting
+
         } catch (error) {
             console.error('Error:', error.response ? error.response.data.message : error.message);
         }
     };
-    
 
     const handlePrint = () => {
         window.print(); // Open the print dialog

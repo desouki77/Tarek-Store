@@ -15,7 +15,7 @@ const SellingTransaction = () => {
         price: 0,
     });
     const [currentPage, setCurrentPage] = useState(0);
-    const itemsPerPage = 3; // Number of items to display per page
+    const itemsPerPage = 2; // Number of items to display per page
     const [errorMessage, setErrorMessage] = useState('');
     const [lastOrders, setLastOrders] = useState([]);
     const [totalPages, setTotalPages] = useState(0); // Total number of pages
@@ -128,6 +128,7 @@ const SellingTransaction = () => {
     const currentOrders = lastOrders.slice(startIndex, startIndex + itemsPerPage);
     const isCheckoutDisabled = products.length === 0 || errorMessage !== '';
 
+    
     return (
         <div>
             <Navbar isAdmin={isAdmin} />
@@ -209,6 +210,8 @@ const SellingTransaction = () => {
                                 </button>
                             ))}
                         </div>
+                        <button onClick={() => window.location.href = '/all-orders'}>View All Orders</button>
+
                     </div>
                 )
             )}

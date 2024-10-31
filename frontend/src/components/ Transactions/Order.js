@@ -5,6 +5,7 @@ import '../../styles/Order.css';
 const Order = () => {
   const [orderData, setOrderData] = useState({
     storeName: "Tarek Phones",
+    branchId: localStorage.getItem("branchId") || "", // Added branchId
     branchName: localStorage.getItem("branchName") || "Default Branch",
     salesName: localStorage.getItem("salesName") || "Default Sales",
     date: new Date().toLocaleDateString(),
@@ -54,48 +55,13 @@ const Order = () => {
       }));
     } catch (error) {
       console.error('Error fetching product details:', error);
-      // Optionally, handle error (e.g., show a message)
     }
   };
 
-  const handlePrint = () => {
-    const printContent = `
-      <h2>Order Receipt</h2>
-      <p>Store: ${orderData.storeName}</p>
-      <p>Branch: ${orderData.branchName}</p>
-      <p>Sales: ${orderData.salesName}</p>
-      <p>Date: ${orderData.date}</p>
-      <p>Time: ${currentTime}</p>
-      <p>Barcode: ${orderData.barcode}</p>
-      <p>Item Name: ${orderData.itemName}</p>
-      <p>Description: ${orderData.itemDescription}</p>
-      <p>Price: ${orderData.price}</p>
-      <p>Discount: ${orderData.discount}</p>
-      <p>Amount Paid: ${orderData.paidAmount}</p>
-      <p>Remaining Amount: ${orderData.remainingAmount}</p>
-      <p>Instructions: ${orderData.instructions}</p>
-    `;
-    
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write(`<html><head><title>Print Receipt</title></head><body>${printContent}</body></html>`);
-    printWindow.document.close();
-    printWindow.print();
-  };
-
-  const handleSubmit = async () => {
-    try {
-      const response = await axios.post('http://localhost:5000/api/orders', orderData);
-      console.log('Order saved:', response.data);
-      // Optionally, reset the form or provide feedback
-    } catch (error) {
-      console.error('Error saving order:', error);
-      // Optionally, handle error (e.g., show a message)
-    }
-  };
+ 
 
   return (
     <div>
-
       <div className="order-details">
         <p>{orderData.storeName}</p>
         <p>{orderData.branchName}</p>
@@ -124,7 +90,6 @@ const Order = () => {
           />
         </div>
         <div className="form-group">
-    
           <textarea
             name="itemDescription"
             value={orderData.itemDescription}
@@ -179,10 +144,7 @@ const Order = () => {
           />
         </div>
         
-        <div className="form-actions">
-          <button onClick={handlePrint}>Print Receipt</button>
-          <button onClick={handleSubmit}>Submit Order</button>
-        </div>
+       
       </div>
     </div>
   );

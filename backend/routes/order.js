@@ -45,4 +45,22 @@ router.get('/orders/latest', async (req, res) => {
     }
 });
 
+// GET /api/orders/:orderId - Get a specific order by ID
+router.get('/orders/:orderId', async (req, res) => {
+    console.log('Fetching order by ID:', req.params.orderId); // Add this line
+    try {
+        const orderId = req.params.orderId;
+        const order = await Order.findById(orderId);
+
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        res.json(order);
+    } catch (error) {
+        console.error('Error fetching order by ID:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
 module.exports = router;

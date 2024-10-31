@@ -21,6 +21,8 @@ import RechargeTransaction from './components/ Transactions/RechargeTransaction'
 import Order from './components/ Transactions/Order';
 import Inventory from './components/Inventory';
 import Checkout from './components/ Transactions/Checkout';
+import OrderReceipt from './components/ Transactions/OrderReceipt';
+import AllOrders from './components/ Transactions/AllOrders';
 
 function App() {
   const [loading, setLoading] = useState(false); // Track loading state
@@ -67,6 +69,9 @@ function App() {
 
           <Route path="/checkout" element={<Checkout />} />
 
+          <Route path="/order-receipt/:orderId" element={<OrderReceipt />} />
+
+          <Route path="/all-orders" element={<AllOrders/>} /> {/* New route for All Orders */}
 
 
         </Routes>

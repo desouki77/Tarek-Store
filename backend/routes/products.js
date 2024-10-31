@@ -68,4 +68,27 @@ router.get('/', async (req, res) => {
   }
 });
 
+
+// Backend route to decrease product quantity by barcode
+router.put('/:barcode/decrease', async (req, res) => {
+  const { barcode } = req.params;
+  const { quantity } = req.body;
+
+  try {
+      const product = await Product.findOneAndUpdate(
+          { barcode },
+          { $inc: { quantity: -quantity } }, // Decrease quantity by specified amount
+          { new: true }
+      );
+
+      if (!product) {
+          return res.status(404).json({ message: 'Product not found' });
+      }
+
+      res.json({ message: 'Product quantity updated', product });
+  } catch (error) {
+      res.status(500).json({ message: 'Error updating product quantity', error });
+  }
+});
+
 module.exports = router;
