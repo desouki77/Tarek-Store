@@ -37,6 +37,9 @@ app.use('/api/products', products);
 // Order Routes
 app.use('/api' , order);
 
+const branchRoutes = require('./routes/branchRoutes'); // Adjust the path
+app.use('/api/branches', branchRoutes);
+
 
 
 

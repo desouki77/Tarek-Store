@@ -1,34 +1,123 @@
-// components/InputTransaction.js
-import React, { useState } from 'react';
-import TransactionForm from './TransactionForm';
-import TransactionList from './TransactionList'; // Assuming you have a TransactionList component
+import React, { useState, useEffect } from 'react';
 import Navbar from '../Navbar';
+import axios from 'axios';
 
 const InputTransaction = () => {
+    const [description, setDescription] = useState('');
+    const [amount, setAmount] = useState('');
+    const [transactions, setTransactions] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
 
-    const role = localStorage.getItem('role'); // Get role from localStorage
-    const isAdmin = role === 'admin'; // Determine if the user is an admin
-    
-    const [showForm, setShowForm] = useState(false); // State to toggle form visibility
+    // Retrieve user ID and branch ID from localStorage
+    const userId = localStorage.getItem('userId'); // Ensure this is set correctly
+    const branchId = localStorage.getItem('branchId'); // This should match enum values in Transaction model
+    const role = localStorage.getItem('role');
+    const isAdmin = role === 'admin';
 
-    const handleNewTransactionClick = () => {
-        setShowForm(!showForm); // Toggle form visibility
+    // Debugging logs to check retrieved IDs
+    console.log('User ID:', userId);
+    console.log('Branch ID:', branchId);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        if (!userId || !branchId) {
+            console.error("User ID or branch ID is not set in localStorage");
+            return; // Prevent submission if userId or branchId is not set
+        }
+
+        try {
+            const response = await axios.post('http://localhost:5000/api/transactions', {
+                user: "6717fbe522950256f79c158a", // Use the ObjectId for the user
+                type: 'input',
+                description,
+                amount: parseFloat(amount),
+                branch: "60c72b2f9b1d4c001f8e4b8a", // Use branch ID directly
+                date: new Date(),
+            });
+
+            setTransactions([response.data, ...transactions]); // Add new transaction to the top
+            setDescription('');
+            setAmount('');
+        } catch (error) {
+            console.error("Error adding transaction:", error.response ? error.response.data : error.message);
+        }
     };
+
+    const fetchTransactions = async () => {
+        try {
+            const response = await axios.get('http://localhost:5000/api/transactions', {
+                params: {
+                    page: currentPage,
+                    limit: 3,
+                    type: 'input',
+                },
+            });
+            setTransactions(response.data.transactions);
+        } catch (error) {
+            console.error("Error fetching transactions:", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchTransactions();
+    }, [currentPage]);
 
     return (
         <div>
-                        <Navbar isAdmin={isAdmin} /> {/* Pass isAdmin to Navbar */}
-
+            <Navbar isAdmin={isAdmin} />
             <h2>مدخلات</h2>
- 
 
-            <TransactionList transactionType="input" /> {/* Pass the transaction type to list */}
+            <form onSubmit={handleSubmit}>
+                <input
+                    type="text"
+                    placeholder="الوصف"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    required
+                />
+                <input
+                    type="number"
+                    placeholder="المبلغ"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    required
+                />
+                <button type="submit">إضافة</button>
+            </form>
 
-            <button onClick={handleNewTransactionClick} className="new-transaction-button">
-                {showForm ? "إخفاء نموذج المعاملة الجديدة" : "نموذج معاملة جديدة"}
+            <h3>المعاملات اليوم</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>الوصف</th>
+                        <th>المبلغ</th>
+                        <th>التاريخ</th>
+                        <th>الوقت</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {transactions.map((transaction) => (
+                        <tr key={transaction._id}>
+                            <td>{transaction.description}</td>
+                            <td>{transaction.amount}</td>
+                            <td>{new Date(transaction.date).toLocaleDateString()}</td>
+                            <td>{new Date(transaction.date).toLocaleTimeString()}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+
+            <button onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))} disabled={currentPage === 1}>
+                السابق
             </button>
-            
-            {showForm && <TransactionForm />} {/* Conditionally render TransactionForm */}
+            <button onClick={() => setCurrentPage((prev) => prev + 1)}>
+                التالي
+            </button>
+
+            <button onClick={() => window.location.href = '/all-transactions'}>
+                عرض الكل
+            </button>
         </div>
     );
 };

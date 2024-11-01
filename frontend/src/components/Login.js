@@ -7,7 +7,7 @@ import '../styles/Login.css';
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [branchId, setBranchId] = useState(''); // Change branch state to branchId
+  const [branchId, setBranchId] = useState(''); // Keep the branch state as branchId
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -32,7 +32,7 @@ const Login = () => {
         localStorage.setItem('token', response.data.token); // Store token
         localStorage.setItem('role', response.data.user.role); // Store user role
         localStorage.setItem('branchId', branchId); // Store selected branch ID
-        localStorage.setItem('salesName', username); // Store username as salesName
+        localStorage.setItem('userId', response.data.user._id); // Store user ID
         navigate('/dashboard'); // Redirect to dashboard
       }
     } catch (error) {
@@ -69,8 +69,8 @@ const Login = () => {
           <label htmlFor="branch">اختر الفرع</label>
           <select
             id="branch"
-            value={branchId} // Update to branchId
-            onChange={(e) => setBranchId(e.target.value)} // Update to setBranchId
+            value={branchId} // Use branchId for select value
+            onChange={(e) => setBranchId(e.target.value)} // Update state on change
             required
           >
             <option value="">Select Branch</option>

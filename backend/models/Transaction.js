@@ -1,56 +1,41 @@
-// backend/models/Transaction.js
 const mongoose = require('mongoose');
 
+// Define the Transaction schema
 const transactionSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User', // Reference to User model
         required: true,
+        ref: 'User', // Reference to the User model
     },
     type: {
         type: String,
-        enum: ['selling', 'input', 'output', 'recharge', 'maintenance', 'customer_payment', 'supplier_payment', 'purchasing', 'returns'],
+        enum: ['input', 'output'], // Ensure the type is either 'input' or 'output'
         required: true,
-    },
-    code: {
-        type: String,
-        required: false,
     },
     description: {
         type: String,
-        required: false,
+        required: true,
+        trim: true, // Remove whitespace from both ends
     },
     amount: {
         type: Number,
         required: true,
+        min: 0, // Ensure the amount is not negative
     },
-    remaining: {
-        type: Number,
-        required: false,
+    branch: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: 'Branch', // Reference to the Branch model
     },
     date: {
         type: Date,
-        default: Date.now,
-    },
-    branch: {
-        type: String,
-        enum: ['فرع باراديس', 'فرع النمسا'],
-        required: true,
-    },
-    client: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Client',
-        required: false, // Not all transactions will involve a client
-    },
-    supplier: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Supplier',
-        required: false, // Not all transactions will involve a supplier
+        default: Date.now, // Default to the current date
     },
 }, {
-    timestamps: true,
+    timestamps: true, // Automatically manage createdAt and updatedAt fields
 });
 
+// Create the Transaction model
 const Transaction = mongoose.model('Transaction', transactionSchema);
 
 module.exports = Transaction;

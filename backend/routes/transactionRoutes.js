@@ -1,11 +1,15 @@
+// backend/routes/transactions.js
 const express = require('express');
 const router = express.Router();
 const Transaction = require('../models/Transaction');
 
-// Create a transaction
+// Create a transaction with a specific type (e.g., "input")
 router.post('/', async (req, res) => {
-    const transaction = new Transaction(req.body);
-    
+    const transaction = new Transaction({
+        ...req.body,
+        type: 'input', // Ensure type is set to "input" for InputTransaction component
+    });
+
     try {
         const savedTransaction = await transaction.save();
         res.status(201).json(savedTransaction);
@@ -14,49 +18,34 @@ router.post('/', async (req, res) => {
     }
 });
 
-// Get all transactions (with filtering and pagination)
-router.get('/', async (req, res) => {
-    const { page = 1, limit = 10, type } = req.query;
+// Get all transactions of type "input" for the current day, with pagination
+router.get('/input', async (req, res) => {
+    const { page = 1, limit = 3 } = req.query;
 
-    // Filter transactions by type if provided
-    const filter = type ? { type } : {};
+    // Get transactions only for the current day and type "input"
+    const today = new Date();
+    const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+    const endOfDay = new Date(today.setHours(23, 59, 59, 999));
 
     try {
-        const transactions = await Transaction.find(filter)
+        const transactions = await Transaction.find({
+            type: 'input',
+            date: { $gte: startOfDay, $lte: endOfDay },
+        })
             .limit(limit * 1)
             .skip((page - 1) * limit)
-            .populate('client') // Populate client or supplier details if referenced
-            .populate('supplier')
-            .exec();
+            .sort({ date: -1 });
 
-        // Get total number of documents
-        const count = await Transaction.countDocuments(filter);
+        const count = await Transaction.countDocuments({
+            type: 'input',
+            date: { $gte: startOfDay, $lte: endOfDay },
+        });
 
         res.json({
             transactions,
             totalPages: Math.ceil(count / limit),
-            currentPage: page
+            currentPage: page,
         });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Update a transaction
-router.put('/:id', async (req, res) => {
-    try {
-        const updatedTransaction = await Transaction.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        res.json(updatedTransaction);
-    } catch (error) {
-        res.status(400).json({ error: error.message });
-    }
-});
-
-// Delete a transaction
-router.delete('/:id', async (req, res) => {
-    try {
-        await Transaction.findByIdAndDelete(req.params.id);
-        res.status(204).send();
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

@@ -37,32 +37,7 @@ const TransactionForm = () => {
     };
 
     return (
-        <div className="transaction-form-container">
-            <h2>Add New Transaction</h2>
-            {message && <p className="feedback-message">{message}</p>} {/* Feedback message */}
-            <form onSubmit={handleSubmit} className="transaction-form">
-                <select value={type} onChange={(e) => setType(e.target.value)} className="form-select">
-                    <option value="input">Input</option>
-                    <option value="output">Output</option>
-                </select>
-                <input
-                    type="number"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    placeholder="Amount"
-                    required
-                    className="form-input"
-                />
-                <input
-                    type="text"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Description"
-                    className="form-input"
-                />
-                <button type="submit" className="form-button">Add Transaction</button>
-            </form>
-        </div>
+    <></>
     );
 };
 
