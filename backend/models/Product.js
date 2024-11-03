@@ -8,6 +8,11 @@ const productSchema = new mongoose.Schema({
   price: { type: Number, required: true },
   quantity: { type: Number, default: 0 },
   category: { type: String, required: false },
+  branchId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Branch', // Reference to the Branch model
+    required: false, // This could be optional if some users are not assigned to a branch
+},
 });
 
 const Product = mongoose.model('Product', productSchema);

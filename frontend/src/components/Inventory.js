@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import Navbar from './Navbar';
 import '../styles/Inventory.css';
+import { useNavigate } from 'react-router-dom'; // Import this at the top
+
 
 const Inventory = () => {
   // Product state for adding new items
@@ -12,11 +14,17 @@ const Inventory = () => {
     description: '',
     price: '',
     quantity: '',
-    category: '', // Added category field
+    category: '',
   });
 
-  // Confirmation state for added product
+  const navigate = useNavigate(); // Set up the navigate function
+
+
+  // State for managing added product confirmation
   const [addedProduct, setAddedProduct] = useState(null);
+  
+  // State for managing editing product
+  const [editingProductId, setEditingProductId] = useState(null);
 
   // State for search and filter
   const [searchCategory, setSearchCategory] = useState('');
@@ -25,15 +33,13 @@ const Inventory = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [resultsPerPage] = useState(5); // Customize items per page
 
-  const role = localStorage.getItem('role'); // Get role from localStorage
-  const isAdmin = role === 'admin'; // Determine if the user is an admin
+  const role = localStorage.getItem('role');
+  const isAdmin = role === 'admin';
 
-  // Handle input changes for the product form
   const handleChange = (e) => {
     setProduct({ ...product, [e.target.name]: e.target.value });
   };
 
-  // Handle barcode scanning
   const handleBarcodeChange = async (e) => {
     const scannedBarcode = e.target.value;
     setProduct((prevProduct) => ({
@@ -53,36 +59,54 @@ const Inventory = () => {
       }));
     } catch (error) {
       console.error('Error fetching product details:', error);
-      // Optionally, handle error (e.g., show a message)
     }
   };
 
-  // Handle form submission for adding a new product
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const branchId = localStorage.getItem('branchId');
+    const productWithBranchId = { ...product, branchId };
+
     try {
-      const response = await axios.post('http://localhost:5000/api/products/add', product);
-      console.log('Product added to inventory:', response.data); // Log the response
-      setAddedProduct(response.data.product); // Set the added product data directly from the response
+      if (editingProductId) {
+        // Update the product
+        await axios.put(`http://localhost:5000/api/products/${editingProductId}`, productWithBranchId);
+        console.log('Product updated successfully');
+        
+        // Update the search results state
+        setSearchResults((prevResults) =>
+          prevResults.map((item) =>
+            item.barcode === editingProductId ? { ...item, ...productWithBranchId } : item
+          )
+        );
+      } else {
+        const response = await axios.post('http://localhost:5000/api/products/add', productWithBranchId);
+        console.log('Product added to inventory:', response.data);
+        setAddedProduct(response.data.product);
+      }
 
-      // Clear product input fields
+      // Reset product and editing state
       setProduct({ barcode: '', name: '', description: '', price: '', quantity: '', category: '' });
-
-      // Set a timeout to clear the confirmation message after 30 seconds
+      setEditingProductId(null);
       setTimeout(() => {
-        setAddedProduct(null); // Clear the confirmation after 30 seconds
+        setAddedProduct(null);
       }, 3000);
       
     } catch (error) {
-      console.error('Error adding product to inventory:', error);
+      console.error('Error adding/updating product to inventory:', error);
     }
   };
 
-  // Fetch search results based on search query and category
   const fetchSearchResults = async () => {
+    const branchId = localStorage.getItem('branchId');
+  
     try {
       const response = await axios.get(`http://localhost:5000/api/products`, {
-        params: { category: searchCategory, query: searchQuery },
+        params: { 
+          category: searchCategory, 
+          query: searchQuery,
+          branchId 
+        },
       });
       setSearchResults(response.data);
     } catch (error) {
@@ -90,19 +114,46 @@ const Inventory = () => {
     }
   };
 
-  // Handle search form submission
   const handleSearch = (e) => {
     e.preventDefault();
     fetchSearchResults();
   };
 
-  // Pagination calculation
   const indexOfLastResult = currentPage * resultsPerPage;
   const indexOfFirstResult = indexOfLastResult - resultsPerPage;
   const currentResults = searchResults.slice(indexOfFirstResult, indexOfLastResult);
 
-  // Change page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  const handleEdit = (productId) => {
+    const productToEdit = searchResults.find((item) => item._id === productId);
+    setProduct({
+      barcode: productToEdit.barcode,
+      name: productToEdit.name,
+      description: productToEdit.description,
+      price: productToEdit.price,
+      quantity: productToEdit.quantity,
+      category: productToEdit.category,
+    });
+    setEditingProductId(productToEdit.barcode); // Set barcode here
+  };
+
+  const handleDelete = async (barcode, branchId) => {
+    const confirmDelete = window.confirm('Are you sure you want to delete this product?');
+    if (confirmDelete) {
+      try {
+        await axios.delete(`http://localhost:5000/api/products/${barcode}`, {
+          params: { branchId: branchId },
+        });
+  
+        // Update the search results after deletion
+        setSearchResults((prevResults) => prevResults.filter((item) => item.barcode !== barcode));
+        console.log('Product deleted successfully');
+      } catch (error) {
+        console.error('Error deleting product:', error);
+      }
+    }
+  };
 
   return (
     <>
@@ -123,6 +174,8 @@ const Inventory = () => {
             placeholder="بحث باستخدام اسم المنتج او وصفه"
           />
           <button type="submit">بحث</button>
+          <button type="button" onClick={() => navigate('/all-products')}>عرض جميع المنتجات</button> {/* Updated button */}
+
         </form>
       </section>
 
@@ -133,120 +186,99 @@ const Inventory = () => {
       <table>
         <thead>
           <tr>
+            <th>رمز المنتج</th> {/* Added header for barcode */}
             <th>اسم المنتج</th>
             <th>الوصف</th>
             <th>التصنيف</th>
             <th>الكمية</th>
+            <th>السعر</th>
+            <th>العمليات</th>
           </tr>
         </thead>
         <tbody>
           {currentResults.map((item) => (
             <tr key={item._id}>
+              <td>{item.barcode}</td> {/* Added barcode data */}
               <td>{item.name}</td>
               <td>{item.description}</td>
               <td>{item.category}</td>
               <td>{item.quantity}</td>
+              <td>{item.price}</td>
+              <td>
+                <button onClick={() => handleEdit(item._id)}>تعديل</button>
+                <button onClick={() => handleDelete(item.barcode, item.branchId)}>حذف</button>
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
-      <Pagination
-        resultsPerPage={resultsPerPage}
-        totalResults={searchResults.length}
-        paginate={paginate}
-      />
+      {/* Pagination Component */}
+      <div className="pagination">
+        {[...Array(Math.ceil(searchResults.length / resultsPerPage)).keys()].map((number) => (
+          <button key={number + 1} onClick={() => paginate(number + 1)}>
+            {number + 1}
+          </button>
+        ))}
+      </div>
     </div>
   ) : (
-    <p>لا يوجد نتاجئج</p>
+    <p>لا توجد نتائج للبحث</p>
   )}
 </section>
 
-      {/* Add Item Section (Only for Admins) */}
-      {isAdmin && (
-        <section>
-          <form onSubmit={handleSubmit}>
-            <input
-              type="text"
-              name="barcode"
-              value={product.barcode}
-              onChange={handleBarcodeChange} // Use the barcode scan handler
-              placeholder="Scan Barcode"
-              required
-            />
-            <input
-              type="text"
-              name="name"
-              value={product.name}
-              onChange={handleChange}
-              placeholder="اسم المنتج"
-              required
-            />
-            <input
-              type="text"
-              name="description"
-              value={product.description}
-              onChange={handleChange}
-              placeholder="الوصف"
-            />
-            <input
-              type="number"
-              name="price"
-              value={product.price}
-              onChange={handleChange}
-              placeholder="السعر"
-              required
-            />
-            <input
-              type="number"
-              name="quantity"
-              value={product.quantity}
-              onChange={handleChange}
-              placeholder="الكمية"
-              required
-            />
-            <select name="category" value={product.category} onChange={handleChange} required>
-              <option value="">اختار تصنيف</option>
-              <option value="devices">اجهزة</option>
-              <option value="accessories">اكسسوارات</option>
-            </select>
-            <button type="submit">اضافة منتج</button>
-          </form>
-          
-          {/* Confirmation Section for Added Product */}
-          {addedProduct && (
-            <div className="confirmation-message">
-              <h3>تم اضافة المنتج بنجاح</h3>
-              <p><strong>Barcode:</strong> {addedProduct.barcode}</p>
-              <p><strong>اسم المنتج:</strong> {addedProduct.name}</p>
-              <p><strong>الوصف:</strong> {addedProduct.description}</p>
-              <p><strong>السعر:</strong> {addedProduct.price}</p>
-              <p><strong>الكمية:</strong> {addedProduct.quantity}</p>
-              <p><strong>التصنيف:</strong> {addedProduct.category}</p>
-            </div>
-          )}
-        </section>
-      )}
+      {/* Add or Edit Product Section */}
+      <section>
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            name="barcode"
+            value={product.barcode}
+            onChange={handleBarcodeChange}
+            placeholder="رمز المنتج"
+            required
+          />
+          <input
+            type="text"
+            name="name"
+            value={product.name}
+            onChange={handleChange}
+            placeholder="اسم المنتج"
+            required
+          />
+          <input
+            type="text"
+            name="description"
+            value={product.description}
+            onChange={handleChange}
+            placeholder="الوصف"
+          />
+          <input
+            type="number"
+            name="price"
+            value={product.price}
+            onChange={handleChange}
+            placeholder="السعر"
+            required
+          />
+          <input
+            type="number"
+            name="quantity"
+            value={product.quantity}
+            onChange={handleChange}
+            placeholder="الكمية"
+            required
+          />
+          <select name="category" value={product.category} onChange={handleChange}>
+            <option value="">اختر التصنيف</option>
+            <option value="devices">اجهزة</option>
+            <option value="accessories">اكسسوارات</option>
+          </select>
+          <button type="submit">{editingProductId ? 'تحديث المنتج' : 'إضافة منتج'}</button>
+        </form>
+      </section>
+
+      {addedProduct && <p>تمت إضافة المنتج: {addedProduct.name}</p>}
     </>
-  );
-};
-
-// Pagination Component
-const Pagination = ({ resultsPerPage, totalResults, paginate }) => {
-  const pageNumbers = [];
-  for (let i = 1; i <= Math.ceil(totalResults / resultsPerPage); i++) {
-    pageNumbers.push(i);
-  }
-
-  return (
-    <nav>
-      <ul>
-        {pageNumbers.map((number) => (
-          <li key={number} onClick={() => paginate(number)} style={{ cursor: 'pointer', display: 'inline', padding: '5px' }}>
-            {number}
-          </li>
-        ))}
-      </ul>
-    </nav>
   );
 };
 

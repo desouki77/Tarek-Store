@@ -21,6 +21,9 @@ import Inventory from './components/Inventory';
 import Checkout from './components/ Transactions/Checkout';
 import OrderReceipt from './components/ Transactions/OrderReceipt';
 import AllOrders from './components/ Transactions/AllOrders';
+import AllProducts from './components/AllProducts';
+import EditProduct from './components/EditProduct';
+
 
 function App() {
   const [loading, setLoading] = useState(false); // Track loading state
@@ -64,6 +67,10 @@ function App() {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/order-receipt/:orderId" element={<OrderReceipt />} />
           <Route path="/all-orders" element={<AllOrders/>} /> 
+          <Route path="/all-products" element={<AllProducts />} /> 
+          <Route path="/edit-product/:id" element={<EditProduct />} /> 
+
+
 
         </Routes>
       )}

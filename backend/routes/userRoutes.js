@@ -8,6 +8,7 @@ const authenticateJWT = require('../middlewares/userAuth');
 const Branch = require('../models/Branch'); // Adjust the path according to your project structure
 
 
+
 // Register a new user (without branchId)
 router.post('/register', async (req, res) => {
     const { username, password, role } = req.body; // Removed branchId
