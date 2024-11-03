@@ -16,7 +16,11 @@ const userSchema = new mongoose.Schema({
         enum: ['admin', 'sales'], // Define roles
         required: true,
     },
-
+    branchId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Branch', // Reference to the Branch model
+        required: false, // This could be optional if some users are not assigned to a branch
+    }
 }, {
     timestamps: true,
 });

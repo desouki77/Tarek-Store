@@ -32,8 +32,17 @@ const Navbar = ({ isAdmin }) => {
     }, [burgerOpen]);
 
     const handleLogout = () => {
+        // Clear user session data from localStorage
         localStorage.removeItem('token');
         localStorage.removeItem('role');
+        localStorage.removeItem('branchId');
+        localStorage.removeItem('branchName');
+        localStorage.removeItem('userId'); // Remove any other relevant data
+        
+        // Optionally, you could also clear all localStorage data
+        // localStorage.clear();
+    
+        // Redirect the user to the login page
         navigate('/login');
     };
 

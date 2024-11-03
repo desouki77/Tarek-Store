@@ -1,14 +1,14 @@
-// routes/branch.js
+// backend/routes/branch.js
 const express = require('express');
 const router = express.Router();
 const Branch = require('../models/Branch');
 
 // POST: Create a new branch
 router.post('/', async (req, res) => {
-    const { name, location } = req.body;
+    const { name } = req.body; // Removed location
 
     try {
-        const newBranch = new Branch({ name, location });
+        const newBranch = new Branch({ name });
         await newBranch.save();
         res.status(201).json(newBranch);
     } catch (error) {

@@ -6,12 +6,24 @@ import '../styles/Login.css';
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [branchId, setBranchId] = useState(''); // Keep the branch state as branchId
+  const [branchId, setBranchId] = useState('');
+  const [branches, setBranches] = useState([]); // State to hold branch list
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // Check if the user is already logged in
+  // Fetch branches from the backend
   useEffect(() => {
+    const fetchBranches = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/branches');
+        setBranches(response.data);
+      } catch (error) {
+        console.error('Error fetching branches:', error);
+      }
+    };
+    fetchBranches();
+
+    // Check if the user is already logged in
     const token = localStorage.getItem('token');
     if (token) {
       navigate('/dashboard'); // Redirect to dashboard if logged in
@@ -21,23 +33,43 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-      const response = await axios.post('http://localhost:5000/api/users/login', {
-        username,
-        password,
-      });
-
-      if (response.status === 200) {
-        localStorage.setItem('token', response.data.token); // Store token
-        localStorage.setItem('role', response.data.user.role); // Store user role
-        localStorage.setItem('branchId', response.data.branchId); // Store selected branch ID
-        localStorage.setItem('userId', response.data.user._id); // Store user ID
-        navigate('/dashboard'); // Redirect to dashboard
-      }
-    } catch (error) {
-      setError('خطا في اسم المستخدم ام كلمة المرور');
+    // Ensure branchId is not empty before proceeding
+    if (!branchId) {
+        setError('Please select a branch.');
+        return;
     }
-  };
+
+    try {
+        const selectedBranch = branches.find(branch => branch._id === branchId);
+
+        // Optional: Check if the selected branch exists
+        if (!selectedBranch) {
+            setError('Selected branch not found.');
+            return;
+        }
+
+        const response = await axios.post('http://localhost:5000/api/users/login', {
+            username,
+            password,
+            branchId,
+            branchName: selectedBranch.name, // Use selected branch name directly
+        });
+
+        if (response.status === 200) {
+            // Save tokens and navigate
+            localStorage.setItem('token', response.data.token);
+            localStorage.setItem('role', response.data.user.role);
+            localStorage.setItem('branchId', response.data.user.branchId); // Correcting to response.data.user.branchId
+            localStorage.setItem('branchName', selectedBranch.name); // Save branch name
+            localStorage.setItem('userId', response.data.user.id);
+            navigate('/dashboard');
+        }
+    } catch (error) {
+        console.error('Login error:', error); // Log error for debugging
+        setError('خطا في اسم المستخدم ام كلمة المرور'); // Set the error message
+    }
+};
+
 
   return (
     <div className="login-container">
@@ -68,13 +100,16 @@ const Login = () => {
           <label htmlFor="branch">اختر الفرع</label>
           <select
             id="branch"
-            value={branchId} // Use branchId for select value
-            onChange={(e) => setBranchId(e.target.value)} // Update state on change
+            value={branchId}
+            onChange={(e) => setBranchId(e.target.value)}
             required
           >
             <option value="" disabled>Select Branch</option>
-            <option value="6724f643093596b36acd22f9">فرع باراديس</option> {/* Replace with actual branch ID */}
-            <option value="6724f65a093596b36acd22fb">فرع النمسا</option> {/* Replace with actual branch ID */}
+            {branches.map(branch => (
+              <option key={branch._id} value={branch._id}>
+                {branch.name}
+              </option>
+            ))}
           </select>
         </div>
         <button type="submit" className="btn">دخول</button>

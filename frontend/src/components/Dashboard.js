@@ -1,4 +1,3 @@
-// Dashboard.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from './Navbar';
@@ -18,17 +17,19 @@ function Dashboard() {
     });
 
     const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
+    const [loading, setLoading] = useState(true); // Add loading state
+    const [error, setError] = useState(null); // Add error state
 
     useEffect(() => {
-        const fetchUserData = async () => {
-            const userId = localStorage.getItem("userId");
-            const branchId = localStorage.getItem("branchId");
+        const userId = localStorage.getItem("userId");
+        const branchId = localStorage.getItem("branchId");
 
+        const fetchUserData = async () => {
             try {
                 // Fetch user data
                 const userResponse = await axios.get(`http://localhost:5000/api/users/${userId}`);
                 const branchResponse = await axios.get(`http://localhost:5000/api/branches/${branchId}`);
-                
+
                 setWelcomeData(prevData => ({
                     ...prevData,
                     salesName: userResponse.data.username,
@@ -36,6 +37,9 @@ function Dashboard() {
                 }));
             } catch (error) {
                 console.error("Error fetching user or branch data:", error);
+                setError("Failed to load user or branch data."); // Set error message
+            } finally {
+                setLoading(false); // Set loading to false after the requests
             }
         };
 
@@ -48,11 +52,20 @@ function Dashboard() {
         // Clear the interval on component unmount
         return () => clearInterval(timerId);
     }, []);
-    
+
     // Handler to navigate to specific transaction pages
     const handleTransactionClick = (transactionType) => {
         navigate(`/transactions/${transactionType}`);
     };
+
+    // Render loading state or error message
+    if (loading) {
+        return <div>Loading...</div>; // Display loading message
+    }
+
+    if (error) {
+        return <div>{error}</div>; // Display error message
+    }
 
     return ( 
         <>
