@@ -6,6 +6,7 @@ const userRoutes = require('./routes/userRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
 const products = require('./routes/products');
 const order = require('./routes/order');
+const branch = require('./routes/branch'); // Adjust the path
 
 
 dotenv.config();  // Load environment variables from .env file
@@ -37,8 +38,8 @@ app.use('/api/products', products);
 // Order Routes
 app.use('/api' , order);
 
-const branchRoutes = require('./routes/branchRoutes'); // Adjust the path
-app.use('/api/branches', branchRoutes);
+
+app.use('/api/branches', branch);
 
 
 

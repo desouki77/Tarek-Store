@@ -9,8 +9,8 @@ const InputTransaction = () => {
     const [currentPage, setCurrentPage] = useState(1);
 
     // Retrieve user ID and branch ID from localStorage
-    const userId = localStorage.getItem('userId'); // Ensure this is set correctly
-    const branchId = localStorage.getItem('branchId'); // This should match enum values in Transaction model
+    const userId = localStorage.getItem('userId');
+    const branchId = localStorage.getItem('branchId');
     const role = localStorage.getItem('role');
     const isAdmin = role === 'admin';
 
@@ -28,11 +28,11 @@ const InputTransaction = () => {
 
         try {
             const response = await axios.post('http://localhost:5000/api/transactions', {
-                user: "6717fbe522950256f79c158a", // Use the ObjectId for the user
+                user: userId, // Use the user ID from local storage
                 type: 'input',
                 description,
                 amount: parseFloat(amount),
-                branch: "60c72b2f9b1d4c001f8e4b8a", // Use branch ID directly
+                branch: branchId, // Use the branch ID from local storage
                 date: new Date(),
             });
 

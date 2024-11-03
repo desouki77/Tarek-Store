@@ -5,10 +5,6 @@ const BranchSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    location: {
-        type: String,
-        required: true,
-    },
     inventory: [{
         productId: {
             type: mongoose.Schema.Types.ObjectId,

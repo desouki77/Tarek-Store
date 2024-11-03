@@ -43,6 +43,7 @@ router.post('/login', async (req, res) => {
         // Find the user by username
         const user = await User.findOne({ username });
         if (!user) {
+            const branchId = user.branchId;
             return res.status(404).json({ message: 'اسم المستخدم أو كلمة المرور غير صالحة' });
         }
 
@@ -60,10 +61,21 @@ router.post('/login', async (req, res) => {
         );
 
         // If successful, you can create a token or return user data
-        res.status(200).json({ message: 'تم تسجيل الدخول بنجاح', token , user: { id: user._id, username: user.username, role: user.role } });
+        res.status(200).json({ message: 'تم تسجيل الدخول بنجاح', token , user: { id: user._id, username: user.username, role: user.role },branchId: branchId, });
     } catch (error) {
         console.error('Login error:', error); // Log the error
         res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+//feach username by ID
+router.get('/:id', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+        res.json({ username: user.username });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 });
 

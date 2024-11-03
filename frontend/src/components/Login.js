@@ -1,4 +1,3 @@
-// Login.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -31,7 +30,7 @@ const Login = () => {
       if (response.status === 200) {
         localStorage.setItem('token', response.data.token); // Store token
         localStorage.setItem('role', response.data.user.role); // Store user role
-        localStorage.setItem('branchId', branchId); // Store selected branch ID
+        localStorage.setItem('branchId', response.data.branchId); // Store selected branch ID
         localStorage.setItem('userId', response.data.user._id); // Store user ID
         navigate('/dashboard'); // Redirect to dashboard
       }
@@ -73,9 +72,9 @@ const Login = () => {
             onChange={(e) => setBranchId(e.target.value)} // Update state on change
             required
           >
-            <option value="">Select Branch</option>
-            <option value="60c72b2f9b1d4c001f8e4b8a">فرع باراديس</option> {/* Use actual branch IDs */}
-            <option value="60c72b2f9b1d4c001f8e4b8b">فرع النمسا</option> {/* Use actual branch IDs */}
+            <option value="" disabled>Select Branch</option>
+            <option value="6724f643093596b36acd22f9">فرع باراديس</option> {/* Replace with actual branch ID */}
+            <option value="6724f65a093596b36acd22fb">فرع النمسا</option> {/* Replace with actual branch ID */}
           </select>
         </div>
         <button type="submit" className="btn">دخول</button>

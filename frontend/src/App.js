@@ -2,13 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import './styles/App.css';
 import Loader from './components/Loader'; // Import the Loader component
-
 import Dashboard from './components/Dashboard';
 import Login from './components/Login';
 import Registration from './components/Registration';
 import ProtectedRoute from './components/ProtectedRoute';
 import Welcome from './components/Welcome';
-
 import SellingTransaction from './components/ Transactions/SellingTransaction';
 import InputTransaction from './components/ Transactions/InputTransaction';
 import OutputTransaction from './components/ Transactions/OutputTransaction';
@@ -51,7 +49,6 @@ function App() {
           />
           <Route path="/login" element={<Login />} />
           <Route path="/registration" element={<Registration />} />
-          
           {/*Transactions Routes */}
           <Route path="/transactions/selling" element={<SellingTransaction />} />
           <Route path="/transactions/input" element={<InputTransaction />} />
@@ -62,17 +59,11 @@ function App() {
           <Route path="/transactions/supplier_payment" element={<SupplierPaymentTransaction />} />
           <Route path="/transactions/purchasing" element={<PurchasingTransaction />} />
           <Route path="/transactions/returns" element={<ReturnsTransaction />} />
-
           <Route path='transactions/order' element={<Order/>} />
-
           <Route path='inventory' element={<Inventory/>} />
-
           <Route path="/checkout" element={<Checkout />} />
-
           <Route path="/order-receipt/:orderId" element={<OrderReceipt />} />
-
-          <Route path="/all-orders" element={<AllOrders/>} /> {/* New route for All Orders */}
-
+          <Route path="/all-orders" element={<AllOrders/>} /> 
 
         </Routes>
       )}
