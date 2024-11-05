@@ -2,168 +2,203 @@
 
 /* Container */
 .inventory-container {
-    max-width: 600px;
-    margin: 20px auto;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    background-color: #f9f9f9;
-  }
-  
-  /* Form Section */
-  form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
-  
-  form input,
-  form select,
-  form button {
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 15px;
-  }
-  
-  form button {
-    background-color: #0066cc;
-    color: #fff;
-    cursor: pointer;
-  }
-  
-  form button:hover {
-    background-color: #004c99;
-  }
-  
-  /* Search Section */
-  .search-section {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
-  
-  .search-section input,
-  .search-section select,
-  .search-section button {
-    padding: 8px;
-    font-size: 14px;
-    border-radius: 4px;
-  }
-  
-  .search-section button {
-    background-color: #28a745;
-    color: white;
-    cursor: pointer;
-  }
-  
-  .search-section button:hover {
-    background-color: #1e7a33;
-  }
-  
-  /* Results Section */
-  .results-section {
-    margin-top: 20px;
-    border-top: 1px solid #ddd;
-    padding-top: 10px;
-  }
-  
-  .results-section ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  
-  .results-section li {
-    padding: 10px;
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    margin-top: 10px;
-    display: flex;
-    justify-content: space-between;
-  }
-  
-  /* Pagination */
-  .pagination {
-    display: flex;
-    justify-content: center;
-    gap: 5px;
-    margin-top: 15px;
-  }
-  
-  .pagination li {
-    padding: 8px 12px;
-    background-color: #0066cc;
-    color: white;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .pagination li:hover {
-    background-color: #004c99;
-  }
-  
-  .pagination .active {
-    background-color: #004c99;
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background-color: #f9f9f9;
+}
+
+/* Form Section */
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centering the form items */
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+form input,
+form select {
+  width: 100%; /* Increased width for inputs and selects */
+  max-width: 90vw; /* Increased maximum width */
+  padding: 10px; /* Increased padding for better usability */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px; /* Increased font size for better visibility */
+}
+
+/* Centering the buttons */
+form button {
+  padding: 10px 15px; /* Adjusted padding for buttons */
+  border: none; /* Remove default border */
+  border-radius: 4px;
+  font-size: 16px; /* Increased font size for buttons */
+  margin: 0 auto; /* Centering the button */
+  display: block; /* Ensures margin auto works for centering */
+}
+
+form button {
+  background-color: #0066cc;
+  color: #fff;
+  cursor: pointer;
+}
+
+form button:hover {
+  background-color: #004c99;
+}
+
+/* Search Section */
+.search-section {
+  display: flex;
+  flex-direction: column; /* Stack elements vertically for small screens */
+  align-items: center; /* Centering the search items */
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.search-section input,
+.search-section select {
+  width: 100%; /* Increased width for search inputs and selects */
+  max-width: 90vw; /* Increased maximum width */
+  padding: 10px; /* Increased padding for better usability */
+  font-size: 16px; /* Increased font size for better visibility */
+  border-radius: 4px;
+}
+
+.search-section button {
+  background-color: #28a745;
+  color: white;
+  cursor: pointer;
+  margin: 0 auto; /* Centering the button */
+  display: block; /* Ensures margin auto works for centering */
+}
+
+.search-section button:hover {
+  background-color: #1e7a33;
+}
+
+/* Results Section */
+.results-section {
+  margin-top: 20px;
+  border-top: 1px solid #ddd;
+  padding-top: 10px;
+}
+
+.results-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.results-section li {
+  padding: 10px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  margin-top: 15px;
+}
+
+.pagination li {
+  padding: 8px 12px;
+  background-color: #0066cc;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.pagination li:hover {
+  background-color: #004c99;
+}
+
+.pagination .active {
+  background-color: #004c99;
+}
+
+.confirmation-message {
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #4caf50;
+  background-color: #e7f9e7;
+  color: #2c662d;
+}
+
+/* Table Styles */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+}
+
+th,
+td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 480px) {
+  .inventory-container {
+    padding: 10px; /* Adjust padding for small screens */
   }
 
-  .confirmation-message {
-    margin-top: 20px;
-    padding: 15px;
-    border: 1px solid #4caf50;
-    background-color: #e7f9e7;
-    color: #2c662d;
+  form {
+    gap: 5px; /* Reduce gap for small screens */
+  }
+
+  form input,
+  form select {
+    font-size: 14px; /* Smaller font size for inputs and buttons */
+    padding: 8px; /* Adjusted padding for smaller input size */
+    width: 90%; /* Full width for small screens */
+    max-width: none; /* Remove max-width to allow full width */
+  }
+
+  .search-section {
+    flex-direction: column; /* Stack items vertically */
+    gap: 8px; /* Reduce gap */
   }
 
   table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 20px 0;
+    font-size: 12px; /* Smaller font size for table */
   }
-  
-  th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
+
+  th,
+  td {
+    padding: 6px; /* Smaller padding for table cells */
   }
-  
-  th {
-    background-color: #f2f2f2;
-  }
-  
-  tr:nth-child(even) {
-    background-color: #f9f9f9;
-  }
-  
-  tr:hover {
-    background-color: #f1f1f1;
-  }
-  
+
   .pagination {
-    display: flex;
-    justify-content: center;
-    margin: 20px 0;
+    flex-direction: column; /* Stack pagination buttons vertically */
+    gap: 5px;
   }
-  
+
   .pagination li {
-    margin: 0 5px;
-    padding: 8px 12px;
-    border: 1px solid #007bff;
-    border-radius: 5px;
-    color: #007bff;
-    cursor: pointer;
+    width: 100%; /* Make pagination buttons full width */
+    padding: 10px; /* Increase padding for better touch targets */
   }
-  
-  .pagination li:hover {
-    background-color: #007bff;
-    color: white;
-  }
-  
-  .pagination li.active {
-    background-color: #007bff;
-    color: white;
-  }
-  
-  
+}

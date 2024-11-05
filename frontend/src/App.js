@@ -68,7 +68,7 @@ function App() {
           <Route path="/order-receipt/:orderId" element={<OrderReceipt />} />
           <Route path="/all-orders" element={<AllOrders/>} /> 
           <Route path="/all-products" element={<AllProducts />} /> 
-          <Route path="/edit-product/:id" element={<EditProduct />} /> 
+          <Route path="/edit-product/:barcode" element={<EditProduct />} />
 
 
 

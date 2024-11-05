@@ -155,34 +155,14 @@ router.delete('/:barcode', validateBranchId, async (req, res) => {
   }
 });
 
-// Route to get a product by id and branchId
-router.get('/:id', validateBranchId, async (req, res) => {
-  const { id } = req.params; // Get id from the URL
-  const { branchId } = req.query; // Include branchId from query
-  console.log(`Product requested: ${id} for branch: ${branchId}`);
-
-  try {
-    const product = await Product.findOne({ 
-      _id: id,  // Use _id to find the product
-      branchId: branchId // Filter by branchId
-    });
-
-    if (!product) return res.status(404).send('Product not found');
-    res.json(product);
-  } catch (error) {
-    console.error('Error fetching product:', error);
-    res.status(500).send('Server error');
-  }
-});
-
-// Route to update a product by id and branchId
-router.put('/:id', validateBranchId, async (req, res) => {
-  const { id } = req.params; // Get id from the URL
+// Route to update a product by ID and branchId
+router.put('/id/:id', validateBranchId, async (req, res) => {
+  const { id } = req.params; // Get the product ID from the URL
   const { branchId, ...updatedData } = req.body; // Extract branchId and other fields to update
 
   try {
     const product = await Product.findOneAndUpdate(
-      { _id: id, branchId }, // Ensure the product belongs to the specified branch
+      { _id: id, branchId }, // Use the product ID and ensure the product belongs to the specified branch
       updatedData, // Update with provided data
       { new: true } // Return the updated product
     );
@@ -197,6 +177,10 @@ router.put('/:id', validateBranchId, async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
+
+
+
 
 
 module.exports = router;

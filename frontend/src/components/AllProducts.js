@@ -1,14 +1,13 @@
-// AllProducts.js
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate for routing
 import Navbar from './Navbar';
 import '../styles/Inventory.css';
 
 const AllProducts = () => {
   const [products, setProducts] = useState([]);
+  const [editingProductId, setEditingProductId] = useState(null); // Track the product being edited
+  const [editFormData, setEditFormData] = useState({}); // Store form data for editing
   const branchId = localStorage.getItem('branchId');
-  const navigate = useNavigate(); // Initialize the navigate function
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -25,9 +24,30 @@ const AllProducts = () => {
     fetchProducts();
   }, [branchId]);
 
-  const handleEdit = (id) => {
-    // Navigate to the edit page with the product ID
-    navigate(`/edit-product/${id}`); // Adjust the path based on your routing
+  const handleEditClick = (product) => {
+    setEditingProductId(product._id); // Set the ID of the product to be edited
+    setEditFormData(product); // Pre-fill the form with the product data
+  };
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditFormData({ ...editFormData, [name]: value }); // Update form data on change
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.put(`http://localhost:5000/api/products/id/${editingProductId}`, editFormData, {
+        params: { branchId: branchId },
+      });
+      alert('تم تحديث المنتج بنجاح.'); // Alert in Arabic
+      // Update the products state with the edited product
+      setProducts(products.map(product => (product._id === editingProductId ? { ...product, ...editFormData } : product)));
+      setEditingProductId(null); // Reset the editing state
+    } catch (error) {
+      console.error('Error updating product:', error);
+      alert('فشل تحديث المنتج.'); // Alert in Arabic
+    }
   };
 
   const handleDelete = async (barcode) => {
@@ -68,18 +88,79 @@ const AllProducts = () => {
             </thead>
             <tbody>
               {products.map((item) => (
-                <tr key={item._id}>
-                  <td>{item.barcode}</td>
-                  <td>{item.name}</td>
-                  <td>{item.description}</td>
-                  <td>{item.category}</td>
-                  <td>{item.quantity}</td>
-                  <td>{item.price}</td>
-                  <td>
-                    <button onClick={() => handleEdit(item._id)}>تعديل</button> {/* Edit button */}
-                    <button onClick={() => handleDelete(item.barcode)}>حذف</button> {/* Delete button */}
-                  </td>
-                </tr>
+                <React.Fragment key={item._id}>
+                  <tr>
+                    <td>{item.barcode}</td>
+                    <td>{item.name}</td>
+                    <td>{item.description}</td>
+                    <td>{item.category}</td>
+                    <td>{item.quantity}</td>
+                    <td>{item.price}</td>
+                    <td>
+                      <button onClick={() => handleEditClick(item)}>تعديل</button> {/* Edit button */}
+                      <button onClick={() => handleDelete(item.barcode)}>حذف</button> {/* Delete button */}
+                    </td>
+                  </tr>
+                  {editingProductId === item._id && ( // Check if the current product is being edited
+                    <tr>
+                      <td colSpan={7}> {/* Merge columns for the edit form */}
+                        <form onSubmit={handleEditSubmit}>
+                          <div>
+                            <label>اسم المنتج:</label>
+                            <input
+                              type="text"
+                              name="name"
+                              value={editFormData.name || ''}
+                              onChange={handleEditChange}
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label>الوصف:</label>
+                            <textarea
+                              name="description"
+                              value={editFormData.description || ''}
+                              onChange={handleEditChange}
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label>التصنيف:</label>
+                            <input
+                              type="text"
+                              name="category"
+                              value={editFormData.category || ''}
+                              onChange={handleEditChange}
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label>الكمية:</label>
+                            <input
+                              type="number"
+                              name="quantity"
+                              value={editFormData.quantity || ''}
+                              onChange={handleEditChange}
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label>السعر:</label>
+                            <input
+                              type="number"
+                              name="price"
+                              value={editFormData.price || ''}
+                              onChange={handleEditChange}
+                              required
+                            />
+                          </div>
+                          <button type="submit">تحديث المنتج</button>
+                          <button type="button" onClick={() => setEditingProductId(null)}>إلغاء</button> {/* Cancel button */}
+                        </form>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
               ))}
             </tbody>
           </table>

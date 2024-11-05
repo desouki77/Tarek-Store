@@ -5,7 +5,10 @@ import Navbar from './Navbar';
 import '../styles/Inventory.css';
 
 const EditProduct = () => {
-    const { id } = useParams();
+    const { barcode } = useParams(); // This is the barcode from the URL
+    const navigate = useNavigate();
+    const branchId = localStorage.getItem('branchId');
+
     const [product, setProduct] = useState({
         barcode: '',
         name: '',
@@ -14,50 +17,68 @@ const EditProduct = () => {
         quantity: '',
         category: '',
     });
-    const [loading, setLoading] = useState(true); // Loading state
-    const navigate = useNavigate();
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
 
     useEffect(() => {
         const fetchProduct = async () => {
+            if (!branchId) {
+                alert('Branch ID is missing');
+                setLoading(false);
+                return;
+            }
+
             try {
-                const response = await axios.get(`http://localhost:5000/api/products/${id}`); // Corrected endpoint
-                setProduct(response.data);
+                const response = await axios.get(`http://localhost:5000/api/products/${barcode}`, {
+                    params: { branchId: branchId },
+                });
+                if (response.status === 200) {
+                    setProduct(response.data);
+                }
             } catch (error) {
                 console.error('Error fetching product:', error);
-                alert('Failed to fetch product details.');
+                setError('Failed to fetch product details.');
             } finally {
-                setLoading(false); // Set loading to false after fetching
+                setLoading(false);
             }
         };
-    
+
         fetchProduct();
-    }, [id]);
+    }, [barcode, branchId]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+        if ((name === 'price' || name === 'quantity') && value < 0) {
+            alert("Price and Quantity must be non-negative.");
+            return;
+        }
         setProduct({ ...product, [name]: value });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const branchId = localStorage.getItem('branchId');
+        if (!branchId) {
+            alert('Branch ID is missing');
+            return;
+        }
+
         const productWithBranchId = { ...product, branchId };
-    
+
         try {
-            setLoading(true); // Set loading to true during update
-            await axios.put(`http://localhost:5000/api/products/${id}`, productWithBranchId); // Corrected endpoint
+            setLoading(true);
+            await axios.put(`http://localhost:5000/api/products/${barcode}`, productWithBranchId);
             alert('Product updated successfully.');
-            navigate('/all-products');
+            navigate('/all-products'); // Redirect to the products page after successful update
         } catch (error) {
             console.error('Error updating product:', error);
-            alert('Failed to update the product.');
+            setError('Failed to update the product.');
         } finally {
-            setLoading(false); // Set loading to false after update
+            setLoading(false);
         }
     };
 
     if (loading) {
-        return <div>Loading...</div>; // Loading state
+        return <div>Loading...</div>; // Consider using a spinner here
     }
 
     return (
@@ -65,6 +86,7 @@ const EditProduct = () => {
             <Navbar isAdmin={localStorage.getItem('role') === 'admin'} />
 
             <h1>Edit Product</h1>
+            {error && <p className="error-message">{error}</p>} {/* Show error messages */}
             <form onSubmit={handleSubmit}>
                 <input
                     type="text"
@@ -105,7 +127,7 @@ const EditProduct = () => {
                     placeholder="الكمية"
                     required
                 />
-                <select name="category" value={product.category} onChange={handleChange} required>
+                <select name="category" value={product.category} onChange={handleChange}>
                     <option value="">اختر التصنيف</option>
                     <option value="devices">اجهزة</option>
                     <option value="accessories">اكسسوارات</option>

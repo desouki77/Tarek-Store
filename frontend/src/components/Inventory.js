@@ -1,13 +1,10 @@
-// Inventory.js
 import React, { useState } from 'react';
 import axios from 'axios';
 import Navbar from './Navbar';
 import '../styles/Inventory.css';
-import { useNavigate } from 'react-router-dom'; // Import this at the top
-
+import { useNavigate } from 'react-router-dom';
 
 const Inventory = () => {
-  // Product state for adding new items
   const [product, setProduct] = useState({
     barcode: '',
     name: '',
@@ -17,22 +14,15 @@ const Inventory = () => {
     category: '',
   });
 
-  const navigate = useNavigate(); // Set up the navigate function
-
-
-  // State for managing added product confirmation
+  const navigate = useNavigate();
   const [addedProduct, setAddedProduct] = useState(null);
-  
-  // State for managing editing product
   const [editingProductId, setEditingProductId] = useState(null);
-
-  // State for search and filter
   const [searchCategory, setSearchCategory] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [resultsPerPage] = useState(5); // Customize items per page
-
+  const [resultsPerPage] = useState(5);
+  
   const role = localStorage.getItem('role');
   const isAdmin = role === 'admin';
 
@@ -69,11 +59,8 @@ const Inventory = () => {
 
     try {
       if (editingProductId) {
-        // Update the product
         await axios.put(`http://localhost:5000/api/products/${editingProductId}`, productWithBranchId);
         console.log('Product updated successfully');
-        
-        // Update the search results state
         setSearchResults((prevResults) =>
           prevResults.map((item) =>
             item.barcode === editingProductId ? { ...item, ...productWithBranchId } : item
@@ -85,7 +72,6 @@ const Inventory = () => {
         setAddedProduct(response.data.product);
       }
 
-      // Reset product and editing state
       setProduct({ barcode: '', name: '', description: '', price: '', quantity: '', category: '' });
       setEditingProductId(null);
       setTimeout(() => {
@@ -116,7 +102,11 @@ const Inventory = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    fetchSearchResults();
+    if (searchQuery.trim()) {
+      fetchSearchResults();
+    } else {
+      setSearchResults([]); // Clear search results if query is empty
+    }
   };
 
   const indexOfLastResult = currentPage * resultsPerPage;
@@ -135,7 +125,7 @@ const Inventory = () => {
       quantity: productToEdit.quantity,
       category: productToEdit.category,
     });
-    setEditingProductId(productToEdit.barcode); // Set barcode here
+    setEditingProductId(productToEdit.barcode);
   };
 
   const handleDelete = async (barcode, branchId) => {
@@ -146,7 +136,6 @@ const Inventory = () => {
           params: { branchId: branchId },
         });
   
-        // Update the search results after deletion
         setSearchResults((prevResults) => prevResults.filter((item) => item.barcode !== barcode));
         console.log('Product deleted successfully');
       } catch (error) {
@@ -158,8 +147,7 @@ const Inventory = () => {
   return (
     <>
       <Navbar isAdmin={isAdmin} />
-
-      {/* Search and Filter Section */}
+      
       <section>
         <form onSubmit={handleSearch}>
           <select value={searchCategory} onChange={(e) => setSearchCategory(e.target.value)}>
@@ -174,60 +162,59 @@ const Inventory = () => {
             placeholder="بحث باستخدام اسم المنتج او وصفه"
           />
           <button type="submit">بحث</button>
-          <button type="button" onClick={() => navigate('/all-products')}>عرض جميع المنتجات</button> {/* Updated button */}
-
         </form>
       </section>
 
-      {/* Display Search Results or Confirmation Message */}
       <section>
-  {searchResults.length > 0 ? (
-    <div>
-      <table>
-        <thead>
-          <tr>
-            <th>رمز المنتج</th> {/* Added header for barcode */}
-            <th>اسم المنتج</th>
-            <th>الوصف</th>
-            <th>التصنيف</th>
-            <th>الكمية</th>
-            <th>السعر</th>
-            <th>العمليات</th>
-          </tr>
-        </thead>
-        <tbody>
-          {currentResults.map((item) => (
-            <tr key={item._id}>
-              <td>{item.barcode}</td> {/* Added barcode data */}
-              <td>{item.name}</td>
-              <td>{item.description}</td>
-              <td>{item.category}</td>
-              <td>{item.quantity}</td>
-              <td>{item.price}</td>
-              <td>
-                <button onClick={() => handleEdit(item._id)}>تعديل</button>
-                <button onClick={() => handleDelete(item.barcode, item.branchId)}>حذف</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      {/* Pagination Component */}
-      <div className="pagination">
-        {[...Array(Math.ceil(searchResults.length / resultsPerPage)).keys()].map((number) => (
-          <button key={number + 1} onClick={() => paginate(number + 1)}>
-            {number + 1}
-          </button>
-        ))}
-      </div>
-    </div>
-  ) : (
-    <p>لا توجد نتائج للبحث</p>
-  )}
-</section>
+        {searchQuery.trim() === '' ? (
+          <p>يرجى إدخال استعلام للبحث.</p>
+        ) : searchResults.length > 0 ? (
+          <div>
+            <table>
+              <thead>
+                <tr>
+                  <th>رمز المنتج</th>
+                  <th>اسم المنتج</th>
+                  <th>الوصف</th>
+                  <th>التصنيف</th>
+                  <th>الكمية</th>
+                  <th>السعر</th>
+                  <th>العمليات</th>
+                </tr>
+              </thead>
+              <tbody>
+                {currentResults.map((item) => (
+                  <tr key={item._id}>
+                    <td>{item.barcode}</td>
+                    <td>{item.name}</td>
+                    <td>{item.description}</td>
+                    <td>{item.category}</td>
+                    <td>{item.quantity}</td>
+                    <td>{item.price}</td>
+                    <td>
+                      <button onClick={() => handleEdit(item._id)}>تعديل</button>
+                      <button onClick={() => handleDelete(item.barcode, item.branchId)}>حذف</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div className="pagination">
+              {[...Array(Math.ceil(searchResults.length / resultsPerPage)).keys()].map((number) => (
+                <button key={number + 1} onClick={() => paginate(number + 1)}>
+                  {number + 1}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <p>لا توجد نتائج.</p>
+        )}
+        <button type="button" onClick={() => navigate('/all-products')}>عرض جميع المنتجات</button>
+      </section>
 
-      {/* Add or Edit Product Section */}
       <section>
+        <h2>{editingProductId ? 'تعديل المنتج' : 'إضافة منتج'}</h2>
         <form onSubmit={handleSubmit}>
           <input
             type="text"
@@ -268,16 +255,20 @@ const Inventory = () => {
             placeholder="الكمية"
             required
           />
-          <select name="category" value={product.category} onChange={handleChange}>
+          <select
+            name="category"
+            value={product.category}
+            onChange={handleChange}
+            required
+          >
             <option value="">اختر التصنيف</option>
             <option value="devices">اجهزة</option>
             <option value="accessories">اكسسوارات</option>
           </select>
-          <button type="submit">{editingProductId ? 'تحديث المنتج' : 'إضافة منتج'}</button>
+          <button type="submit">{editingProductId ? 'تحديث المنتج' : 'إضافة المنتج'}</button>
         </form>
+        {addedProduct && <p>تم إضافة المنتج: {addedProduct.name}</p>}
       </section>
-
-      {addedProduct && <p>تمت إضافة المنتج: {addedProduct.name}</p>}
     </>
   );
 };
