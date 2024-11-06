@@ -16,7 +16,6 @@ import SupplierPaymentTransaction from './components/ Transactions/SupplierPayme
 import PurchasingTransaction from './components/ Transactions/PurchasingTransaction';
 import ReturnsTransaction from './components/ Transactions/ReturnsTransaction';
 import RechargeTransaction from './components/ Transactions/RechargeTransaction';
-import Order from './components/ Transactions/Order';
 import Inventory from './components/Inventory';
 import Checkout from './components/ Transactions/Checkout';
 import OrderReceipt from './components/ Transactions/OrderReceipt';
@@ -62,7 +61,6 @@ function App() {
           <Route path="/transactions/supplier_payment" element={<SupplierPaymentTransaction />} />
           <Route path="/transactions/purchasing" element={<PurchasingTransaction />} />
           <Route path="/transactions/returns" element={<ReturnsTransaction />} />
-          <Route path='transactions/order' element={<Order/>} />
           <Route path='inventory' element={<Inventory/>} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/order-receipt/:orderId" element={<OrderReceipt />} />

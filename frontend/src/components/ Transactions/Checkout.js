@@ -10,6 +10,14 @@ const Checkout = () => {
     const [clientPhone, setClientPhone] = useState('');
     const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
 
+
+    const [welcomeData, setWelcomeData] = useState({
+        storeName: "Tarek Phones",
+        branchName: "Default Branch",
+        salesName: "Default Sales",
+        date: new Date().toLocaleDateString(),
+    });
+
     useEffect(() => {
         const items = sessionStorage.getItem('checkoutItems');
         if (items) {
@@ -21,6 +29,26 @@ const Checkout = () => {
             setCurrentTime(new Date().toLocaleTimeString());
         }, 1000);
 
+        const userId = localStorage.getItem("userId");
+        const branchId = localStorage.getItem("branchId");
+
+        const fetchUserData = async () => {
+            try {
+                // Fetch user data
+                const userResponse = await axios.get(`http://localhost:5000/api/users/${userId}`);
+                const branchResponse = await axios.get(`http://localhost:5000/api/branches/${branchId}`);
+
+                setWelcomeData(prevData => ({
+                    ...prevData,
+                    salesName: userResponse.data.username,
+                    branchName: branchResponse.data.name
+                }));
+            } catch (error) {
+                console.error("Error fetching user or branch data:", error);
+            } 
+        };
+
+        fetchUserData();
         // Clean up the interval on component unmount
         return () => clearInterval(timer);
     }, []);
@@ -28,13 +56,22 @@ const Checkout = () => {
     const totalAmount = checkoutItems.reduce((total, item) => total + item.price, 0);
     const totalAfterDiscount = totalAmount - Number(discount); // Calculate total after discount
     const remaining = Number(paid) - totalAfterDiscount; // Calculate remaining amount to be paid
+     
 
     const handleSubmit = async () => {
         // Retrieve the branchId from local storage
-        const branchId = localStorage.getItem('branchId'); 
+        const branchId = localStorage.getItem('branchId');
+    
+        // Check if branchId exists, if not, show an alert and return
+        if (!branchId) {
+            alert('Branch ID is missing.');
+            return;
+        }
 
+
+    
         const orderData = {
-            branchId: branchId, // Use the retrieved branchId
+            branchId: branchId,  // Make sure the property name matches your backend's expected key (branchIs)
             checkoutItems,
             discount: Number(discount) || 0,
             paid: Number(paid) || 0,
@@ -43,21 +80,36 @@ const Checkout = () => {
             clientPhone,
             date: new Date().toLocaleDateString(),
             time: currentTime,
-        };
-
+        };  
+    
         try {
             // Create the order and decrease product quantities in one go
-            const response = await axios.post('http://localhost:5000/api/orders', orderData);
+            const response = await axios.post('http://localhost:5000/api/orders', orderData , {
+
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            
+    
+                    // Assuming `branchId` is available in your component or context
+                const branchId = localStorage.getItem('branchId');
 
             // If order creation is successful, update quantities
             for (const item of checkoutItems) {
-                await axios.put(`http://localhost:5000/api/products/${item.barcode}/decrease`, {
-                    quantity: 1, // Specify quantity to decrease
-                });
+                try {
+                    const response = await axios.put(`http://localhost:5000/api/products/${item.barcode}/decrease`, {
+                        quantity: 1, // Specify quantity to decrease
+                        branchId: branchId, // Ensure branchId is included in the request body
+                    });
+                    console.log('Quantity updated successfully:', response.data);
+                } catch (error) {
+                    console.error('Error decreasing quantity:', error.response?.data || error.message);
+                }
             }
-
+    
             console.log(response.data.message);
-
+    
             // Clear session storage and reset state
             sessionStorage.removeItem('checkoutItems');
             setCheckoutItems([]);
@@ -65,13 +117,14 @@ const Checkout = () => {
             setPaid('');
             setClientName('');
             setClientPhone('');
-
+    
             window.close(); // Close the window after submitting
-
+    
         } catch (error) {
             console.error('Error:', error.response ? error.response.data.message : error.message);
         }
     };
+    
 
     const handlePrint = () => {
         window.print(); // Open the print dialog
@@ -83,11 +136,11 @@ const Checkout = () => {
             <div id="printable-section">
                 {/* Print-only information at the top */}
                 <div className="print-only">
-                    <p>Tarek Phones</p> {/* Added Store Name */}
-                    <p>{localStorage.getItem("branchName") || "فرع افتراضي"}</p>
-                    <p>البائع: {localStorage.getItem("salesName") || "بائع افتراضي"}</p>
-                    <p>التاريخ: {new Date().toLocaleDateString()}</p>
-                    <p>الوقت: {currentTime}</p> {/* Real-time current time */}
+                <p>{welcomeData.storeName}</p>
+                  <p>{welcomeData.branchName}</p>
+                  <p>{welcomeData.salesName}</p>
+                  <p>Date: {welcomeData.date}</p>
+                  <p>Time: {currentTime}</p>
                 </div>
 
                 {/* Items that will be printed */}

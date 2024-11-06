@@ -5,6 +5,7 @@ import '../../styles/SellingTransaction.css';
 
 const SellingTransaction = () => {
     const role = localStorage.getItem('role');
+    const branchId = localStorage.getItem('branchId'); // Retrieve branchID
     const isAdmin = role === 'admin';
 
     const [products, setProducts] = useState([]);
@@ -15,32 +16,36 @@ const SellingTransaction = () => {
         price: 0,
     });
     const [currentPage, setCurrentPage] = useState(0);
-    const itemsPerPage = 2; // Number of items to display per page
+    const itemsPerPage = 2;
     const [errorMessage, setErrorMessage] = useState('');
     const [lastOrders, setLastOrders] = useState([]);
-    const [totalPages, setTotalPages] = useState(0); // Total number of pages
+    const [totalPages, setTotalPages] = useState(0);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        // Fetch all orders on component mount
+        // Fetch all orders for this branch on component mount
         const fetchLastOrders = async () => {
             setLoading(true);
             try {
-                const response = await axios.get('http://localhost:5000/api/orders');
+                // Make sure to pass the branchId in the query string
+                const branchId = localStorage.getItem('branchId');
+        
+                const response = await axios.get(`http://localhost:5000/api/orders?branchId=${branchId}`);
                 console.log('Last orders response:', response.data);
+                
                 if (response.data) {
                     const today = new Date();
                     const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
                     const todayEnd = new Date(todayStart);
-                    todayEnd.setDate(todayEnd.getDate() + 1); // Move to the next day
-
+                    todayEnd.setDate(todayEnd.getDate() + 1);
+        
                     // Filter orders to get only today's orders
                     const todaysOrders = response.data.filter(order => {
                         const orderDate = new Date(order.createdAt);
                         return orderDate >= todayStart && orderDate < todayEnd;
                     });
                     setLastOrders(todaysOrders);
-                    setTotalPages(Math.ceil(todaysOrders.length / itemsPerPage)); // Calculate total pages
+                    setTotalPages(Math.ceil(todaysOrders.length / itemsPerPage));
                 }
             } catch (error) {
                 console.error('Error fetching last orders:', error);
@@ -48,30 +53,36 @@ const SellingTransaction = () => {
                 setLoading(false);
             }
         };
+        
 
         fetchLastOrders();
-    }, []);
+    }, [branchId]);
 
     const handleBarcodeChange = async (e) => {
         const scannedBarcode = e.target.value;
-
+        const branchId = localStorage.getItem('branchId'); // Retrieve branchID
+    
         if (!/^\d*$/.test(scannedBarcode)) {
             setErrorMessage('Barcode must be numeric.');
             return;
         }
-
+    
         setOrderData((prevData) => ({
             ...prevData,
             barcode: scannedBarcode,
         }));
-
+    
         if (scannedBarcode === '') {
             setErrorMessage('');
             return;
         }
-
+    
         try {
-            const response = await axios.get(`http://localhost:5000/api/products/${scannedBarcode}`);
+            // Include branchId in the product lookup request
+            const response = await axios.get(`http://localhost:5000/api/products/${scannedBarcode}`, {
+                params: { branchId }
+            });
+    
             if (response.data) {
                 const product = {
                     barcode: scannedBarcode,
@@ -93,18 +104,17 @@ const SellingTransaction = () => {
             }
         }
     };
+    
 
     const totalAmount = products.reduce((total, product) => total + product.price, 0);
 
     const handleCheckout = async () => {
-        // Check if the barcode input is empty
         if (products.length === 0) {
             setErrorMessage('Please scan at least one product before checking out.');
-            return; // Exit the function if no products are added
+            return;
         }
 
         try {
-            // After submitting the order, fetch all orders again
             sessionStorage.setItem('checkoutItems', JSON.stringify(products));
             const checkoutWindow = window.open('/checkout', '_blank');
             if (checkoutWindow) {
@@ -123,12 +133,10 @@ const SellingTransaction = () => {
         window.location.href = `/order-receipt/${orderId}`;
     };
 
-    // Calculate the orders to display for the current page
     const startIndex = currentPage * itemsPerPage;
     const currentOrders = lastOrders.slice(startIndex, startIndex + itemsPerPage);
     const isCheckoutDisabled = products.length === 0 || errorMessage !== '';
 
-    
     return (
         <div>
             <Navbar isAdmin={isAdmin} />
@@ -167,7 +175,6 @@ const SellingTransaction = () => {
                 <button onClick={handleCheckout} disabled={isCheckoutDisabled}>Checkout</button>
             </div>
 
-            {/* Display All Last Orders as a Table with Pagination */}
             {loading ? (
                 <p>Loading...</p>
             ) : (
@@ -196,8 +203,6 @@ const SellingTransaction = () => {
                                 ))}
                             </tbody>
                         </table>
-
-                        {/* Pagination Controls */}
                         <div className="pagination">
                             {Array.from({ length: totalPages }, (_, index) => (
                                 <button
@@ -210,11 +215,12 @@ const SellingTransaction = () => {
                                 </button>
                             ))}
                         </div>
-                        <button onClick={() => window.location.href = '/all-orders'}>View All Orders</button>
-
+                       
                     </div>
+                    
                 )
             )}
+             <button onClick={() => window.location.href = '/all-orders'}>View All Orders</button>
         </div>
     );
 };

@@ -9,6 +9,9 @@ const AllProducts = () => {
   const [editFormData, setEditFormData] = useState({}); // Store form data for editing
   const branchId = localStorage.getItem('branchId');
 
+  const role = localStorage.getItem('role'); // Get role from localStorage
+  const isAdmin = role === 'admin'; // Determine if the user is an admin
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -70,7 +73,7 @@ const AllProducts = () => {
 
   return (
     <>
-      <Navbar isAdmin={true} /> {/* Assuming admin, adjust as needed */}
+      <Navbar isAdmin={isAdmin} /> {/* Assuming admin, adjust as needed */}
       <section>
         <h2>جميع المنتجات للفرع</h2>
         {products.length > 0 ? (

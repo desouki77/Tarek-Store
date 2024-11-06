@@ -1,25 +1,52 @@
-// Example Express route to save the order
 const express = require('express');
 const router = express.Router();
 const Order = require('../models/Order'); // Assuming you have an Order model
+const Branch = require('../models/Branch'); 
+const validateBranchId = require('../middlewares/validateBranch');
 
-router.post('/orders', async (req, res) => {
+
+
+// POST /orders - Create a new order, including branchId
+router.post('/orders',validateBranchId, async (req, res) => {
     try {
-        const orderData = req.body; // Extract order data from the request body
-        const newOrder = new Order(orderData); // Create a new order instance
-        await newOrder.save(); // Save the order to the database
+        const { branchId, checkoutItems, discount, paid, remaining, clientName, clientPhone, date, time } = req.body;
+
+        if (!branchId) {
+            return res.status(400).json({ message: 'branchId is required' });
+        }
+
+        const newOrder = new Order({
+            branchId,
+            checkoutItems,
+            discount,
+            paid,
+            remaining,
+            clientName,
+            clientPhone,
+            date,
+            time,
+        });
+
+        await newOrder.save();
         res.status(201).json({ message: 'Order saved successfully!' });
     } catch (error) {
+        console.error('Failed to save order:', error);
         res.status(500).json({ message: 'Failed to save order', error });
     }
 });
 
 
-router.get('/orders', async (req, res) => {
+// GET /orders - Fetch all orders for a specific branchId
+router.get('/orders', validateBranchId, async (req, res) => {
     try {
-        // Fetch all orders sorted by createdAt in descending order
-        const orders = await Order.find().sort({ createdAt: -1 }); // Sort by createdAt in descending order
+        const { branchId } = req.query;
 
+        if (!branchId) {
+            return res.status(400).json({ message: 'branchId is required' });
+        }
+
+        // Fetch all orders for the specified branchID, sorted by createdAt in descending order
+        const orders = await Order.find({ branchId }).sort({ createdAt: -1 });
         res.json(orders);
     } catch (error) {
         console.error('Error fetching orders:', error);
@@ -28,32 +55,21 @@ router.get('/orders', async (req, res) => {
 });
 
 
-// GET /api/orders/latest - Get the latest orders
-router.get('/orders/latest', async (req, res) => {
+// GET /orders/:orderId - Get a specific order by ID, with branchId check
+router.get('/orders/:orderId',validateBranchId, async (req, res) => {
     try {
-        // Fetch the latest orders by sorting in descending order based on createdAt
-        const latestOrders = await Order.find().sort({ createdAt: -1 }).limit(1); // Fetch the last 5 orders
+        const { orderId } = req.params;
+        const { branchId } = req.query;
 
-        if (latestOrders.length === 0) {
-            return res.status(404).json({ message: 'No orders found.' });
+        if (!branchId) {
+            return res.status(400).json({ message: 'branchId is required' });
         }
 
-        res.json(latestOrders);
-    } catch (error) {
-        console.error('Error fetching the latest orders:', error);
-        res.status(500).json({ message: 'Server error' });
-    }
-});
-
-// GET /api/orders/:orderId - Get a specific order by ID
-router.get('/orders/:orderId', async (req, res) => {
-    console.log('Fetching order by ID:', req.params.orderId); // Add this line
-    try {
-        const orderId = req.params.orderId;
-        const order = await Order.findById(orderId);
+        // Fetch the order by ID and verify it belongs to the specified branchId
+        const order = await Order.findOne({ _id: orderId, branchId });
 
         if (!order) {
-            return res.status(404).json({ message: 'Order not found' });
+            return res.status(404).json({ message: 'Order not found for this branchID' });
         }
 
         res.json(order);
