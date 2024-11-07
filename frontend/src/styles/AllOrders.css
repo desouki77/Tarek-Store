@@ -1,0 +1,29 @@
+.date-filter {
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Align vertically (optional, but useful) */
+    gap: 10px;
+}
+
+.date-filter label {
+    font-size: 16px;
+    color: #333;
+    margin-right: 10px;
+}
+
+.date-input {
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.date-input:focus {
+    border-color: #4CAF50;
+}
+
+.date-input:hover {
+    border-color: #007BFF;
+}

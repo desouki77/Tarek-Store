@@ -11,15 +11,50 @@ const OrderReceipt = () => {
 
     const { orderId } = useParams(); // Get the orderId from the URL parameters
     const [orderData, setOrderData] = useState(null);
-    const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
+
+    const [welcomeData, setWelcomeData] = useState({
+        storeName: "Tarek Phones",
+        branchName: "Default Branch",
+        salesName: "Default Sales",
+    });
+
+    const [checkoutItems, setCheckoutItems] = useState([]);
 
     useEffect(() => {
+
+        const userId = localStorage.getItem("userId");
+        const branchId = localStorage.getItem("branchId");
+
+        const fetchUserData = async () => {
+            try {
+                // Fetch user data
+                const userResponse = await axios.get(`http://localhost:5000/api/users/${userId}`);
+                const branchResponse = await axios.get(`http://localhost:5000/api/branches/${branchId}`);
+
+                setWelcomeData(prevData => ({
+                    ...prevData,
+                    salesName: userResponse.data.username,
+                    branchName: branchResponse.data.name
+                }));
+            } catch (error) {
+                console.error("Error fetching user or branch data:", error);
+            } 
+        };
+
+        fetchUserData();
+
+        const items = sessionStorage.getItem('checkoutItems');
+        if (items) {
+            setCheckoutItems(JSON.parse(items));
+        }
+
         // Fetch the order data from the API using the provided orderId
         const fetchOrderData = async () => {
             if (!orderId) return; // Exit if orderId is not defined
 
             try {
-                const response = await axios.get(`http://localhost:5000/api/orders/${orderId}`);
+               
+                const response = await axios.get(`http://localhost:5000/api/orders/${orderId}?branchId=${branchId}`);
                 setOrderData(response.data);
             } catch (error) {
                 console.error('Error fetching order data:', error);
@@ -27,19 +62,14 @@ const OrderReceipt = () => {
         };
 
         fetchOrderData();
-
-        // Set up a timer to update the current time every second
-        const timer = setInterval(() => {
-            setCurrentTime(new Date().toLocaleTimeString());
-        }, 1000);
-
-        // Clean up the interval on component unmount
-        return () => clearInterval(timer);
+      
     }, [orderId]);
 
     if (!orderData) return <div>Loading...</div>; // Handle loading state
 
-    const { checkoutItems, discount, paid, remaining, clientName, clientPhone, date } = orderData;
+    const {  discount, paid, remaining, clientName, clientPhone} = orderData;
+    const totalAmount = checkoutItems.reduce((total, item) => total + item.price, 0);
+    const totalAfterDiscount = totalAmount - Number(discount); // Calculate total after discount
 
     return (
         <>
@@ -49,11 +79,11 @@ const OrderReceipt = () => {
         
             <div id="printable-section">
                 <div>
-                    <p>Tarek Phones</p> {/* Added Store Name */}
-                    <p>{localStorage.getItem("branchName") || "فرع افتراضي"}</p>
-                    <p>البائع: {localStorage.getItem("salesName") || "بائع افتراضي"}</p>
-                    <p>التاريخ: {date || new Date().toLocaleDateString()}</p>
-                    <p>الوقت: {currentTime}</p>
+                <p>{welcomeData.storeName}</p>
+                  <p>{welcomeData.branchName}</p>
+                  <p>{welcomeData.salesName}</p>
+                  <p>Date: {orderData.date}</p>
+                  <p>Time: {orderData.time}</p>
                 </div>
 
                 <table>
@@ -76,9 +106,9 @@ const OrderReceipt = () => {
                 </table>
 
                 <div>
-                    <p>إجمالي المبلغ: {orderData.totalAmount}</p>
+                    <p>إجمالي المبلغ: {totalAmount}</p>
                     <p>الخصم: {discount}</p>
-                    <p>إجمالي المبلغ بعد الخصم: {orderData.totalAfterDiscount}</p>
+                    <p>إجمالي المبلغ بعد الخصم: {totalAfterDiscount}</p>
                     <p>المبلغ المدفوع: {paid}</p>
                     <p>المتبقي: {remaining}</p>
                     <p>اسم العميل: {clientName}</p>

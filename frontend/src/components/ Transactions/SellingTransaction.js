@@ -5,7 +5,7 @@ import '../../styles/SellingTransaction.css';
 
 const SellingTransaction = () => {
     const role = localStorage.getItem('role');
-    const branchId = localStorage.getItem('branchId'); // Retrieve branchID
+    const branchId = localStorage.getItem('branchId');
     const isAdmin = role === 'admin';
 
     const [products, setProducts] = useState([]);
@@ -22,45 +22,38 @@ const SellingTransaction = () => {
     const [totalPages, setTotalPages] = useState(0);
     const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        // Fetch all orders for this branch on component mount
-        const fetchLastOrders = async () => {
-            setLoading(true);
-            try {
-                // Make sure to pass the branchId in the query string
-                const branchId = localStorage.getItem('branchId');
-        
-                const response = await axios.get(`http://localhost:5000/api/orders?branchId=${branchId}`);
-                console.log('Last orders response:', response.data);
-                
-                if (response.data) {
-                    const today = new Date();
-                    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-                    const todayEnd = new Date(todayStart);
-                    todayEnd.setDate(todayEnd.getDate() + 1);
-        
-                    // Filter orders to get only today's orders
-                    const todaysOrders = response.data.filter(order => {
-                        const orderDate = new Date(order.createdAt);
-                        return orderDate >= todayStart && orderDate < todayEnd;
-                    });
-                    setLastOrders(todaysOrders);
-                    setTotalPages(Math.ceil(todaysOrders.length / itemsPerPage));
-                }
-            } catch (error) {
-                console.error('Error fetching last orders:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        
+    // Function to fetch last orders
+    const fetchLastOrders = async () => {
+        setLoading(true);
+        try {
+            const response = await axios.get(`http://localhost:5000/api/orders?branchId=${branchId}`);
+            if (response.data) {
+                const today = new Date();
+                const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                const todayEnd = new Date(todayStart);
+                todayEnd.setDate(todayEnd.getDate() + 1);
 
-        fetchLastOrders();
-    }, [branchId]);
+                // Filter orders to get only today's orders
+                const todaysOrders = response.data.filter(order => {
+                    const orderDate = new Date(order.createdAt);
+                    return orderDate >= todayStart && orderDate < todayEnd;
+                });
+                setLastOrders(todaysOrders);
+                setTotalPages(Math.ceil(todaysOrders.length / itemsPerPage));
+            }
+        } catch (error) {
+            console.error('Error fetching last orders:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchLastOrders(); // Fetch last orders on initial load
+    },[branchId]); // Add `branchId` as a dependency
 
     const handleBarcodeChange = async (e) => {
         const scannedBarcode = e.target.value;
-        const branchId = localStorage.getItem('branchId'); // Retrieve branchID
     
         if (!/^\d*$/.test(scannedBarcode)) {
             setErrorMessage('Barcode must be numeric.');
@@ -78,7 +71,6 @@ const SellingTransaction = () => {
         }
     
         try {
-            // Include branchId in the product lookup request
             const response = await axios.get(`http://localhost:5000/api/products/${scannedBarcode}`, {
                 params: { branchId }
             });
@@ -104,18 +96,23 @@ const SellingTransaction = () => {
             }
         }
     };
-    
 
     const totalAmount = products.reduce((total, product) => total + product.price, 0);
 
     const handleCheckout = async () => {
-        if (products.length === 0) {
-            setErrorMessage('Please scan at least one product before checking out.');
+        if (!products || products.length === 0) {
+            alert("برجاء اضافة منتج");
             return;
         }
 
         try {
+            // Clear products after checkout is processed
+            setProducts([]);
+
+            // Store the checkout items in sessionStorage
             sessionStorage.setItem('checkoutItems', JSON.stringify(products));
+
+            // Open checkout window
             const checkoutWindow = window.open('/checkout', '_blank');
             if (checkoutWindow) {
                 checkoutWindow.opener = null;
@@ -135,7 +132,6 @@ const SellingTransaction = () => {
 
     const startIndex = currentPage * itemsPerPage;
     const currentOrders = lastOrders.slice(startIndex, startIndex + itemsPerPage);
-    const isCheckoutDisabled = products.length === 0 || errorMessage !== '';
 
     return (
         <div>
@@ -172,7 +168,7 @@ const SellingTransaction = () => {
             </table>
             <div>
                 <p>Total Amount: {totalAmount}</p>
-                <button onClick={handleCheckout} disabled={isCheckoutDisabled}>Checkout</button>
+                <button onClick={handleCheckout}>Checkout</button>
             </div>
 
             {loading ? (
@@ -215,12 +211,10 @@ const SellingTransaction = () => {
                                 </button>
                             ))}
                         </div>
-                       
                     </div>
-                    
                 )
             )}
-             <button onClick={() => window.location.href = '/all-orders'}>View All Orders</button>
+            <button onClick={() => window.location.href = '/all-orders'}>View All Orders</button>
         </div>
     );
 };

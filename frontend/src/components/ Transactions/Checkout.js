@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import '../../styles/Checkout.css'; // Ensure you import the CSS file
 import axios from 'axios';
 
+
+
 const Checkout = () => {
     const [checkoutItems, setCheckoutItems] = useState([]);
     const [discount, setDiscount] = useState(''); // Default to an empty string
@@ -17,6 +19,8 @@ const Checkout = () => {
         salesName: "Default Sales",
         date: new Date().toLocaleDateString(),
     });
+
+
 
     useEffect(() => {
         const items = sessionStorage.getItem('checkoutItems');
@@ -81,6 +85,15 @@ const Checkout = () => {
             date: new Date().toLocaleDateString(),
             time: currentTime,
         };  
+
+        if (!paid) {
+            alert("برجاء ادخال مبلغ الدفع!!");
+            return;
+        }
+        if (remaining !== 0 && (!clientName || !clientPhone)) {
+            alert("هناك باقي!! برجائ اخذ اسم ورقم العميل");
+            return;
+        }
     
         try {
             // Create the order and decrease product quantities in one go
@@ -90,6 +103,7 @@ const Checkout = () => {
                     'Content-Type': 'application/json',
                 }
             });
+
             
     
                     // Assuming `branchId` is available in your component or context
@@ -123,6 +137,8 @@ const Checkout = () => {
         } catch (error) {
             console.error('Error:', error.response ? error.response.data.message : error.message);
         }
+
+
     };
     
 
