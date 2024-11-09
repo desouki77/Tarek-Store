@@ -22,6 +22,7 @@ import OrderReceipt from './components/ Transactions/OrderReceipt';
 import AllOrders from './components/ Transactions/AllOrders';
 import AllProducts from './components/AllProducts';
 import EditProduct from './components/EditProduct';
+import AllTransactions from './components/ Transactions/AllTransactions';
 
 
 function App() {
@@ -67,6 +68,7 @@ function App() {
           <Route path="/all-orders" element={<AllOrders/>} /> 
           <Route path="/all-products" element={<AllProducts />} /> 
           <Route path="/edit-product/:barcode" element={<EditProduct />} />
+          <Route path="all-transactions" element={<AllTransactions />} />
 
 
 

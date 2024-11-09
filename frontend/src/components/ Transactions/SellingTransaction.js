@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Navbar from '../Navbar';
 import '../../styles/SellingTransaction.css';
+import { useNavigate } from 'react-router-dom';
 
 const SellingTransaction = () => {
     const role = localStorage.getItem('role');
     const branchId = localStorage.getItem('branchId');
     const isAdmin = role === 'admin';
 
+    const navigate = useNavigate();
     const [products, setProducts] = useState([]);
     const [orderData, setOrderData] = useState({
         barcode: '',
@@ -21,6 +23,10 @@ const SellingTransaction = () => {
     const [lastOrders, setLastOrders] = useState([]);
     const [totalPages, setTotalPages] = useState(0);
     const [loading, setLoading] = useState(false);
+
+
+    useEffect(() => {
+
 
     // Function to fetch last orders
     const fetchLastOrders = async () => {
@@ -47,8 +53,7 @@ const SellingTransaction = () => {
             setLoading(false);
         }
     };
-
-    useEffect(() => {
+    
         fetchLastOrders(); // Fetch last orders on initial load
     },[branchId]); // Add `branchId` as a dependency
 
@@ -127,7 +132,8 @@ const SellingTransaction = () => {
     };
 
     const viewOrderDetails = (orderId) => {
-        window.location.href = `/order-receipt/${orderId}`;
+        // Use history.push to navigate with orderId as a parameter
+        navigate(`/order-receipt/${orderId}`);
     };
 
     const startIndex = currentPage * itemsPerPage;

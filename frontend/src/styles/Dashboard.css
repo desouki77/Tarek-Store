@@ -23,7 +23,7 @@
 
 .transaction-buttons {
     display: grid; /* Use grid layout */
-    grid-template-columns: repeat(3, 1fr); /* 3 columns */
+    grid-template-columns: repeat(4, 1fr); /* 3 columns */
     gap: 20px; /* Space between buttons */
     width: 100%; /* Full width to center the grid */
     max-width: 600px; /* Maximum width for the grid */   
