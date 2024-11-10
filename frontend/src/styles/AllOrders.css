@@ -1,29 +1,171 @@
-.date-filter {
-    display: flex;
-    justify-content: center; /* Center horizontally */
-    align-items: center; /* Align vertically (optional, but useful) */
-    gap: 10px;
+/* AllOrders.css */
+
+/* All Orders Container */
+.all-orders-container {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin: 20px;
+    max-width: 1200px;
+    margin-left: auto; /* Center the container */
+    margin-right: auto; 
+    
 }
 
-.date-filter label {
-    font-size: 16px;
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 24px;
     color: #333;
-    margin-right: 10px;
 }
 
-.date-input {
+/* Date Filter */
+.all-orders-date-filter {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.all-orders-date-input {
     padding: 8px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+/* Table Container */
+.all-orders-table-container {
+    overflow-x: auto;
+}
+
+.all-orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color:darkgrey;
+    color: white;
+    font-size: 16px;
+}
+
+td {
     font-size: 14px;
-    border: 1px solid #ccc;
+}
+
+/* Button Styles */
+.all-orders-button {
+    padding: 8px 12px;
+    font-size: 14px;
+    color: white;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.all-orders-button:hover {
+    background-color: #0056b3;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .all-orders-date-filter {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .all-orders-table {
+        font-size: 12px;
+    }
+
+    th, td {
+        padding: 10px;
+    }
+
+    .all-orders-button {
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .all-orders-container {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 20px;
+    }
+
+    .all-orders-date-filter {
+        margin-bottom: 10px;
+    }
+
+    .all-orders-button {
+        font-size: 10px;
+        padding: 4px 8px;
+    }
+}
+
+/* Pagination Container */
+.all-orders-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.all-orders-pagination-button {
+    padding: 4px 8px;  /* Smaller padding for more compact buttons */
+    margin: 5px;
+    border: 1px solid #ddd;
     border-radius: 4px;
-    outline: none;
-    transition: border-color 0.3s;
+    background-color: #f0f0f0;
+    cursor: pointer;
+    font-size: 12px;  /* Smaller font size */
+    color: #333;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    width: auto; /* Allow button width to adjust based on content */
+    min-width: 40px;  /* Minimum width to ensure buttons are not too narrow */
 }
 
-.date-input:focus {
-    border-color: #4CAF50;
+/* Hover effect */
+.all-orders-pagination-button:hover {
+    background-color: #007BFF;
+    color: white;
 }
 
-.date-input:hover {
-    border-color: #007BFF;
+/* Disabled state */
+.all-orders-pagination-button.disabled {
+    cursor: not-allowed;
+    background-color: #ddd;
+    color: #aaa;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .all-orders-pagination-button {
+        font-size: 10px;  /* Reduce font size for very small screens */
+        padding: 3px 6px;  /* Reduce padding for smaller screens */
+        width: 20vw;
+    }
+    
+    .all-orders-pagination {
+        flex-direction: row; /* Keep buttons in a row on mobile */
+        align-items: center; /* Center pagination on mobile */
+    }
 }

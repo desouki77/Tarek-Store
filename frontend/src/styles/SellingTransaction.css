@@ -1,32 +1,144 @@
-.pagination {
-    display: flex;
-    justify-content: center;
-    margin: 10px 0;
+/* Basic layout styles */
+.selling-transaction-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0.5rem;  /* Reduce padding for small screens */
+    font-family: Arial, sans-serif;
 }
 
-.page-button {
-    border: none;
-    background-color: #007bff;
-    padding: 8px 12px;
-    margin: 0 4px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    width: 2vw;
+.barcode-input {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 1rem;
+    box-sizing: border-box;
 }
 
-.page-button:hover {
-    background-color: darkblue;
+.error-message {
+    color: red;
+    font-size: 0.8rem;  /* Adjust font size for smaller screens */
+    margin-bottom: 1rem;
 }
 
-.page-button.active {
+/* Product and order tables */
+.product-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+th, td {
+    padding: 0.75rem;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+th {
+    background-color: #f4f4f4;
     font-weight: bold;
-    color:black;
 }
 
-.page-button:disabled {
-    cursor: not-allowed;
-    
+button {
+    padding: 0.4rem 0.8rem;  /* Reduce padding for smaller screens */
+    margin-top: 1rem;
+    font-size: 0.9rem;  /* Adjust font size */
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
 }
 
 
+/* Responsive styling for 480px mobile view */
+@media (max-width: 480px) {
+    .selling-transaction-container {
+        padding: 0.5rem;  /* Further reduce padding for smaller screens */
+    }
+
+    .barcode-input {
+        font-size: 1rem;  /* Adjust input font size */
+        padding: 0.5rem;  /* Adjust input padding */
+    }
+
+    /* Make the order table scrollable on small screens */
+    .orders-table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-top: 1rem;
+    }
+
+    .orders-table {
+        min-width: 500px;  /* Ensure the table doesn't get squished */
+    }
+
+    th, td {
+        padding: 0.5rem;  /* Reduce padding for better readability */
+        font-size: 0.8rem; /* Adjust font size to fit smaller screens */
+    }
+
+    button {
+        font-size: 0.8rem;  /* Further reduce button font size */
+        padding: 0.4rem 0.8rem;  /* Adjust button padding */
+    }
+
+    .pagination {
+        font-size: 0.8rem;  /* Reduce pagination font size */
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;  /* Space between pagination items */
+        flex-wrap: wrap;
+    }
+
+    /* Pagination button styling for mobile */
+    .page-button {
+        font-size: 0.8rem;
+        padding: 0.5rem 1rem;  /* Adjust padding to make buttons like small boxes */
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #007bff;
+        color: #fff;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        width: auto; /* Allow buttons to fit the text */
+    }
+
+    .page-button:hover {
+        background-color: #0056b3;
+    }
+
+    .invoice-btn, .remove-btn, .checkout-btn {
+        font-size: 0.8rem;  /* Adjust button font sizes */
+        padding: 0.4rem 0.8rem;  /* Adjust padding */
+    }
+}
+
+/* Desktop and larger screens (fallback for pagination) */
+@media (min-width: 481px) {
+    .pagination {
+        font-size: 1rem;
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .page-button {
+        font-size: 1rem;
+        padding: 0.6rem 1rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #007bff;
+        color: #fff;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        max-width: 10vw;
+    }
+
+    .page-button:hover {
+        background-color: #0056b3;
+    }
+}

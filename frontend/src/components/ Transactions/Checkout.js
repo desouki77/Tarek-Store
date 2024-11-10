@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import '../../styles/Checkout.css'; // Ensure you import the CSS file
 import axios from 'axios';
+import Loader from '../Loader';
 
 
 
@@ -20,9 +21,11 @@ const Checkout = () => {
         date: new Date().toLocaleDateString(),
     });
 
+    const [loading, setLoading] = useState(true);
 
 
     useEffect(() => {
+        
         const items = sessionStorage.getItem('checkoutItems');
         if (items) {
             setCheckoutItems(JSON.parse(items));
@@ -50,6 +53,9 @@ const Checkout = () => {
             } catch (error) {
                 console.error("Error fetching user or branch data:", error);
             } 
+            finally {
+                setLoading(false);
+            }
         };
 
         fetchUserData();
@@ -146,9 +152,13 @@ const Checkout = () => {
         window.print(); // Open the print dialog
     };
 
+    if (loading) {
+        return <Loader />; // You can customize this loading message or add a spinner
+    }
+
     return (
         <div id='checkout-container'>
-            <h1>إتمام الشراء</h1>
+            <h1>اتمام البيع</h1>
             <div id="printable-section">
                 {/* Print-only information at the top */}
                 <div className="print-only">

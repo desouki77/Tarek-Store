@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from './Navbar';
 import axios from 'axios';
 import '../styles/Dashboard.css';
+import Loader from './Loader'
 
 function Dashboard() {
     const role = localStorage.getItem('role'); // Get role from localStorage
@@ -61,7 +62,7 @@ function Dashboard() {
 
     // Render loading state or error message
     if (loading) {
-        return <div>Loading...</div>; // Display loading message
+        return <Loader />; // Display loading message
     }
 
     if (error) {

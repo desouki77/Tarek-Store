@@ -31,17 +31,21 @@ function App() {
 
   // Show the loader during page transitions
   useEffect(() => {
+    if (location.pathname !== '/') {
     setLoading(true);
     const timer = setTimeout(() => setLoading(false), 500); // Simulate a delay for loader
     return () => clearTimeout(timer); // Cleanup the timer
+    }
   }, [location]); // Re-run effect when location changes
 
   return (
     <>
+    
+
       {loading && <Loader />} {/* Show loader if loading is true */}
       {!loading && (
         <Routes>
-          <Route path="/" element={<Welcome />} />
+           <Route path="/" element={<Welcome />} />
           <Route 
             path="/dashboard" 
             element={

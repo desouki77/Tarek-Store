@@ -22,40 +22,41 @@ const SellingTransaction = () => {
     const [errorMessage, setErrorMessage] = useState('');
     const [lastOrders, setLastOrders] = useState([]);
     const [totalPages, setTotalPages] = useState(0);
-    const [loading, setLoading] = useState(false);
-
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-
-
-    // Function to fetch last orders
-    const fetchLastOrders = async () => {
-        setLoading(true);
-        try {
-            const response = await axios.get(`http://localhost:5000/api/orders?branchId=${branchId}`);
-            if (response.data) {
+        const fetchLastOrders = async () => {
+            setLoading(true);
+            try {
                 const today = new Date();
-                const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-                const todayEnd = new Date(todayStart);
-                todayEnd.setDate(todayEnd.getDate() + 1);
-
-                // Filter orders to get only today's orders
-                const todaysOrders = response.data.filter(order => {
-                    const orderDate = new Date(order.createdAt);
-                    return orderDate >= todayStart && orderDate < todayEnd;
-                });
-                setLastOrders(todaysOrders);
-                setTotalPages(Math.ceil(todaysOrders.length / itemsPerPage));
+                const startDate = today.toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+                const endDate = startDate; // Same as startDate for today
+        
+                const response = await axios.get(`http://localhost:5000/api/orders?branchId=${branchId}&startDate=${startDate}&endDate=${endDate}`);
+                
+                console.log('Response data:', response.data);
+        
+                if (response.data && response.data.orders && Array.isArray(response.data.orders)) {
+                    const todaysOrders = response.data.orders.filter(order => {
+                        const orderDate = new Date(order.createdAt).toISOString().split('T')[0];
+                        return orderDate === startDate;
+                    });
+                    setLastOrders(todaysOrders);
+                    setTotalPages(Math.ceil(todaysOrders.length / itemsPerPage));
+                } else {
+                    console.error('Orders not found or wrong response structure:', response.data);
+                }
+            } catch (error) {
+                console.error('Error fetching last orders:', error);
+            } finally {
+                setLoading(false);
             }
-        } catch (error) {
-            console.error('Error fetching last orders:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
+        };
+        
     
-        fetchLastOrders(); // Fetch last orders on initial load
-    },[branchId]); // Add `branchId` as a dependency
+        fetchLastOrders();  // Fetch last orders on initial load
+    }, [branchId]);
+    
 
     const handleBarcodeChange = async (e) => {
         const scannedBarcode = e.target.value;
@@ -132,7 +133,6 @@ const SellingTransaction = () => {
     };
 
     const viewOrderDetails = (orderId) => {
-        // Use history.push to navigate with orderId as a parameter
         navigate(`/order-receipt/${orderId}`);
     };
 
@@ -140,24 +140,27 @@ const SellingTransaction = () => {
     const currentOrders = lastOrders.slice(startIndex, startIndex + itemsPerPage);
 
     return (
-        <div>
-            <Navbar isAdmin={isAdmin} />
+        <>
+        <Navbar isAdmin={isAdmin} />
+        <div className="selling-transaction-container">
             <input
                 type="text"
+                className="barcode-input"
                 value={orderData.barcode}
                 onChange={handleBarcodeChange}
-                placeholder="Scan Barcode"
+                placeholder="باركود"
                 required
             />
-            {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
-            <table>
+            {errorMessage && <p className="error-message">{errorMessage}</p>}
+    
+            <table className="product-table">
                 <thead>
                     <tr>
-                        <th>Scanned Barcode</th>
+                        <th>باركود</th>
                         <th>اسم المنتج</th>
                         <th>وصف</th>
                         <th>السعر</th>
-                        <th>مسح</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -166,62 +169,72 @@ const SellingTransaction = () => {
                             <td>{product.barcode}</td>
                             <td>{product.name}</td>
                             <td>{product.description}</td>
-                            <td>{product.price}</td>
-                            <td><button onClick={() => removeProduct(index)}>مسح</button></td>
+                            <td>{product.price} EGP</td>
+                            <td>
+                                <button onClick={() => removeProduct(index)} className="remove-btn">
+                                    مسح
+                                </button>
+                            </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
-            <div>
-                <p>Total Amount: {totalAmount}</p>
-                <button onClick={handleCheckout}>Checkout</button>
-            </div>
-
-            {loading ? (
-                <p>Loading...</p>
-            ) : (
-                lastOrders.length > 0 && (
-                    <div className="last-orders" style={{ marginTop: '2rem' }}>
-                        <h2>Last Orders Details</h2>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Order ID</th>
-                                    <th>Total Amount</th>
-                                    <th>Date</th>
-                                    <th>Actions</th>
+    
+            <div className="total-amount">اجمالي المبلغ: {totalAmount} EGP</div>
+            <button onClick={handleCheckout} className="checkout-btn">اتمام البيع</button>
+    
+            {loading && <p>Loading...</p>}
+    
+            {lastOrders.length > 0 && (
+                <div className="last-orders">
+                    <h2>مبيعات اليوم</h2>
+                    
+                    <table className="orders-table">
+                        <thead>
+                            <tr>
+                                <th>رقم الفاتورة</th>
+                                <th>اجمالي المبلغ</th>
+                                <th>التاريخ والوقت</th>
+                                <th>فواتير</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {currentOrders.map((order) => (
+                                <tr key={order._id}>
+                                    <td>{order._id}</td>
+                                    <td>{order.paid ? `${order.paid} EGP` : 'N/A'}</td>
+                                    <td>{new Date(order.createdAt).toLocaleString()}</td>
+                                    <td>
+                                        <button onClick={() => viewOrderDetails(order._id)} className="invoice-btn">
+                                            الفاتورة
+                                        </button>
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                {currentOrders.map((order) => (
-                                    <tr key={order._id}>
-                                        <td>{order._id}</td>
-                                        <td>{order.paid ? `${order.paid} EGP` : 'N/A'}</td>
-                                        <td>{new Date(order.createdAt).toLocaleString()}</td>
-                                        <td>
-                                            <button onClick={() => viewOrderDetails(order._id)}>View Receipt</button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                        <div className="pagination">
-                            {Array.from({ length: totalPages }, (_, index) => (
-                                <button
-                                    key={index}
-                                    onClick={() => setCurrentPage(index)}
-                                    disabled={currentPage === index}
-                                    className={`page-button ${currentPage === index ? 'active' : ''}`}
-                                >
-                                    {index + 1}
-                                </button>
                             ))}
-                        </div>
+                        </tbody>
+                    </table>
+                    
+    
+                    <div className="pagination">
+                        {Array.from({ length: totalPages }, (_, index) => (
+                            <button
+                                key={index}
+                                onClick={() => setCurrentPage(index)}
+                                disabled={currentPage === index}
+                                className={`page-button ${currentPage === index ? 'active' : ''}`}
+                            >
+                                {index + 1}
+                            </button>
+                        ))}
                     </div>
-                )
+                </div>
             )}
-            <button onClick={() => window.location.href = '/all-orders'}>View All Orders</button>
+    
+            <button onClick={() => window.location.href = '/all-orders'} className="all-orders-btn">
+                جميع الفواتير
+            </button>
         </div>
+        </>
     );
 };
 

@@ -85,9 +85,6 @@ const Navbar = ({ isAdmin }) => {
                         <li className="nav-item">
                             <Link to="/reports" className="nav-link">التقارير</Link>
                         </li>
-                        <li className="nav-item">
-                            <Link to="/warranty" className="nav-link">الضمان</Link>
-                        </li>
                     </>
                 )}
                 <li className="nav-item">
@@ -99,10 +96,6 @@ const Navbar = ({ isAdmin }) => {
                 <li className="nav-item">
                     <Link to="/inventory" className="nav-link">المخزن</Link>
                 </li>
-                <li className="nav-item">
-                    <Link to="/account" className="nav-link">الجرد</Link>
-                </li>
-                {/* User menu links */}
                 <li className="nav-item">
                     <Link to="/profile" className="nav-link">الملف الشخصي</Link>
                 </li>

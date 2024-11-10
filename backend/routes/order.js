@@ -3,10 +3,8 @@ const router = express.Router();
 const Order = require('../models/Order'); // Assuming you have an Order model
 const validateBranchId = require('../middlewares/validateBranch');
 
-
-
 // POST /orders - Create a new order, including branchId
-router.post('/orders',validateBranchId, async (req, res) => {
+router.post('/orders', validateBranchId, async (req, res) => {
     try {
         const { branchId, checkoutItems, discount, paid, remaining, clientName, clientPhone, date, time } = req.body;
 
@@ -34,15 +32,10 @@ router.post('/orders',validateBranchId, async (req, res) => {
     }
 });
 
-
-// GET /orders - Fetch all orders for a specific branchId with optional date filter
+// GET /orders - Fetch all orders for a specific branchId with optional date filter and pagination
 router.get('/orders', validateBranchId, async (req, res) => {
     try {
-        const { branchId, startDate, endDate } = req.query;
-
-        console.log("Received branchId:", branchId);
-        console.log("Received startDate:", startDate);
-        console.log("Received endDate:", endDate);
+        const { branchId, startDate, endDate, page = 1, limit = 20 } = req.query;
 
         if (!branchId) {
             return res.status(400).json({ message: 'branchId is required' });
@@ -63,25 +56,37 @@ router.get('/orders', validateBranchId, async (req, res) => {
             filter.createdAt = { $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999)).toISOString() };
         }
 
-        console.log("Final filter object:", filter);
+        // Calculate the skip value for pagination
+        const skip = (page - 1) * limit;
 
-        // Fetch orders with the filter and sort by createdAt in descending order
-        const orders = await Order.find(filter).sort({ createdAt: -1 });
+        // Fetch orders with pagination and sorting
+        const orders = await Order.find(filter)
+            .skip(skip)       // Skip the correct number of orders based on the page
+            .limit(parseInt(limit))  // Limit the number of results per page
+            .sort({ createdAt: -1 }); // Sort by createdAt in descending order
 
-        res.json(orders);
+        // Get total number of orders to calculate total pages
+        const totalOrders = await Order.countDocuments(filter);
+        const totalPages = Math.ceil(totalOrders / limit);
+
+        // Return the paginated results
+        res.json({
+            orders,
+          
+                totalOrders,
+                totalPages,
+                currentPage: parseInt(page),
+                pageSize: parseInt(limit),
+            
+        });
     } catch (error) {
         console.error('Error fetching orders:', error);
         res.status(500).json({ message: 'Server error' });
     }
 });
 
-
-
-
-
-
 // GET /orders/:orderId - Get a specific order by ID, with branchId check
-router.get('/orders/:orderId',validateBranchId, async (req, res) => {
+router.get('/orders/:orderId', validateBranchId, async (req, res) => {
     try {
         const { orderId } = req.params;
         const { branchId } = req.query;
