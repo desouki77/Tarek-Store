@@ -1,0 +1,92 @@
+.all-products-container {
+    padding: 2rem;
+    max-width: 100%;
+  }
+  
+  .section-title {
+    text-align: center;
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 1rem;
+  }
+  
+  .search-form {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .search-select,
+  .search-input,
+  .search-button {
+    padding: 0.5rem;
+    font-size: 1rem;
+  }
+  
+  .search-button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .products-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1.5rem;
+  }
+  
+  .products-table th,
+  .products-table td {
+    padding: 1rem;
+    border: 1px solid #ddd;
+    text-align: left;
+  }
+  
+  .edit-button,
+  .delete-button {
+    background-color: #28a745;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border: none;
+    cursor: pointer;
+    margin-right: 0.5rem;
+  }
+  
+  .delete-button {
+    background-color: #dc3545;
+  }
+  
+  .edit-form input,
+  .edit-form textarea {
+    width: 100%;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    font-size: 1rem;
+  }
+  
+  .submit-edit-button,
+  .cancel-edit-button {
+    margin-top: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+  }
+  
+  @media (max-width: 768px) {
+    .products-table th,
+    .products-table td {
+      font-size: 0.875rem;
+      padding: 0.75rem;
+    }
+  
+    .search-form {
+      flex-direction: column;
+    }
+  
+    .edit-button,
+    .delete-button {
+      padding: 0.3rem 0.7rem;
+    }
+  }
+  

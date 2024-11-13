@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import Navbar from './Navbar';
-import '../styles/Inventory.css';
 import { useNavigate } from 'react-router-dom';
+import '../styles/Inventory.css';
 
 const Inventory = () => {
   const [product, setProduct] = useState({
@@ -17,12 +17,6 @@ const Inventory = () => {
   const navigate = useNavigate();
   const [addedProduct, setAddedProduct] = useState(null);
   const [editingProductId, setEditingProductId] = useState(null);
-  const [searchCategory, setSearchCategory] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [resultsPerPage] = useState(5);
-  
   const role = localStorage.getItem('role');
   const isAdmin = role === 'admin';
 
@@ -58,165 +52,29 @@ const Inventory = () => {
     const productWithBranchId = { ...product, branchId };
 
     try {
-      if (editingProductId) {
-        await axios.put(`http://localhost:5000/api/products/${editingProductId}`, productWithBranchId);
-        console.log('Product updated successfully');
-        setSearchResults((prevResults) =>
-          prevResults.map((item) =>
-            item.barcode === editingProductId ? { ...item, ...productWithBranchId } : item
-          )
-        );
-      } else {
-        const response = await axios.post('http://localhost:5000/api/products/add', productWithBranchId);
-        console.log('Product added to inventory:', response.data);
-        setAddedProduct(response.data.product);
-      }
-
+      const response = await axios.post('http://localhost:5000/api/products/add', productWithBranchId);
+      setAddedProduct(response.data.product);
       setProduct({ barcode: '', name: '', description: '', price: '', quantity: '', category: '' });
       setEditingProductId(null);
       setTimeout(() => {
         setAddedProduct(null);
       }, 3000);
-      
     } catch (error) {
       console.error('Error adding/updating product to inventory:', error);
-    }
-  };
-
-  const fetchSearchResults = async () => {
-    const branchId = localStorage.getItem('branchId');
-  
-    try {
-      const response = await axios.get(`http://localhost:5000/api/products`, {
-        params: { 
-          category: searchCategory, 
-          query: searchQuery,
-          branchId 
-        },
-      });
-      setSearchResults(response.data);
-    } catch (error) {
-      console.error('Error fetching search results:', error);
-    }
-  };
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      fetchSearchResults();
-    } else {
-      setSearchResults([]); // Clear search results if query is empty
-    }
-  };
-
-  const indexOfLastResult = currentPage * resultsPerPage;
-  const indexOfFirstResult = indexOfLastResult - resultsPerPage;
-  const currentResults = searchResults.slice(indexOfFirstResult, indexOfLastResult);
-
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
-  const handleEdit = (productId) => {
-    const productToEdit = searchResults.find((item) => item._id === productId);
-    setProduct({
-      barcode: productToEdit.barcode,
-      name: productToEdit.name,
-      description: productToEdit.description,
-      price: productToEdit.price,
-      quantity: productToEdit.quantity,
-      category: productToEdit.category,
-    });
-    setEditingProductId(productToEdit.barcode);
-  };
-
-  const handleDelete = async (barcode, branchId) => {
-    const confirmDelete = window.confirm('Are you sure you want to delete this product?');
-    if (confirmDelete) {
-      try {
-        await axios.delete(`http://localhost:5000/api/products/${barcode}`, {
-          params: { branchId: branchId },
-        });
-  
-        setSearchResults((prevResults) => prevResults.filter((item) => item.barcode !== barcode));
-        console.log('Product deleted successfully');
-      } catch (error) {
-        console.error('Error deleting product:', error);
-      }
     }
   };
 
   return (
     <>
       <Navbar isAdmin={isAdmin} />
-      
-      <section>
-        <form onSubmit={handleSearch}>
-          <select value={searchCategory} onChange={(e) => setSearchCategory(e.target.value)}>
-            <option value="">جميع التصنيفات</option>
-            <option value="devices">اجهزة</option>
-            <option value="accessories">اكسسوارات</option>
-          </select>
+      <button className="inventory__all-products-btn" onClick={() => navigate('/all-products')}>
+        عرض جميع المنتجات
+      </button>
+      <section className="inventory__section">
+        <h2 className="inventory__heading">{editingProductId ? 'تعديل المنتج' : 'إضافة منتج'}</h2>
+        <form className="inventory__form" onSubmit={handleSubmit}>
           <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="بحث باستخدام اسم المنتج او وصفه"
-          />
-          <button type="submit">بحث</button>
-        </form>
-      </section>
-
-      <section>
-        {searchQuery.trim() === '' ? (
-          <p>يرجى إدخال استعلام للبحث.</p>
-        ) : searchResults.length > 0 ? (
-          <div>
-            <table>
-              <thead>
-                <tr>
-                  <th>رمز المنتج</th>
-                  <th>اسم المنتج</th>
-                  <th>الوصف</th>
-                  <th>التصنيف</th>
-                  <th>الكمية</th>
-                  <th>السعر</th>
-                  <th>العمليات</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentResults.map((item) => (
-                  <tr key={item._id}>
-                    <td>{item.barcode}</td>
-                    <td>{item.name}</td>
-                    <td>{item.description}</td>
-                    <td>{item.category}</td>
-                    <td>{item.quantity}</td>
-                    <td>{item.price}</td>
-                    <td>
-                      <button onClick={() => handleEdit(item._id)}>تعديل</button>
-                      <button onClick={() => handleDelete(item.barcode, item.branchId)}>حذف</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <div className="pagination">
-              {[...Array(Math.ceil(searchResults.length / resultsPerPage)).keys()].map((number) => (
-                <button key={number + 1} onClick={() => paginate(number + 1)}>
-                  {number + 1}
-                </button>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <p>لا توجد نتائج.</p>
-        )}
-        <button type="button" onClick={() => navigate('/all-products')}>عرض جميع المنتجات</button>
-      </section>
-
-      <section>
-        <h2>{editingProductId ? 'تعديل المنتج' : 'إضافة منتج'}</h2>
-        <form onSubmit={handleSubmit}>
-          <input
+            className="inventory__input"
             type="text"
             name="barcode"
             value={product.barcode}
@@ -225,6 +83,7 @@ const Inventory = () => {
             required
           />
           <input
+            className="inventory__input"
             type="text"
             name="name"
             value={product.name}
@@ -233,6 +92,7 @@ const Inventory = () => {
             required
           />
           <input
+            className="inventory__input"
             type="text"
             name="description"
             value={product.description}
@@ -240,6 +100,7 @@ const Inventory = () => {
             placeholder="الوصف"
           />
           <input
+            className="inventory__input"
             type="number"
             name="price"
             value={product.price}
@@ -248,6 +109,7 @@ const Inventory = () => {
             required
           />
           <input
+            className="inventory__input"
             type="number"
             name="quantity"
             value={product.quantity}
@@ -256,6 +118,7 @@ const Inventory = () => {
             required
           />
           <select
+            className="inventory__select"
             name="category"
             value={product.category}
             onChange={handleChange}
@@ -265,9 +128,11 @@ const Inventory = () => {
             <option value="devices">اجهزة</option>
             <option value="accessories">اكسسوارات</option>
           </select>
-          <button type="submit">{editingProductId ? 'تحديث المنتج' : 'إضافة المنتج'}</button>
+          <button className="inventory__submit-btn" type="submit">
+            {editingProductId ? 'تحديث المنتج' : 'إضافة المنتج'}
+          </button>
         </form>
-        {addedProduct && <p>تم إضافة المنتج: {addedProduct.name}</p>}
+        {addedProduct && <p className="inventory__confirmation">تم إضافة المنتج: {addedProduct.name}</p>}
       </section>
     </>
   );

@@ -71,10 +71,95 @@ const AllProducts = () => {
     }
   };
 
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchCategory, setSearchCategory] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const currentResults = searchResults;
+
+  
+
+
+  const fetchSearchResults = async () => {
+    const branchId = localStorage.getItem('branchId');
+  
+    try {
+      const response = await axios.get(`http://localhost:5000/api/products`, {
+        params: { 
+          category: searchCategory, 
+          query: searchQuery,
+          branchId 
+        },
+      });
+      setSearchResults(response.data);
+    } catch (error) {
+      console.error('Error fetching search results:', error);
+    }
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      fetchSearchResults();
+    } else {
+      setSearchResults([]); // Clear search results if query is empty
+    }
+  };
+
   return (
     <>
       <Navbar isAdmin={isAdmin} /> {/* Assuming admin, adjust as needed */}
       <section>
+      <section>
+        <form onSubmit={handleSearch}>
+          <select value={searchCategory} onChange={(e) => setSearchCategory(e.target.value)}>
+            <option value="">جميع التصنيفات</option>
+            <option value="devices">اجهزة</option>
+            <option value="accessories">اكسسوارات</option>
+          </select>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="بحث باستخدام اسم المنتج او وصفه"
+          />
+          <button type="submit">بحث</button>
+        </form>
+      </section>
+
+      <section>
+        {searchQuery.trim() === '' ? (
+          <p>يرجى إدخال استعلام للبحث.</p>
+        ) : searchResults.length > 0 ? (
+          <div>
+            <table>
+              <thead>
+                <tr>
+                  <th>رمز المنتج</th>
+                  <th>اسم المنتج</th>
+                  <th>الوصف</th>
+                  <th>التصنيف</th>
+                  <th>الكمية</th>
+                  <th>السعر</th>
+                </tr>
+              </thead>
+              <tbody>
+                {currentResults.map((item) => (
+                  <tr key={item._id}>
+                    <td>{item.barcode}</td>
+                    <td>{item.name}</td>
+                    <td>{item.description}</td>
+                    <td>{item.category}</td>
+                    <td>{item.quantity}</td>
+                    <td>{item.price}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p>لا توجد نتائج.</p>
+        )}
+      </section>
         <h2>جميع المنتجات للفرع</h2>
         {products.length > 0 ? (
           <table>
