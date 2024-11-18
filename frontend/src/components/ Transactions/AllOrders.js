@@ -26,6 +26,7 @@ const AllOrders = () => {
                 if (startDate && endDate) {
                     url += `&startDate=${startDate}&endDate=${endDate}`;
                 }
+
     
                 console.log("Fetching orders with URL:", url); // Debugging URL
                 const response = await axios.get(url);

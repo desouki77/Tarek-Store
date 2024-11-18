@@ -105,8 +105,4 @@ button:hover {
         width: 100%;
     }
 
-    input[type="number"],
-    input[type="text"] {
-        width: 95.4%;
-    }
 }

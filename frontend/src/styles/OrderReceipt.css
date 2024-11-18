@@ -3,7 +3,7 @@
 /* General styles for the receipt container */
 .order-receipt-container {
     font-family: Arial, sans-serif;
-    margin: 20px;
+    margin: 120px;
     padding: 10px;
     background-color: #fff;
     border-radius: 10px;
@@ -70,7 +70,7 @@
 /* Responsiveness */
 @media (max-width: 768px) {
     .order-receipt-container {
-        margin: 10px;
+        margin: 130px;
         padding: 5px;
     }
 
@@ -94,7 +94,7 @@
 
 @media (max-width: 480px) {
     .order-receipt-container {
-        margin: 5px;
+        margin: 130px;
         padding: 5px;
     }
 

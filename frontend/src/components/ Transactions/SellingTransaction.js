@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useRef } from 'react';
 import axios from 'axios';
 import Navbar from '../Navbar';
 import '../../styles/SellingTransaction.css';
@@ -10,6 +10,7 @@ const SellingTransaction = () => {
     const isAdmin = role === 'admin';
 
     const navigate = useNavigate();
+    const barcodeInputRef = useRef(null); // Ref for the barcode input field
     const [products, setProducts] = useState([]);
     const [orderData, setOrderData] = useState({
         barcode: '',
@@ -29,13 +30,13 @@ const SellingTransaction = () => {
             setLoading(true);
             try {
                 const today = new Date();
-                const startDate = today.toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
-                const endDate = startDate; // Same as startDate for today
-        
-                const response = await axios.get(`http://localhost:5000/api/orders?branchId=${branchId}&startDate=${startDate}&endDate=${endDate}`);
-                
-                console.log('Response data:', response.data);
-        
+                const startDate = today.toISOString().split('T')[0];
+                const endDate = startDate;
+
+                const response = await axios.get(
+                    `http://localhost:5000/api/orders?branchId=${branchId}&startDate=${startDate}&endDate=${endDate}`
+                );
+
                 if (response.data && response.data.orders && Array.isArray(response.data.orders)) {
                     const todaysOrders = response.data.orders.filter(order => {
                         const orderDate = new Date(order.createdAt).toISOString().split('T')[0];
@@ -52,35 +53,40 @@ const SellingTransaction = () => {
                 setLoading(false);
             }
         };
-        
-    
-        fetchLastOrders();  // Fetch last orders on initial load
-    }, [branchId]);
-    
 
-    const handleBarcodeChange = async (e) => {
-        const scannedBarcode = e.target.value;
-    
+        fetchLastOrders();
+    }, [branchId]);
+
+      // Automatically focus on barcode input field when the component loads
+      useEffect(() => {
+        if (barcodeInputRef.current) {
+            barcodeInputRef.current.focus(); // Automatically focus on the barcode input
+        }
+    }, []);
+
+    const handleBarcodeInput = async (e) => {
+        const scannedBarcode = e.target.value.trim();
+
         if (!/^\d*$/.test(scannedBarcode)) {
             setErrorMessage('Barcode must be numeric.');
             return;
         }
-    
+
         setOrderData((prevData) => ({
             ...prevData,
             barcode: scannedBarcode,
         }));
-    
+
         if (scannedBarcode === '') {
             setErrorMessage('');
             return;
         }
-    
+
         try {
             const response = await axios.get(`http://localhost:5000/api/products/${scannedBarcode}`, {
                 params: { branchId }
             });
-    
+
             if (response.data) {
                 const product = {
                     barcode: scannedBarcode,
@@ -101,6 +107,16 @@ const SellingTransaction = () => {
                 setErrorMessage('An error occurred. Please try again.');
             }
         }
+        finally {
+            setOrderData({ barcode: '' }); // Clear the barcode input field
+            if (barcodeInputRef.current) {
+                barcodeInputRef.current.focus(); // Refocus for next scan
+            }
+        }
+    };
+
+    const handleInputChange = (e) => {
+        setOrderData({ barcode: e.target.value });
     };
 
     const totalAmount = products.reduce((total, product) => total + product.price, 0);
@@ -112,13 +128,8 @@ const SellingTransaction = () => {
         }
 
         try {
-            // Clear products after checkout is processed
             setProducts([]);
-
-            // Store the checkout items in sessionStorage
             sessionStorage.setItem('checkoutItems', JSON.stringify(products));
-
-            // Open checkout window
             const checkoutWindow = window.open('/checkout', '_blank');
             if (checkoutWindow) {
                 checkoutWindow.opener = null;
@@ -141,99 +152,113 @@ const SellingTransaction = () => {
 
     return (
         <>
-        <Navbar isAdmin={isAdmin} />
-        <div className="selling-transaction-container">
-            <input
-                type="text"
-                className="barcode-input"
-                value={orderData.barcode}
-                onChange={handleBarcodeChange}
-                placeholder="باركود"
-                required
-            />
-            {errorMessage && <p className="error-message">{errorMessage}</p>}
-    
-            <table className="product-table">
-                <thead>
-                    <tr>
-                        <th>باركود</th>
-                        <th>اسم المنتج</th>
-                        <th>وصف</th>
-                        <th>السعر</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {products.map((product, index) => (
-                        <tr key={index}>
-                            <td>{product.barcode}</td>
-                            <td>{product.name}</td>
-                            <td>{product.description}</td>
-                            <td>{product.price} EGP</td>
-                            <td>
-                                <button onClick={() => removeProduct(index)} className="remove-btn">
-                                    مسح
-                                </button>
-                            </td>
+            <Navbar isAdmin={isAdmin} />
+            <div className="selling-transaction-container">
+                <input
+                    type="text"
+                    className="selling-transaction-barcode-input"
+                    ref={barcodeInputRef}
+                    value={orderData.barcode}
+                    onChange={handleInputChange}
+                    onInput={handleBarcodeInput}
+                    placeholder="باركود"
+                    required
+                />
+                {errorMessage && <p className="selling-transaction-error-message">{errorMessage}</p>}
+
+                <table className="selling-transaction-product-table">
+                    <thead>
+                        <tr>
+                            <th>باركود</th>
+                            <th>اسم المنتج</th>
+                            <th>وصف</th>
+                            <th>السعر</th>
+                            <th>عمليات</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
-    
-            <div className="total-amount">اجمالي المبلغ: {totalAmount} EGP</div>
-            <button onClick={handleCheckout} className="checkout-btn">اتمام البيع</button>
-    
-            {loading && <p>Loading...</p>}
-    
-            {lastOrders.length > 0 && (
-                <div className="last-orders">
-                    <h2>مبيعات اليوم</h2>
-                    
-                    <table className="orders-table">
-                        <thead>
-                            <tr>
-                                <th>رقم الفاتورة</th>
-                                <th>اجمالي المبلغ</th>
-                                <th>التاريخ والوقت</th>
-                                <th>فواتير</th>
+                    </thead>
+                    <tbody>
+                        {products.map((product, index) => (
+                            <tr key={index}>
+                                <td>{product.barcode}</td>
+                                <td>{product.name}</td>
+                                <td>{product.description}</td>
+                                <td>{product.price} EGP</td>
+                                <td>
+                                    <button
+                                        onClick={() => removeProduct(index)}
+                                        className="selling-transaction-remove-btn"
+                                    >
+                                        مسح
+                                    </button>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            {currentOrders.map((order) => (
-                                <tr key={order._id}>
-                                    <td>{order._id}</td>
-                                    <td>{order.paid ? `${order.paid} EGP` : 'N/A'}</td>
-                                    <td>{new Date(order.createdAt).toLocaleString()}</td>
-                                    <td>
-                                        <button onClick={() => viewOrderDetails(order._id)} className="invoice-btn">
-                                            الفاتورة
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                    
-    
-                    <div className="pagination">
-                        {Array.from({ length: totalPages }, (_, index) => (
-                            <button
-                                key={index}
-                                onClick={() => setCurrentPage(index)}
-                                disabled={currentPage === index}
-                                className={`page-button ${currentPage === index ? 'active' : ''}`}
-                            >
-                                {index + 1}
-                            </button>
                         ))}
+                    </tbody>
+                </table>
+
+                <div className="selling-transaction-total-amount">اجمالي المبلغ: {totalAmount} EGP</div>
+                <button onClick={handleCheckout} className="selling-transaction-checkout-btn">
+                    اتمام البيع
+                </button>
+
+                {loading && <p>Loading...</p>}
+
+                {lastOrders.length > 0 && (
+                    <div className="selling-transaction-last-orders">
+                        <h2>مبيعات اليوم</h2>
+
+                        <table className="selling-transaction-orders-table">
+                            <thead>
+                                <tr>
+                                    <th>رقم الفاتورة</th>
+                                    <th>اجمالي المبلغ</th>
+                                    <th>التاريخ والوقت</th>
+                                    <th>فواتير</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {currentOrders.map((order) => (
+                                    <tr key={order._id}>
+                                        <td>{order._id}</td>
+                                        <td>{order.paid ? `${order.paid} EGP` : 'N/A'}</td>
+                                        <td>{new Date(order.createdAt).toLocaleString()}</td>
+                                        <td>
+                                            <button
+                                                onClick={() => viewOrderDetails(order._id)}
+                                                className="selling-transaction-invoice-btn"
+                                            >
+                                                الفاتورة
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+
+                        <div className="selling-transaction-pagination">
+                            {Array.from({ length: totalPages }, (_, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => setCurrentPage(index)}
+                                    disabled={currentPage === index}
+                                    className={`selling-transaction-page-button ${
+                                        currentPage === index ? 'active' : ''
+                                    }`}
+                                >
+                                    {index + 1}
+                                </button>
+                            ))}
+                        </div>
                     </div>
-                </div>
-            )}
-    
-            <button onClick={() => window.location.href = '/all-orders'} className="all-orders-btn">
-                جميع الفواتير
-            </button>
-        </div>
+                )}
+
+                <button
+                    onClick={() => (window.location.href = '/all-orders')}
+                    className="selling-transaction-all-orders-btn"
+                >
+                    جميع الفواتير
+                </button>
+            </div>
         </>
     );
 };

@@ -2,6 +2,11 @@
     padding: 20px;
     background-color: #f9f9f9;
     border-radius: 8px;
+    max-width: 1200px;
+    margin: 0 auto;
+    margin-top: 18px;
+
+
 }
 
 .sales-table {
@@ -14,25 +19,30 @@
     padding: 12px;
     text-align: left;
     border-bottom: 1px solid #ddd;
+    border: 1px solid #ddd;
+    text-align: center;
+
+
 }
 
 .sales-table th {
     background-color: #343a40;
     color: #fff;
+    
 }
 
 .sales-table td {
     background-color: #fff;
 }
 
+
 .sales-delete-btn {
-    background-color: #dc3545;
+    padding: 5px 10px;
+    background: #d9534f;
     color: white;
     border: none;
-    padding: 6px 12px;
-    cursor: pointer;
     border-radius: 4px;
-    transition: background-color 0.3s;
+    cursor: pointer;
 }
 
 .sales-delete-btn:hover {

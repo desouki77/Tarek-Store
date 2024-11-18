@@ -56,6 +56,9 @@ router.get('/orders', validateBranchId, async (req, res) => {
             filter.createdAt = { $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999)).toISOString() };
         }
 
+        const sortOrder = startDate || endDate ? 1 : -1; // Ascending if date filters exist, descending otherwise
+
+
         // Calculate the skip value for pagination
         const skip = (page - 1) * limit;
 
@@ -63,7 +66,7 @@ router.get('/orders', validateBranchId, async (req, res) => {
         const orders = await Order.find(filter)
             .skip(skip)       // Skip the correct number of orders based on the page
             .limit(parseInt(limit))  // Limit the number of results per page
-            .sort({ createdAt: -1 }); // Sort by createdAt in descending order
+            .sort({ createdAt: sortOrder }); // Sort by createdAt in descending order
 
         // Get total number of orders to calculate total pages
         const totalOrders = await Order.countDocuments(filter);

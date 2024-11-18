@@ -126,6 +126,7 @@
     .nav-links.open {
         display: flex; /* Show links when burger is open */
         padding-bottom: 40px;
+        padding-bottom: 20px;
     }
 
     .nav-item {
