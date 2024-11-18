@@ -17,4 +17,16 @@
     height: auto; /* Maintain aspect ratio */
 }
 
+/* Responsive styling for tablets (768px and smaller) */
+@media (max-width: 768px) {
+    .welcome-container img {
+        width: 80%; /* Adjust the width to a percentage of the viewport */
+    }
+}
 
+/* Responsive styling for mobile phones (480px and smaller) */
+@media (max-width: 480px) {
+    .welcome-container img {
+        width: 90%; /* Further adjust the width for smaller screens */
+    }
+}

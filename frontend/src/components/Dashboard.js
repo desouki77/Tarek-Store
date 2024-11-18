@@ -73,38 +73,38 @@ function Dashboard() {
         <>
           <Navbar isAdmin={isAdmin} /> 
           <div className="dashboard-container">
-              {/* Transaction Buttons */}
-              <div className='transaction-container'>
-                  <div className="transaction-buttons">
-                      <button className="transaction-order" onClick={() => handleTransactionClick('selling')}>بيع</button>
-                      <button className="transaction-input" onClick={() => handleTransactionClick('input')}>مدخلات</button>
-                      <button className="transaction-input" onClick={() => handleTransactionClick('recharge')}>شحن</button>
-                      <button className="transaction-output" onClick={() => handleTransactionClick('returns')} style={{backgroundColor:"darkblue"}}>الضمان</button>
-
-                      <button className="transaction-input" onClick={() => handleTransactionClick('maintenance')}>صيانة</button>
-                      <button className="transaction-output" onClick={() => handleTransactionClick('purchasing')}>مشتروات</button>
-                      <button className="transaction-output" onClick={() => handleTransactionClick('supplier_payment')}>سداد موردين</button>
-                      <button className="transaction-output" onClick={() => handleTransactionClick('returns')} style={{backgroundColor:"darkblue"}}>الجرد</button>
-
-                      <button className="transaction-input" onClick={() => handleTransactionClick('customer_payment')}>سداد عملاء</button>
-
-                      <button className="transaction-output" onClick={() => handleTransactionClick('output')}>مخرجات</button>
-
-                      <button className="transaction-output" onClick={() => handleTransactionClick('returns')}>مرتجعات</button>
-
-                      <button className="transaction-output" onClick={() => handleTransactionClick('returns')} style={{backgroundColor:"darkblue"}}>الدرج </button>
-
-                  </div>
-              </div>
-
-              {/* Welcome Data */}
-              <div className='welcome'>
+                {/* Welcome Data */}
+                <div className='welcome'>
                   <p>{welcomeData.storeName}</p>
                   <p>{welcomeData.branchName}</p>
                   <p>{welcomeData.salesName}</p>
                   <p>Date: {welcomeData.date}</p>
                   <p>Time: {currentTime}</p>
               </div>
+              {/* Transaction Buttons */}
+              <div className='transaction-container'>
+                  <div className="transaction-buttons">
+                      <button className="transaction" onClick={() => handleTransactionClick('selling')}>بيع</button>
+                      <button className="transaction" onClick={() => handleTransactionClick('input')}>مدخلات</button>
+                      <button className="transaction" onClick={() => handleTransactionClick('output')}>مخرجات</button>
+                      <button className="transaction" onClick={() => handleTransactionClick('recharge')}>شحن</button>
+                      <button className="transaction" onClick={() => handleTransactionClick('maintenance')}>صيانة</button>
+                      <button className="transaction" onClick={() => handleTransactionClick('supplier_payment')}>سداد موردين</button>
+                      <button className="transaction" onClick={() => handleTransactionClick('customer_payment')}>سداد عملاء</button>
+                      <button className="transaction" onClick={() => handleTransactionClick('purchasing')}>مشتروات</button>
+                      <button className="transaction" onClick={() => handleTransactionClick('returns')}>مرتجعات</button>
+                      <button className="transaction" onClick={() => handleTransactionClick('returns')} >الضمان</button>
+                      <button className="transaction" onClick={() => handleTransactionClick('returns')} >الجرد</button>
+                      <button className="transaction" onClick={() => handleTransactionClick('returns')} >الدرج </button>
+
+
+
+
+
+                  </div>
+              </div>
+
+
           </div>
         </>
     );

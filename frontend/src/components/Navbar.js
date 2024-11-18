@@ -21,8 +21,12 @@ const Navbar = ({ isAdmin }) => {
 
     useEffect(() => {
         if (burgerOpen) {
+            // Add 'menu-open' class to body when the burger menu is open
+            document.body.classList.add('menu-open');
             window.addEventListener('click', closeBurger);
         } else {
+            // Remove 'menu-open' class from body when the burger menu is closed
+            document.body.classList.remove('menu-open');
             window.removeEventListener('click', closeBurger);
         }
 
@@ -47,7 +51,7 @@ const Navbar = ({ isAdmin }) => {
     };
 
     return (
-        <nav className="navbar">
+        <nav className={`navbar ${burgerOpen ? 'navbar-hidden' : ''}`}>
             {/* Logo on the right */}
             <div className="logo">
                 <img src={`${process.env.PUBLIC_URL}/TarekLogo.png`} alt="Store Logo" className="logo-img" />

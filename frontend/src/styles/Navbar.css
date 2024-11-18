@@ -8,6 +8,7 @@
     direction: rtl;
 }
 
+
 /* Logo on the right side */
 .logo {
     order: 2;
@@ -79,6 +80,7 @@
 .dropdown li {
     padding: 10px;
     cursor: pointer; /* Ensures cursor pointer for all dropdown items */
+    
 }
 
 .dropdown li a {
@@ -100,10 +102,13 @@
 }
 
 /* Show the burger icon on smaller screens */
-@media (max-width: 768px) {
+@media (max-width: 1300px) {
     .burger {
         display: block;
         order: 0; /* Make sure it appears before the links */
+    }
+    .navbar-hidden{
+        transform: translateY(-400px); /* Move navbar off-screen */
     }
 
     .nav-links {
@@ -115,10 +120,12 @@
         background-color: #343a40; /* Same as navbar background */
         width: 100%; /* Full width */
         z-index: 10; /* Above other elements */
+
     }
 
     .nav-links.open {
         display: flex; /* Show links when burger is open */
+        padding-bottom: 40px;
     }
 
     .nav-item {
@@ -137,8 +144,16 @@
         order: 1; /* Ensure user icon appears after the burger */
         margin: 15px 0; /* Add margin for touch targets */
     }
-}
 
+    /* When the burger menu is open, shift the main content down */
+    body.menu-open .main-content {
+        margin-top: 400px;
+    }
+    /* Show the close button when the burger menu is open */
+.nav-links.open .close-button {
+    display: block; /* Show close button when menu is open */
+}
+}
 
 /* Close Button Styles */
 .close-button {
@@ -149,6 +164,8 @@
     color: #ccc; /* Change color to suit your design */
     transition: color 0.3s ease; /* Smooth transition */
     z-index: 15; /* Above the nav links */
+    display: none; /* Initially hide the close button */
+
 }
 
 .close-button:hover {

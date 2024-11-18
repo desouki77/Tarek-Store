@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios'; // Import Axios
 import '../styles/Registration.css';
+import Loader from './Loader';
+
 
 const Registration = () => {
   const [username, setUsername] = useState('');
@@ -9,6 +11,8 @@ const Registration = () => {
   const [role, setRole] = useState(''); // Default to 'sales'
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const [loading, setIsLoading] = useState(false);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,15 +32,21 @@ const Registration = () => {
     } catch (err) {
       // Handle errors
       setError('فشل التسجيل. يرجى المحاولة مرة أخرى.');
-    }
+    } finally {
+    setIsLoading(false);
+  }
   };
+
+  if (loading) {
+    return <Loader />; // Display loading message
+}
 
   return (
     <div className="registration-container">
-      <h2>تسجيل حساب جديد</h2>
-      {error && <p className="error">{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
+      <h2 className="registration-component-title">تسجيل حساب جديد</h2>
+      {error && <p className="login-component-error">{error}</p>}
+      <form onSubmit={handleSubmit} className="login-component-form">
+        <div className="registration-component-form-group">
           <label htmlFor="username">اسم المستخدم</label>
           <input
             type="text"
@@ -44,9 +54,10 @@ const Registration = () => {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
+            className="registration-component-input"
           />
         </div>
-        <div className="form-group">
+        <div className="registration-component-form-group">
           <label htmlFor="password">كلمة المرور</label>
           <input
             type="password"
@@ -54,17 +65,18 @@ const Registration = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            className="registration-component-input"
           />
         </div>
-        <div className="form-group">
+        <div className="registration-component-form-group">
           <label htmlFor="role">نوع الحساب</label>
-          <select id="role" value={role} onChange={(e) => setRole(e.target.value)}>
+          <select id="role" value={role} onChange={(e) => setRole(e.target.value)}  className="registration-component-select">
             <option value="">Select Type </option>
             <option value="sales">موظف مبيعات</option>
             <option value="admin">مدير</option>
           </select>
         </div>
-        <button type="submit" className="btn">تسجيل</button>
+        <button type="submit" className="registration-component-btn">تسجيل</button>
       </form>
     </div>
   );

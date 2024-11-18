@@ -24,59 +24,56 @@ import AllProducts from './components/AllProducts';
 import EditProduct from './components/EditProduct';
 import AllTransactions from './components/ Transactions/AllTransactions';
 
-
 function App() {
   const [loading, setLoading] = useState(false); // Track loading state
   const location = useLocation(); // Get the current location
+  
 
   // Show the loader during page transitions
   useEffect(() => {
     if (location.pathname !== '/') {
-    setLoading(true);
-    const timer = setTimeout(() => setLoading(false), 500); // Simulate a delay for loader
-    return () => clearTimeout(timer); // Cleanup the timer
+      setLoading(true);
+      const timer = setTimeout(() => setLoading(false), 500); // Simulate a delay for loader
+      return () => clearTimeout(timer); // Cleanup the timer
     }
   }, [location]); // Re-run effect when location changes
 
   return (
     <>
-    
-
       {loading && <Loader />} {/* Show loader if loading is true */}
       {!loading && (
-        <Routes>
-           <Route path="/" element={<Welcome />} />
-          <Route 
-            path="/dashboard" 
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            } 
-          />
-          <Route path="/login" element={<Login />} />
-          <Route path="/registration" element={<Registration />} />
-          {/*Transactions Routes */}
-          <Route path="/transactions/selling" element={<SellingTransaction />} />
-          <Route path="/transactions/input" element={<InputTransaction />} />
-          <Route path="/transactions/output" element={<OutputTransaction />} />
-          <Route path="/transactions/recharge" element={<RechargeTransaction />} />
-          <Route path="/transactions/maintenance" element={<MaintenanceTransaction />} />
-          <Route path="/transactions/customer_payment" element={<CustomerPaymentTransaction />} />
-          <Route path="/transactions/supplier_payment" element={<SupplierPaymentTransaction />} />
-          <Route path="/transactions/purchasing" element={<PurchasingTransaction />} />
-          <Route path="/transactions/returns" element={<ReturnsTransaction />} />
-          <Route path='inventory' element={<Inventory/>} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/order-receipt/:orderId" element={<OrderReceipt />} />
-          <Route path="/all-orders" element={<AllOrders/>} /> 
-          <Route path="/all-products" element={<AllProducts />} /> 
-          <Route path="/edit-product/:barcode" element={<EditProduct />} />
-          <Route path="all-transactions" element={<AllTransactions />} />
-
-
-
-        </Routes>
+        <div className="main-content"> {/* Wrap your content in this div */}
+          <Routes>
+            <Route path="/" element={<Welcome />} />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/login" element={<Login />} />
+            <Route path="/registration" element={<Registration />} />
+            {/* Transactions Routes */}
+            <Route path="/transactions/selling" element={<SellingTransaction />} />
+            <Route path="/transactions/input" element={<InputTransaction />} />
+            <Route path="/transactions/output" element={<OutputTransaction />} />
+            <Route path="/transactions/recharge" element={<RechargeTransaction />} />
+            <Route path="/transactions/maintenance" element={<MaintenanceTransaction />} />
+            <Route path="/transactions/customer_payment" element={<CustomerPaymentTransaction />} />
+            <Route path="/transactions/supplier_payment" element={<SupplierPaymentTransaction />} />
+            <Route path="/transactions/purchasing" element={<PurchasingTransaction />} />
+            <Route path="/transactions/returns" element={<ReturnsTransaction />} />
+            <Route path="inventory" element={<Inventory />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/order-receipt/:orderId" element={<OrderReceipt />} />
+            <Route path="/all-orders" element={<AllOrders />} />
+            <Route path="/all-products" element={<AllProducts />} />
+            <Route path="/edit-product/:barcode" element={<EditProduct />} />
+            <Route path="all-transactions" element={<AllTransactions />} />
+          </Routes>
+        </div>
       )}
     </>
   );
