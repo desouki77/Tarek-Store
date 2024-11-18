@@ -10,7 +10,7 @@ const Login = () => {
   const [branchId, setBranchId] = useState('');
   const [branches, setBranches] = useState([]);
   const [error, setError] = useState('');
-  const [loading, setIsLoading] = useState(false);
+  const [loading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {

@@ -9,6 +9,7 @@ const Registration = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState(''); // Default to 'sales'
+  const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const [loading, setIsLoading] = useState(false);
@@ -22,6 +23,7 @@ const Registration = () => {
       const response = await axios.post('http://localhost:5000/api/users/register', {
         username,
         password,
+        phone,
         role,
       });
 
@@ -68,6 +70,17 @@ const Registration = () => {
             className="registration-component-input"
           />
         </div>
+        <div className="registration-component-form-group">
+            <label htmlFor="phone">رقم الموبايل </label>
+            <input
+            type="string"
+            id="phone"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            required
+            className="registration-component-input"
+          />
+          </div>
         <div className="registration-component-form-group">
           <label htmlFor="role">نوع الحساب</label>
           <select id="role" value={role} onChange={(e) => setRole(e.target.value)}  className="registration-component-select">

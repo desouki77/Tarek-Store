@@ -11,7 +11,7 @@ const Branch = require('../models/Branch'); // Adjust the path according to your
 
 // Register a new user (without branchId)
 router.post('/register', async (req, res) => {
-    const { username, password, role } = req.body; // Removed branchId
+    const { username, password, phone , role } = req.body; // Removed branchId
 
     try {
         // Check if the user already exists in the database
@@ -24,7 +24,7 @@ router.post('/register', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Create a new user without branchId
-        const newUser = new User({ username, password: hashedPassword, role });
+        const newUser = new User({ username, password: hashedPassword, phone ,role });
         await newUser.save();
 
         // Generate JWT
@@ -94,5 +94,44 @@ router.get('/:id', async (req, res) => {
 router.get('/protected-route', authenticateJWT, (req, res) => {
     res.status(200).json({ message: 'This is a protected route', user: req.user });
 });
+
+// New route to get all users
+router.get('/', async (req, res) => {
+    try {
+        // Fetch users with the 'sales' role only
+        const salesUsers = await User.find({ role: 'sales' });
+
+        // Check if no sales users were found
+        if (salesUsers.length === 0) {
+            return res.status(404).json({ message: 'No sales users found' });
+        }
+
+        // Send the filtered users as a response
+        res.status(200).json(salesUsers);
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to fetch sales users', error: error.message });
+    }
+});
+
+// backend/routes/userRoutes.js
+router.delete('/:id', async (req, res) => {
+    try {
+        const { id } = req.params; // Get the user ID from the URL parameter
+
+        // Find and delete the user by their ID
+        const deletedUser = await User.findByIdAndDelete(id);
+
+        // If no user is found, return a 404 status
+        if (!deletedUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Return a success message
+        res.status(200).json({ message: 'User deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to delete user', error: error.message });
+    }
+});
+
 
 module.exports = router;

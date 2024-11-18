@@ -23,6 +23,7 @@ import AllOrders from './components/ Transactions/AllOrders';
 import AllProducts from './components/AllProducts';
 import EditProduct from './components/EditProduct';
 import AllTransactions from './components/ Transactions/AllTransactions';
+import Sales from './components/Sales';
 
 function App() {
   const [loading, setLoading] = useState(false); // Track loading state
@@ -72,6 +73,7 @@ function App() {
             <Route path="/all-products" element={<AllProducts />} />
             <Route path="/edit-product/:barcode" element={<EditProduct />} />
             <Route path="all-transactions" element={<AllTransactions />} />
+            <Route path='sales' element={<Sales />} />
           </Routes>
         </div>
       )}

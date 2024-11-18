@@ -16,6 +16,10 @@ const userSchema = new mongoose.Schema({
         enum: ['admin', 'sales'], // Define roles
         required: true,
     },
+    phone:{
+        type: String,
+        required: true
+    },
     branchId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Branch', // Reference to the Branch model
