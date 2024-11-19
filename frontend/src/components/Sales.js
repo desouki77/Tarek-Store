@@ -64,7 +64,7 @@ const Sales = () => {
                         <th>اسم موظف المبيات</th>
                         <th>رقم الموبايل</th>
                         <th>تاريخ التسجيل</th>
-                        <th>عمليات</th>
+                        <th>حذف</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -78,7 +78,7 @@ const Sales = () => {
                                     onClick={() => handleDelete(sale._id)}
                                     className="sales-delete-btn"
                                 >
-                                    مسح
+                                    حذف
                                 </button>
                             </td>
                         </tr>

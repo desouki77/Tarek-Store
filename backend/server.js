@@ -43,8 +43,17 @@ app.use('/api/products', products);
 // Order Routes
 app.use('/api' , order);
 
-
+// Branches Routes
 app.use('/api/branches', branch);
+
+// Suppliers Routes
+const suppliersRoutes = require('./routes/suppliers');
+app.use('/api/suppliers', suppliersRoutes);
+
+// Client Routes
+const ClientsRoutes = require('./routes/clients');
+app.use('/api/clients', ClientsRoutes);
+
 
 
 
