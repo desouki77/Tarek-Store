@@ -100,9 +100,6 @@ const Navbar = ({ isAdmin }) => {
                 <li className="nav-item">
                     <Link to="/inventory" className="nav-link">المخزن</Link>
                 </li>
-                <li className="nav-item">
-                    <Link to="/profile" className="nav-link">الملف الشخصي</Link>
-                </li>
                 <li className="nav-item" onClick={handleLogout}>
                     <span className="nav-link" style={{ cursor: 'pointer' }}>تسجيل الخروج</span>
                 </li>

@@ -2,32 +2,29 @@
 const express = require('express');
 const Product = require('../models/Product');
 const router = express.Router();
-const validateBranchId = require('../middlewares/validateBranch');
 
-// Route to get a product by barcode and branchId
-router.get('/:barcode', validateBranchId , async (req, res) => {
-  const { branchId } = req.query; // Include branchId from query
-  console.log(`Barcode requested: ${req.params.barcode} for branch: ${branchId}`);
+// Route to get a product by barcode 
+router.get('/:barcode' , async (req, res) => {
+  console.log(`Barcode requested: ${req.params.barcode}`);
   try {
     const product = await Product.findOne({ 
       barcode: req.params.barcode, 
-      branchId: branchId // Filter by branchId
     });
-    if (!product) return res.status(404).send('Product not found');
+    if (!product) return res.status(404).send('المنتج غير متوفر');
     res.json(product);
   } catch (error) {
-    console.error('Error fetching product:', error);
-    res.status(500).send('Server error');
+    console.error('خطأ في استرجاع المنتجات', error);
+    res.status(500).send('خطأ في السيرفر');
   }
 });
 
 // Route to add a product to inventory
-router.post('/add', validateBranchId, async (req, res) => {
-  const { barcode, name, description, price, quantity, category, branchId } = req.body; // Include branchId
+router.post('/add', async (req, res) => {
+  const { barcode, name, description, price, quantity, category } = req.body; 
 
-  const existingProduct = await Product.findOne({ barcode, branchId });
+  const existingProduct = await Product.findOne({ barcode });
 if (existingProduct) {
-    return res.status(400).json({ message: 'Product with this barcode already exists in this branch' });
+    return res.status(400).json({ message: 'هذا المنتج متوفر بالفعل' });
 }
 
   try {
@@ -39,30 +36,22 @@ if (existingProduct) {
       price,
       quantity,
       category,
-      branchId, // Save branchId with the product
     });
 
     // Save the product to the database
     await newProduct.save();
-    res.status(201).json({ message: 'Product added to inventory', product: newProduct });
+    res.status(201).json({ message: 'تم اضافة المنتج الي المخزن بنجاح', product: newProduct });
   } catch (error) {
-    console.error('Error adding product:', error);
-    res.status(500).send('Server error');
+    console.error('خطأ في اضافة المنتج', error);
+    res.status(500).send('خطأ في السيرفر');
   }
 });
 
-// Route to search for products by category, query, and branchId
-router.get('/', validateBranchId, async (req, res) => {
-  const { category, query, branchId } = req.query; // Include branchId from query
+// Route to search for products by category, query
+router.get('/', async (req, res) => {
+  const { category, query } = req.query; 
 
   try {
-    // Create a filter object
-    const filter = {branchId};
-
-    // Check if branchId is provided
-    if (branchId) {
-      filter.branchId = branchId; // Filter by branchId
-    }
 
     // Check if category is provided
     if (category) {
@@ -80,106 +69,100 @@ router.get('/', validateBranchId, async (req, res) => {
     const products = await Product.find(filter);
     res.json(products);
   } catch (error) {
-    console.error('Error fetching products:', error);
-    res.status(500).send('Server error');
+    console.error('خطأ في استرجاع المنتجات', error);
+    res.status(500).send('خطأ في السيرفر');
   }
 });
 
-// Backend route to decrease product quantity by barcode and branchId
-router.put('/:barcode/decrease',validateBranchId, async (req, res) => {
+// Backend route to decrease product quantity by barcode
+router.put('/:barcode/decrease', async (req, res) => {
   const { barcode } = req.params;
-  const { quantity, branchId } = req.body; // Ensure branchId is part of the request
+  const { quantity } = req.body; 
 
   try {
     const product = await Product.findOneAndUpdate(
-      { barcode, branchId }, // Include branchId in the filter
+      { barcode }, // Include branchId in the filter
       { $inc: { quantity: -quantity } }, // Decrease quantity by specified amount
       { new: true }
     );
 
     if (!product) {
-      return res.status(404).json({ message: 'Product not found or does not belong to this branch' });
+      return res.status(404).json({ message: 'المنتج غير متوفر' });
     }
 
-    res.json({ message: 'Product quantity updated', product });
+    res.json({ message: 'تم تحديث كيمة المنتج', product });
   } catch (error) {
-    res.status(500).json({ message: 'Error updating product quantity', error });
+    res.status(500).json({ message: 'خطأ في تخديث كمية المنتج', error });
   }
 });
 
-// Route to update a product by barcode and branchId
-router.put('/:barcode', validateBranchId, async (req, res) => {
+// Route to update a product by barcode
+router.put('/:barcode', async (req, res) => {
   const { barcode } = req.params;
-  const { branchId, ...updatedData } = req.body; // Extract branchId and other fields to update
+  const { ...updatedData } = req.body; 
 
   try {
     const product = await Product.findOneAndUpdate(
-      { barcode, branchId }, // Ensure the product belongs to the specified branch
-      updatedData, // Update with provided data
-      { new: true } // Return the updated product
+      { barcode }, 
+      updatedData, 
+      { new: true } 
     );
 
     if (!product) {
-      return res.status(404).json({ message: 'Product not found or does not belong to this branch' });
+      return res.status(404).json({ message: 'المنتج غير متوفر' });
     }
 
-    res.json({ message: 'Product updated successfully', product });
+    res.json({ message: 'تم تحديث المنتج بنجاح', product });
   } catch (error) {
-    console.error('Error updating product:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error('خطأ في تحديث المنتج', error);
+    res.status(500).json({ message: 'خطأ في السيرفر' });
   }
 });
 
 
-// Route to delete a product by barcode and branchId
-router.delete('/:barcode', validateBranchId, async (req, res) => {
+// Route to delete a product by barcode 
+router.delete('/:barcode', async (req, res) => {
   const { barcode } = req.params; // Get the barcode from the URL
-  const { branchId } = req.query; // Include branchId from query
 
   try {
     // Find and delete the product
     const deletedProduct = await Product.findOneAndDelete({
-      barcode,
-      branchId // Ensure we are deleting the correct product in the correct branch
+      barcode
     });
 
     if (!deletedProduct) {
-      return res.status(404).json({ message: 'Product not found or does not belong to this branch' });
+      return res.status(404).json({ message: 'المنتج غير متوفر' });
     }
 
-    res.json({ message: 'Product deleted successfully', product: deletedProduct });
+    res.json({ message: 'تم حذف المنتج بنجاح', product: deletedProduct });
   } catch (error) {
-    console.error('Error deleting product:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error('خطأ في حذف المنتج', error);
+    res.status(500).json({ message: 'خطأ في السيرفر' });
   }
 });
 
-// Route to update a product by ID and branchId
-router.put('/id/:id', validateBranchId, async (req, res) => {
+// Route to update a product by ID 
+router.put('/id/:id', async (req, res) => {
   const { id } = req.params; // Get the product ID from the URL
-  const { branchId, ...updatedData } = req.body; // Extract branchId and other fields to update
+  const { ...updatedData } = req.body; 
 
   try {
     const product = await Product.findOneAndUpdate(
-      { _id: id, branchId }, // Use the product ID and ensure the product belongs to the specified branch
-      updatedData, // Update with provided data
-      { new: true } // Return the updated product
+      { _id: id }, 
+      updatedData, 
+      { new: true } 
     );
 
     if (!product) {
-      return res.status(404).json({ message: 'Product not found or does not belong to this branch' });
+      return res.status(404).json({ message: 'المنتج غير متوفر' });
     }
 
-    res.json({ message: 'Product updated successfully', product });
+    res.json({ message: 'تم تحديث المنتج بنجاح', product });
   } catch (error) {
-    console.error('Error updating product:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error('خطأ في تحديث المنتج', error);
+    res.status(500).json({ message: 'خطأ في السيرفر' });
   }
 });
-
-
-
-
 
 
 module.exports = router;

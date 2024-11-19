@@ -42,17 +42,15 @@ const Inventory = () => {
         category: response.data.category,
       }));
     } catch (error) {
-      console.error('Error fetching product details:', error);
+      console.error('خطأ في استرجاع تفاصيل المنتج', error);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const branchId = localStorage.getItem('branchId');
-    const productWithBranchId = { ...product, branchId };
 
     try {
-      const response = await axios.post('http://localhost:5000/api/products/add', productWithBranchId);
+      const response = await axios.post('http://localhost:5000/api/products/add', product);
       setAddedProduct(response.data.product);
       setProduct({ barcode: '', name: '', description: '', price: '', quantity: '', category: '' });
       setEditingProductId(null);
@@ -60,7 +58,7 @@ const Inventory = () => {
         setAddedProduct(null);
       }, 3000);
     } catch (error) {
-      console.error('Error adding/updating product to inventory:', error);
+      console.error('خطأ في اضافة او تحديث المنتج', error);
     }
   };
 

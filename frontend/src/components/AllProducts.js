@@ -7,25 +7,21 @@ const AllProducts = () => {
   const [products, setProducts] = useState([]);
   const [editingProductId, setEditingProductId] = useState(null); // Track the product being edited
   const [editFormData, setEditFormData] = useState({}); // Store form data for editing
-  const branchId = localStorage.getItem('branchId');
-
   const role = localStorage.getItem('role'); // Get role from localStorage
   const isAdmin = role === 'admin'; // Determine if the user is an admin
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/products`, {
-          params: { branchId: branchId },
-        });
+        const response = await axios.get(`http://localhost:5000/api/products`);
         setProducts(response.data);
       } catch (error) {
-        console.error('Error fetching products:', error);
+        console.error('خطأ في استرجاع المنتجات', error);
       }
     };
 
     fetchProducts();
-  }, [branchId]);
+  }, []);
 
   const handleEditClick = (product) => {
     setEditingProductId(product._id); // Set the ID of the product to be edited
@@ -40,9 +36,7 @@ const AllProducts = () => {
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:5000/api/products/id/${editingProductId}`, editFormData, {
-        params: { branchId: branchId },
-      });
+      await axios.put(`http://localhost:5000/api/products/id/${editingProductId}`, editFormData);
       alert('تم تحديث المنتج بنجاح.'); // Alert in Arabic
       // Update the products state with the edited product
       setProducts(products.map(product => (product._id === editingProductId ? { ...product, ...editFormData } : product)));
@@ -57,9 +51,7 @@ const AllProducts = () => {
     const confirmDelete = window.confirm('هل أنت متأكد أنك تريد حذف هذا المنتج؟'); // Confirmation in Arabic
     if (confirmDelete) {
       try {
-        await axios.delete(`http://localhost:5000/api/products/${barcode}`, {
-          params: { branchId: branchId }, // Include branchId if necessary
-        });
+        await axios.delete(`http://localhost:5000/api/products/${barcode}`);
 
         // Remove the deleted product from the state
         setProducts(products.filter(product => product.barcode !== barcode));
@@ -79,20 +71,17 @@ const AllProducts = () => {
   
 
 
-  const fetchSearchResults = async () => {
-    const branchId = localStorage.getItem('branchId');
-  
+  const fetchSearchResults = async () => {  
     try {
       const response = await axios.get(`http://localhost:5000/api/products`, {
         params: { 
           category: searchCategory, 
-          query: searchQuery,
-          branchId 
+          query: searchQuery
         },
       });
       setSearchResults(response.data);
     } catch (error) {
-      console.error('Error fetching search results:', error);
+      console.error('خطأ في استرجاع المنتجات', error);
     }
   };
 
