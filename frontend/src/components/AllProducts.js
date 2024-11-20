@@ -71,24 +71,36 @@ const AllProducts = () => {
   
 
 
-  const fetchSearchResults = async () => {  
+  const fetchSearchResults = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/products`, {
-        params: { 
-          category: searchCategory, 
-          query: searchQuery
-        },
-      });
+      const params = {};
+  
+      if (searchCategory.trim()) {
+        params.category = searchCategory; // Only send category if it's not empty
+      }
+      if (searchQuery.trim()) {
+        params.query = searchQuery; // Only send query if it's not empty
+      }
+  
+      const response = await axios.get(`http://localhost:5000/api/products`, { params });
+  
+      if (response.data.length === 0) {
+        alert('لا توجد نتائج مطابقة لبحثك.');
+      }
+  
       setSearchResults(response.data);
     } catch (error) {
       console.error('خطأ في استرجاع المنتجات', error);
     }
   };
+  
 
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       fetchSearchResults();
+    } else if (searchQuery.trim() === ''){
+      alert('يجب إدخال اسم أو وصف المنتج للبحث');
     } else {
       setSearchResults([]); // Clear search results if query is empty
     }
@@ -117,7 +129,7 @@ const AllProducts = () => {
 
       <section>
         {searchQuery.trim() === '' ? (
-          <p>يرجى إدخال استعلام للبحث.</p>
+          <p>هنا ستعرض نتائج البحث</p>
         ) : searchResults.length > 0 ? (
           <div>
             <table>

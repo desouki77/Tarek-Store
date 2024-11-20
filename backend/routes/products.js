@@ -50,6 +50,8 @@ if (existingProduct) {
 // Route to search for products by category, query
 router.get('/', async (req, res) => {
   const { category, query } = req.query; 
+  const filter = {};
+
 
   try {
 
