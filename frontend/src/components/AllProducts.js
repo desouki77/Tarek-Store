@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Navbar from './Navbar';
-import '../styles/Inventory.css';
+import '../styles/AllProducts.css';
 
 const AllProducts = () => {
   const [products, setProducts] = useState([]);
@@ -9,11 +9,20 @@ const AllProducts = () => {
   const [editFormData, setEditFormData] = useState({}); // Store form data for editing
   const role = localStorage.getItem('role'); // Get role from localStorage
   const isAdmin = role === 'admin'; // Determine if the user is an admin
+  const [searchQuery, setSearchQuery] = useState(''); // For the search input
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [currentPage, setCurrentPage] = useState(1); // Track current page
+  const productsPerPage = 10; // Number of products per page
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/products`);
+        const response = await axios.get('http://localhost:5000/api/products', {
+          params: {
+            category: selectedCategory,
+            query: searchQuery,
+          },
+        });
         setProducts(response.data);
       } catch (error) {
         console.error('خطأ في استرجاع المنتجات', error);
@@ -21,7 +30,7 @@ const AllProducts = () => {
     };
 
     fetchProducts();
-  }, []);
+  }, [searchQuery, selectedCategory]);
 
   const handleEditClick = (product) => {
     setEditingProductId(product._id); // Set the ID of the product to be edited
@@ -63,107 +72,49 @@ const AllProducts = () => {
     }
   };
 
-  const [searchResults, setSearchResults] = useState([]);
-  const [searchCategory, setSearchCategory] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
-  const currentResults = searchResults;
+  // Pagination: Get the current page products
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
 
-  
+  // Pagination: Change page
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-
-  const fetchSearchResults = async () => {
-    try {
-      const params = {};
-  
-      if (searchCategory.trim()) {
-        params.category = searchCategory; // Only send category if it's not empty
-      }
-      if (searchQuery.trim()) {
-        params.query = searchQuery; // Only send query if it's not empty
-      }
-  
-      const response = await axios.get(`http://localhost:5000/api/products`, { params });
-  
-      if (response.data.length === 0) {
-        alert('لا توجد نتائج مطابقة لبحثك.');
-      }
-  
-      setSearchResults(response.data);
-    } catch (error) {
-      console.error('خطأ في استرجاع المنتجات', error);
-    }
-  };
-  
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      fetchSearchResults();
-    } else if (searchQuery.trim() === ''){
-      alert('يجب إدخال اسم أو وصف المنتج للبحث');
-    } else {
-      setSearchResults([]); // Clear search results if query is empty
-    }
-  };
+  // Pagination: Create page numbers
+  const pageNumbers = [];
+  for (let i = 1; i <= Math.ceil(products.length / productsPerPage); i++) {
+    pageNumbers.push(i);
+  }
 
   return (
     <>
-      <Navbar isAdmin={isAdmin} /> {/* Assuming admin, adjust as needed */}
-      <section>
-      <section>
-        <form onSubmit={handleSearch}>
-          <select value={searchCategory} onChange={(e) => setSearchCategory(e.target.value)}>
-            <option value="">جميع التصنيفات</option>
-            <option value="devices">اجهزة</option>
-            <option value="accessories">اكسسوارات</option>
-          </select>
+      <Navbar isAdmin={isAdmin} />
+      <section className="allproduct-section">
+        <h2 className="allproduct-title">جميع المنتجات </h2>
+
+        {/* Search and Filter Section */}
+        <div className="allproduct-search-section">
           <input
             type="text"
+            placeholder="ابحث عن منتج..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="بحث باستخدام اسم المنتج او وصفه"
+            className="allproduct-search-input"
           />
-          <button type="submit">بحث</button>
-        </form>
-      </section>
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="allproduct-category-select"
+          >
+            <option value="">كل التصنيفات</option>
+            <option value="devices">اجهزة</option>
+            <option value="accessories">إكسسوارات</option>
+            {/* Add more categories dynamically if needed */}
+          </select>
+        </div>
 
-      <section>
-        {searchQuery.trim() === '' ? (
-          <p>هنا ستعرض نتائج البحث</p>
-        ) : searchResults.length > 0 ? (
-          <div>
-            <table>
-              <thead>
-                <tr>
-                  <th>رمز المنتج</th>
-                  <th>اسم المنتج</th>
-                  <th>الوصف</th>
-                  <th>التصنيف</th>
-                  <th>الكمية</th>
-                  <th>السعر</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentResults.map((item) => (
-                  <tr key={item._id}>
-                    <td>{item.barcode}</td>
-                    <td>{item.name}</td>
-                    <td>{item.description}</td>
-                    <td>{item.category}</td>
-                    <td>{item.quantity}</td>
-                    <td>{item.price}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <p>لا توجد نتائج.</p>
-        )}
-      </section>
-        <h2>جميع المنتجات للفرع</h2>
-        {products.length > 0 ? (
-          <table>
+        {currentProducts.length > 0 ? (
+          <table className="allproduct-table">
             <thead>
               <tr>
                 <th>رمز المنتج</th>
@@ -172,13 +123,13 @@ const AllProducts = () => {
                 <th>التصنيف</th>
                 <th>الكمية</th>
                 <th>السعر</th>
-                <th>الإجراءات</th> {/* New header for actions */}
+                <th>الإجراءات</th>
               </tr>
             </thead>
             <tbody>
-              {products.map((item) => (
+              {currentProducts.map((item) => (
                 <React.Fragment key={item._id}>
-                  <tr>
+                  <tr className="allproduct-table-row">
                     <td>{item.barcode}</td>
                     <td>{item.name}</td>
                     <td>{item.description}</td>
@@ -186,15 +137,15 @@ const AllProducts = () => {
                     <td>{item.quantity}</td>
                     <td>{item.price}</td>
                     <td>
-                      <button onClick={() => handleEditClick(item)}>تعديل</button> {/* Edit button */}
-                      <button onClick={() => handleDelete(item.barcode)}>حذف</button> {/* Delete button */}
+                      <button className="allproduct-edit-btn" onClick={() => handleEditClick(item)}>تعديل</button>
+                      <button className="allproduct-delete-btn" onClick={() => handleDelete(item.barcode)}>حذف</button>
                     </td>
                   </tr>
-                  {editingProductId === item._id && ( // Check if the current product is being edited
-                    <tr>
-                      <td colSpan={7}> {/* Merge columns for the edit form */}
-                        <form onSubmit={handleEditSubmit}>
-                          <div>
+                  {editingProductId === item._id && (
+                    <tr className="allproduct-edit-form-row">
+                      <td colSpan={7}>
+                        <form onSubmit={handleEditSubmit} className="allproduct-edit-form">
+                          <div className="allproduct-form-group">
                             <label>اسم المنتج:</label>
                             <input
                               type="text"
@@ -202,18 +153,20 @@ const AllProducts = () => {
                               value={editFormData.name || ''}
                               onChange={handleEditChange}
                               required
+                              className="allproduct-form-input"
                             />
                           </div>
-                          <div>
+                          <div className="allproduct-form-group">
                             <label>الوصف:</label>
                             <textarea
                               name="description"
                               value={editFormData.description || ''}
                               onChange={handleEditChange}
                               required
+                              className="allproduct-form-input"
                             />
                           </div>
-                          <div>
+                          <div className="allproduct-form-group">
                             <label>التصنيف:</label>
                             <input
                               type="text"
@@ -221,9 +174,10 @@ const AllProducts = () => {
                               value={editFormData.category || ''}
                               onChange={handleEditChange}
                               required
+                              className="allproduct-form-input"
                             />
                           </div>
-                          <div>
+                          <div className="allproduct-form-group">
                             <label>الكمية:</label>
                             <input
                               type="number"
@@ -231,9 +185,10 @@ const AllProducts = () => {
                               value={editFormData.quantity || ''}
                               onChange={handleEditChange}
                               required
+                              className="allproduct-form-input"
                             />
                           </div>
-                          <div>
+                          <div className="allproduct-form-group">
                             <label>السعر:</label>
                             <input
                               type="number"
@@ -241,10 +196,11 @@ const AllProducts = () => {
                               value={editFormData.price || ''}
                               onChange={handleEditChange}
                               required
+                              className="allproduct-form-input"
                             />
                           </div>
-                          <button type="submit">تحديث المنتج</button>
-                          <button type="button" onClick={() => setEditingProductId(null)}>إلغاء</button> {/* Cancel button */}
+                          <button type="submit" className="allproduct-update-btn">تحديث المنتج</button>
+                          <button type="button" onClick={() => setEditingProductId(null)} className="allproduct-cancel-btn">إلغاء</button>
                         </form>
                       </td>
                     </tr>
@@ -254,8 +210,21 @@ const AllProducts = () => {
             </tbody>
           </table>
         ) : (
-          <p>لا توجد منتجات في هذا الفرع</p>
+          <p className="allproduct-no-products">لا توجد منتجات تطابق معايير البحث</p>
         )}
+
+        {/* Pagination Controls */}
+        <div className="allproduct-pagination">
+          {pageNumbers.map((number) => (
+            <button
+              key={number}
+              onClick={() => paginate(number)}
+              className={`allproduct-pagination-btn ${currentPage === number ? 'active' : ''}`}
+            >
+              {number}
+            </button>
+          ))}
+        </div>
       </section>
     </>
   );

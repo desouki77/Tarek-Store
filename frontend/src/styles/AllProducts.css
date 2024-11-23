@@ -1,92 +1,217 @@
-.all-products-container {
-    padding: 2rem;
-    max-width: 100%;
+/* General Styles */
+.allproduct-section {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.allproduct-title {
+  font-size: 24px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.allproduct-search-section {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.allproduct-search-input,
+.allproduct-category-select {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.allproduct-category-select {
+  width: 30%;
+}
+
+.allproduct-search-input {
+  width: 65%;
+}
+
+/* Table Styles */
+.allproduct-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  overflow-x: auto; /* Allows horizontal scroll on small screens */
+}
+
+.allproduct-table th, .allproduct-table td {
+  padding: 8px; /* Reduced padding for better fit */
+  border: 1px solid #ddd;
+  text-align: center;
+  font-size: 14px; /* Slightly smaller font for better mobile fit */
+}
+
+.allproduct-table-row {
+  background-color: #f9f9f9;
+}
+
+.allproduct-table th {
+  background-color: #343a40;
+}
+
+/* Button Styles */
+.allproduct-edit-btn,
+.allproduct-delete-btn,
+.allproduct-update-btn,
+.allproduct-cancel-btn {
+  padding: 8px 16px;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  margin: 5px;
+}
+
+.allproduct-edit-btn {
+  background-color: #4CAF50;
+  color: white;
+  width: 70px;
+}
+
+.allproduct-delete-btn {
+  background-color: #d9534f;
+  color: white;
+  width: 70px;
+}
+.allproduct-delete-btn:hover{
+  background-color: #c82333;
+
+
+}
+
+.allproduct-update-btn {
+  background-color: #2196F3;
+  color: white;
+}
+
+.allproduct-cancel-btn {
+  background-color: #ccc;
+  color: black;
+}
+
+/* Edit Form Styles */
+.allproduct-edit-form-row {
+  background-color: #f4f4f4;
+}
+
+.allproduct-form-group {
+  margin-bottom: 15px;
+}
+
+.allproduct-form-input {
+  width: 100%;
+  padding: 8px;
+  font-size: 16px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  box-sizing: border-box;
+}
+
+.allproduct-edit-form {
+  padding: 20px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+/* No Products Message */
+.allproduct-no-products {
+  text-align: center;
+  color: #777;
+  font-size: 18px;
+}
+
+/* Pagination styles */
+.allproduct-pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.allproduct-pagination-btn {
+  padding: 10px 15px;
+  margin: 0 5px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 14px;
+  background-color: #f4f4f4;
+  border: 1px solid #ddd;
+  color: #333;
+  width: 40px;
+}
+
+.allproduct-pagination-btn.active {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.allproduct-pagination-btn:hover {
+  background-color: #ddd;
+}
+
+.allproduct-pagination-btn:focus {
+  outline: none;
+}
+
+/* Responsive Styles */
+@media screen and (max-width: 768px) {
+  .allproduct-title {
+    font-size: 20px;
   }
-  
-  .section-title {
-    text-align: center;
-    font-size: 2rem;
-    color: #333;
-    margin-bottom: 1rem;
+
+  .allproduct-search-section {
+    flex-direction: column;
+    align-items: center;
   }
-  
-  .search-form {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-    flex-wrap: wrap;
-  }
-  
-  .search-select,
-  .search-input,
-  .search-button {
-    padding: 0.5rem;
-    font-size: 1rem;
-  }
-  
-  .search-button {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    cursor: pointer;
-  }
-  
-  .products-table {
+
+  .allproduct-search-input,
+  .allproduct-category-select {
     width: 100%;
-    border-collapse: collapse;
-    margin-top: 1.5rem;
+    margin-bottom: 10px;
   }
-  
-  .products-table th,
-  .products-table td {
-    padding: 1rem;
-    border: 1px solid #ddd;
-    text-align: left;
+
+  .allproduct-table th, .allproduct-table td {
+    font-size: 12px; /* Reduce font size further */
+    padding: 6px; /* Reduced padding for better fit */
   }
-  
-  .edit-button,
-  .delete-button {
-    background-color: #28a745;
-    color: #fff;
-    padding: 0.5rem 1rem;
-    border: none;
-    cursor: pointer;
-    margin-right: 0.5rem;
+}
+
+@media screen and (max-width: 480px) {
+  .allproduct-table {
+    font-size: 10px; /* Further reduce font size */
+    display: block; /* Make the table scrollable horizontally */
+    overflow-x: auto; /* Enables horizontal scrolling */
+    white-space: nowrap; /* Ensures text doesn’t break */
   }
-  
-  .delete-button {
-    background-color: #dc3545;
+
+  .allproduct-edit-btn,
+  .allproduct-delete-btn {
+    font-size: 12px;
+    padding: 6px 12px;
   }
-  
-  .edit-form input,
-  .edit-form textarea {
+
+  .allproduct-form-input {
+    font-size: 14px;
+    padding: 6px;
+  }
+
+  .allproduct-search-input,
+  .allproduct-category-select {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .allproduct-search-section {
     width: 100%;
-    margin-bottom: 0.5rem;
-    padding: 0.5rem;
-    font-size: 1rem;
+    flex-direction: column;
+    align-items: center;
   }
-  
-  .submit-edit-button,
-  .cancel-edit-button {
-    margin-top: 0.5rem;
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
-  }
-  
-  @media (max-width: 768px) {
-    .products-table th,
-    .products-table td {
-      font-size: 0.875rem;
-      padding: 0.75rem;
-    }
-  
-    .search-form {
-      flex-direction: column;
-    }
-  
-    .edit-button,
-    .delete-button {
-      padding: 0.3rem 0.7rem;
-    }
-  }
-  
+}
