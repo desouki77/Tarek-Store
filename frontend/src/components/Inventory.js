@@ -30,20 +30,6 @@ const Inventory = () => {
       ...prevProduct,
       barcode: scannedBarcode,
     }));
-
-    try {
-      const response = await axios.get(`http://localhost:5000/api/products/${scannedBarcode}`);
-      setProduct((prevProduct) => ({
-        ...prevProduct,
-        name: response.data.name,
-        description: response.data.description || '',
-        price: response.data.price,
-        quantity: response.data.quantity,
-        category: response.data.category,
-      }));
-    } catch (error) {
-      console.error('خطأ في استرجاع تفاصيل المنتج', error);
-    }
   };
 
   const handleSubmit = async (e) => {
@@ -58,7 +44,12 @@ const Inventory = () => {
         setAddedProduct(null);
       }, 3000);
     } catch (error) {
-      console.error('خطأ في اضافة او تحديث المنتج', error);
+      if (error.response && error.response.status === 400) {
+        // Handle product already exists error
+        alert('هذا المنتج موجود بالفعل. يرجى التحقق من رمز المنتج.');
+      } else {
+        console.error('خطأ في اضافة او تحديث المنتج', error);
+      }
     }
   };
 
@@ -131,6 +122,7 @@ const Inventory = () => {
           </button>
         </form>
         {addedProduct && <p className="inventory__confirmation">تم إضافة المنتج: {addedProduct.name}</p>}
+
       </section>
     </>
   );

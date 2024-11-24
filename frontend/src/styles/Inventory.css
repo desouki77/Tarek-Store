@@ -49,7 +49,7 @@
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  width: 50%;
+  width: 200px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -70,7 +70,7 @@
   margin: 1rem auto;
   text-align: center;
   transition: background-color 0.3s ease;
-  width: 300px;
+  width: 200px;
 }
 
 .inventory__all-products-btn:hover {

@@ -44,7 +44,6 @@ h1 {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
-    border-radius: 8px;
     overflow: hidden;
 }
 
@@ -52,6 +51,8 @@ th, td {
     padding: 12px 15px;
     text-align: center;
     border-bottom: 1px solid #ddd;
+    border: 1px solid #ddd;
+
 }
 
 th {

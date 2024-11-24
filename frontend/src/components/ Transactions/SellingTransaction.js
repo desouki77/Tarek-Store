@@ -19,7 +19,7 @@ const SellingTransaction = () => {
         price: 0,
     });
     const [currentPage, setCurrentPage] = useState(0);
-    const itemsPerPage = 2;
+    const itemsPerPage = 5;
     const [errorMessage, setErrorMessage] = useState('');
     const [lastOrders, setLastOrders] = useState([]);
     const [totalPages, setTotalPages] = useState(0);
@@ -64,60 +64,55 @@ const SellingTransaction = () => {
         }
     }, []);
 
-    const handleBarcodeInput = async (e) => {
-        const scannedBarcode = e.target.value.trim();
-
-        if (!/^\d*$/.test(scannedBarcode)) {
-            setErrorMessage('Barcode must be numeric.');
-            return;
-        }
-
+    const handleInputChange = (e) => {
         setOrderData((prevData) => ({
             ...prevData,
-            barcode: scannedBarcode,
+            barcode: e.target.value,
         }));
-
-        if (scannedBarcode === '') {
-            setErrorMessage('');
-            return;
-        }
-
-        try {
-            const response = await axios.get(`http://localhost:5000/api/products/${scannedBarcode}`, {
-                params: { branchId }
-            });
-
-            if (response.data) {
-                const product = {
-                    barcode: scannedBarcode,
-                    name: response.data.name,
-                    description: response.data.description || '',
-                    price: response.data.price,
-                };
-                setProducts((prevProducts) => [...prevProducts, product]);
-                setOrderData({ barcode: '', itemName: '', itemDescription: '', price: 0 });
-                setErrorMessage('');
-            } else {
-                setErrorMessage('Invalid barcode. Please try again.');
+        setErrorMessage(''); // Clear error while typing
+    };
+    
+    const handleBarcodeInput = async (e) => {
+        if (e.key === 'Enter') {
+            const scannedBarcode = orderData.barcode.trim();
+    
+            if (!/^\d*$/.test(scannedBarcode)) {
+                setErrorMessage('Barcode must be numeric.');
+                return;
             }
-        } catch (error) {
-            if (error.response && error.response.status === 404) {
-                setErrorMessage('Product not found. Please check the barcode.');
-            } else {
-                setErrorMessage('An error occurred. Please try again.');
-            }
-        }
-        finally {
-            setOrderData({ barcode: '' }); // Clear the barcode input field
-            if (barcodeInputRef.current) {
-                barcodeInputRef.current.focus(); // Refocus for next scan
+    
+            try {
+                const response = await axios.get(`http://localhost:5000/api/products/${scannedBarcode}`, {
+                    params: { branchId },
+                });
+    
+                if (response.data) {
+                    const product = {
+                        barcode: scannedBarcode,
+                        name: response.data.name,
+                        description: response.data.description || '',
+                        price: response.data.price,
+                    };
+                    setProducts((prevProducts) => [...prevProducts, product]);
+                    setOrderData({ barcode: '', itemName: '', itemDescription: '', price: 0 });
+                    setErrorMessage('');
+                } else {
+                    setErrorMessage('Invalid barcode. Please try again.');
+                }
+            } catch (error) {
+                if (error.response && error.response.status === 404) {
+                    setErrorMessage('Product not found. Please check the barcode.');
+                } else {
+                    setErrorMessage('An error occurred. Please try again.');
+                }
+            } finally {
+                if (barcodeInputRef.current) {
+                    barcodeInputRef.current.focus(); // Refocus for the next action
+                }
             }
         }
     };
-
-    const handleInputChange = (e) => {
-        setOrderData({ barcode: e.target.value });
-    };
+    
 
     const totalAmount = products.reduce((total, product) => total + product.price, 0);
 
@@ -160,12 +155,14 @@ const SellingTransaction = () => {
                     ref={barcodeInputRef}
                     value={orderData.barcode}
                     onChange={handleInputChange}
-                    onInput={handleBarcodeInput}
+                    onKeyDown={handleBarcodeInput}
                     placeholder="باركود"
                     required
                 />
                 {errorMessage && <p className="selling-transaction-error-message">{errorMessage}</p>}
 
+                {products.length > 0 && (
+                    <>
                 <table className="selling-transaction-product-table">
                     <thead>
                         <tr>
@@ -200,6 +197,11 @@ const SellingTransaction = () => {
                 <button onClick={handleCheckout} className="selling-transaction-checkout-btn">
                     اتمام البيع
                 </button>
+                </>
+                
+            )}
+
+
 
                 {loading && <p>Loading...</p>}
 
@@ -252,12 +254,14 @@ const SellingTransaction = () => {
                     </div>
                 )}
 
+                <div>
                 <button
                     onClick={() => (window.location.href = '/all-orders')}
                     className="selling-transaction-all-orders-btn"
                 >
                     جميع الفواتير
                 </button>
+                </div>
             </div>
         </>
     );
