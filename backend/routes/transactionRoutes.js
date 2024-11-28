@@ -1,4 +1,3 @@
-// backend/routes/transactions.js
 const express = require('express');
 const router = express.Router();
 const Transaction = require('../models/Transaction');
@@ -19,7 +18,7 @@ router.post('/', async (req, res) => {
 });
 
 router.get('/input', async (req, res) => {
-    const { page, limit, startDate, endDate } = req.query;
+    const { startDate, endDate } = req.query;
 
     try {
         // Set the date range based on the provided startDate and endDate, or use today's date range by default
@@ -35,35 +34,12 @@ router.get('/input', async (req, res) => {
             date: { $gte: startOfDay, $lte: endOfDay },
         };
 
-        // Set pagination defaults if page and limit are not provided
-        const pageNum = parseInt(page, 10) || 1;
-        const limitNum = parseInt(limit, 10) || 5;
-
-        let transactions;
-        if (page && limit) {
-            // Apply pagination
-            transactions = await Transaction.find(query)
-                .limit(limitNum)
-                .skip((pageNum - 1) * limitNum)
-                .sort({ date: -1 });
-
-            const count = await Transaction.countDocuments(query);
-            res.json({
-                transactions,
-                totalPages: Math.ceil(count / limitNum),
-                currentPage: pageNum,
-            });
-        } else {
-            // Return all transactions if pagination is not specified
-            transactions = await Transaction.find(query).sort({ date: -1 });
-            res.json({ transactions });
-        }
+        // Return all transactions for the given date range
+        const transactions = await Transaction.find(query).sort({ date: -1 });
+        res.json({ transactions });
     } catch (error) {
         res.status(500).json({ error: "Failed to retrieve transactions: " + error.message });
     }
 });
-
-
-
 
 module.exports = router;

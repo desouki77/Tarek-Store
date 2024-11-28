@@ -1,138 +1,114 @@
-/* InputTransaction.css */
-
+/* General styles */
 .input-transaction {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 10px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  h2, h3 {
-    text-align: center;
-    color: #333;
-  }
-  
-  .transaction-form {
-    display: flex;
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.input-transaction-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.input-transaction-input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.input-transaction-button {
+  padding: 10px;
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 20%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.input-transaction-button:hover {
+  background-color: #0056b3;
+}
+
+.input-transaction-error {
+  color: red;
+  margin-top: 10px;
+}
+
+.input-transaction-loading-message, 
+.input-transaction-no-data-message {
+  font-size: 18px;
+  color: gray;
+  margin-top: 20px;
+}
+
+.input-transaction-table {
+  width: 100%;
+  margin-top: 20px;
+  border-collapse: collapse;
+}
+
+.input-transaction-table th, .input-transaction-table td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+.input-transaction-pagination {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
+
+.input-transaction-page-button {
+  padding: 8px 12px;
+  background-color: #ccc;
+  border: none;
+  cursor: pointer;
+}
+
+.input-transaction-page-button.active {
+  background-color: #007BFF;
+  color: white;
+}
+
+.input-transaction-all-transactions-button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.input-transaction-all-transactions-button:hover {
+  background-color: #218838;
+}
+
+/* Mobile and Tablet Styles */
+@media (max-width: 768px) {
+  .input-transaction-form {
     flex-direction: column;
-    gap: 15px;
-    margin-bottom: 20px;
-  }
-  
-  .transaction-form input[type="text"],
-  .transaction-form input[type="number"] {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 1em;
-    outline: none;
-    transition: border-color 0.3s ease;
-  }
-  
-  .transaction-form input:focus {
-    border-color: #007bff;
-  }
-  
-  .transaction-form button {
-    padding: 10px;
-    font-size: 1em;
-    color: white;
-    background-color: #007bff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .transaction-form button:hover {
-    background-color: #0056b3;
-  }
-  
-  .transaction-form button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-  }
-  
-  .error {
-    color: #d9534f;
-    text-align: center;
-    margin-bottom: 15px;
-  }
-  
-  .transaction-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-  }
-  
-  .transaction-table th,
-  .transaction-table td {
-    padding: 10px;
-    text-align: center;
-    border: 1px solid #ddd;
-  }
-  
-  .transaction-table th {
-    background-color: #f1f1f1;
-    color: #333;
-  }
-  
-  .pagination-buttons {
-    display: flex;
-    justify-content: center;
     gap: 10px;
-    margin-bottom: 20px;
   }
-  
-  .pagination-button {
-    padding: 8px 12px;
-    font-size: 0.9em;
-    color: white;
-    background-color: #007bff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .pagination-button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-  }
-  
-  .pagination-button:hover:enabled {
-    background-color: #0056b3;
-  }
-  
-  .all-transactions-button {
-    display: block;
+
+  .input-transaction-button, 
+  .input-transaction-all-transactions-button {
     width: 100%;
-    padding: 10px;
-    font-size: 1em;
-    color: #007bff;
-    background-color: transparent;
-    border: 2px solid #007bff;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    font-size: 16px;
   }
-  
-  .all-transactions-button:hover {
-    color: white;
-    background-color: #007bff;
+
+  .input-transaction-table th, 
+  .input-transaction-table td {
+    font-size: 14px;
+    padding: 8px;
   }
-  
-  /* Responsive Styles */
-  @media (max-width: 600px) {
-    .transaction-form, .pagination-buttons {
-      flex-direction: column;
-      gap: 10px;
-    }
-  
-    .pagination-buttons {
-      margin-top: 10px;
-    }
-  }
-  
+}
