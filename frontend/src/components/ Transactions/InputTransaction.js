@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Navbar from '../Navbar';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import "../../styles/InputTransaction.css";
+import "../../styles/Transactions.css";
 
 const InputTransaction = () => {
   const [description, setDescription] = useState('');
@@ -45,7 +45,7 @@ const InputTransaction = () => {
     setError(null);
   
     try {
-      const response = await axios.post('http://localhost:5000/api/transactions', {
+      const response = await axios.post('http://localhost:5000/api/transactions/input', {
         user: userId,
         type: type,
         description,

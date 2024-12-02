@@ -9,7 +9,7 @@ const transactionSchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ['input', 'output'], // Ensure the type is either 'input' or 'output'
+        enum: ['input', 'output','recharge','maintenance','supplier_payment','customer_payment','purchasing','returns'], 
         required: true,
     },
     description: {
