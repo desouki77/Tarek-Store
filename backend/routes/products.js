@@ -20,7 +20,7 @@ router.get('/:barcode' , async (req, res) => {
 
 // Route to add a product to inventory
 router.post('/add', async (req, res) => {
-  const { barcode, name, description, price, quantity, category } = req.body; 
+  const { barcode, name, sn ,description, color, price, quantity, category } = req.body; 
 
   const existingProduct = await Product.findOne({ barcode });
 if (existingProduct) {
@@ -32,7 +32,9 @@ if (existingProduct) {
     const newProduct = new Product({
       barcode,
       name,
+      sn,
       description,
+      color,
       price,
       quantity,
       category,

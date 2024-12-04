@@ -4,9 +4,11 @@ const mongoose = require('mongoose');
 const productSchema = new mongoose.Schema({
   barcode: { type: String, required: true, unique: true },
   name: { type: String, required: true },
-  description: { type: String },
+  sn: {type: String, required:false},
+  description: { type: String , required:false},
+  color: {type: String, required:false},
   price: { type: Number, required: true },
-  quantity: { type: Number, default: 0 },
+  quantity: { type: Number, required:true, default: 0 },
   category: { type: String, required: false },
 });
 

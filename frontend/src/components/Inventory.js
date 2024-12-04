@@ -8,44 +8,117 @@ const Inventory = () => {
   const [product, setProduct] = useState({
     barcode: '',
     name: '',
+    sn: '',
     description: '',
+    color: '',
     price: '',
     quantity: '',
     category: '',
+    condition: '',
   });
 
   const navigate = useNavigate();
   const [addedProduct, setAddedProduct] = useState(null);
-  const [editingProductId, setEditingProductId] = useState(null);
   const role = localStorage.getItem('role');
   const isAdmin = role === 'admin';
+
+  const [categories] = useState({
+    اجهزة: {
+      موبايلات: ['سامسونج', 'آيفون', 'هواوي', 'اوبو', 'ريلمي', 'فيفو', 'ريدمي ( شاومي )', 'هونر', 'نوكيا', 'جوجل', 'اخري'],
+      سماعات: ['سماعات سلكية', 'سماعات اير بودز', 'سماعات بيتس', 'سماعات ستريو', 'اخري'],
+      ساعات: ['ايفون', 'سامسونج', 'هواوي', 'اخري'],
+      اضائات: ['رينج لايت', 'اخري'],
+      ميكات: []
+    },
+    اكسسوارات: {
+      جرابات: ['جرابات موبايلات', 'جرابات اير بودز', 'جرابات ساعات'],
+      اسكرينات: [],
+      شواحن: [],
+      كابلات: [],
+      'سترابات ساعات': [],
+      'ميموري كارد': [],
+      فلاشات: [],
+      'لينسات كاميرة': [],
+      'باور بانك': [],
+      'حوامل موبايلات': [],
+      بطاريات: []
+    },
+    others: {}
+  });
+
+  const [mainCategory, setMainCategory] = useState('');
+  const [subCategory, setSubCategory] = useState('');
+  const [thirdCategory, setThirdCategory] = useState('');
+  const [condition, setCondition] = useState(''); 
 
   const handleChange = (e) => {
     setProduct({ ...product, [e.target.name]: e.target.value });
   };
 
-  const handleBarcodeChange = async (e) => {
+  const handleBarcodeChange = (e) => {
     const scannedBarcode = e.target.value;
     setProduct((prevProduct) => ({
       ...prevProduct,
       barcode: scannedBarcode,
     }));
   };
+  const handleSNChange = (e) => {
+    const SN = e.target.value;
+    setProduct((prevProduct) => ({
+      ...prevProduct,
+      sn: SN,
+    }));
+  };
+
+  const handleMainCategoryChange = (e) => {
+    setMainCategory(e.target.value);
+    setSubCategory('');
+    setThirdCategory('');
+    setCondition('');
+  };
+
+  const handleSubCategoryChange = (e) => {
+    setSubCategory(e.target.value);
+    setThirdCategory('');
+    setCondition('');
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // تكوين التصنيف الكامل
+    const fullCategory = `${mainCategory} > ${subCategory} > ${thirdCategory} > ${condition}`.trim();
+
+    // إعداد كائن المنتج مع التصنيف الكامل
+    const productWithCategory = {
+      ...product,
+      category: fullCategory, // إرسال التصنيف الكامل إلى قاعدة البيانات
+    };
+
     try {
-      const response = await axios.post('http://localhost:5000/api/products/add', product);
+      const response = await axios.post('http://localhost:5000/api/products/add', productWithCategory);
       setAddedProduct(response.data.product);
-      setProduct({ barcode: '', name: '', description: '', price: '', quantity: '', category: '' });
-      setEditingProductId(null);
+
+      // إعادة تعيين الحقول
+      setProduct({
+        barcode: '',
+        name: '',
+        sn: '',
+        description: '',
+        color: '',
+        price: '',
+        quantity: '',
+        category: '',
+      });
+      setMainCategory('');
+      setSubCategory('');
+      setThirdCategory('');
+
       setTimeout(() => {
         setAddedProduct(null);
       }, 3000);
     } catch (error) {
       if (error.response && error.response.status === 400) {
-        // Handle product already exists error
         alert('هذا المنتج موجود بالفعل. يرجى التحقق من رمز المنتج.');
       } else {
         console.error('خطأ في اضافة او تحديث المنتج', error);
@@ -60,7 +133,7 @@ const Inventory = () => {
         عرض جميع المنتجات
       </button>
       <section className="inventory__section">
-        <h2 className="inventory__heading">{editingProductId ? 'تعديل المنتج' : 'إضافة منتج'}</h2>
+        <h2 className="inventory__heading">إضافة منتج</h2>
         <form className="inventory__form" onSubmit={handleSubmit}>
           <input
             className="inventory__input"
@@ -68,7 +141,7 @@ const Inventory = () => {
             name="barcode"
             value={product.barcode}
             onChange={handleBarcodeChange}
-            placeholder="رمز المنتج"
+            placeholder="باركود ( اجباري )"
             required
           />
           <input
@@ -77,8 +150,16 @@ const Inventory = () => {
             name="name"
             value={product.name}
             onChange={handleChange}
-            placeholder="اسم المنتج"
+            placeholder="اسم المنتج ( اجباري )"
             required
+          />
+          <input
+            className="inventory__input"
+            type="text"
+            name="sn"
+            value={product.sn}
+            onChange={handleSNChange}
+            placeholder="رقم السريال ( ان وجد )"
           />
           <input
             className="inventory__input"
@@ -86,7 +167,15 @@ const Inventory = () => {
             name="description"
             value={product.description}
             onChange={handleChange}
-            placeholder="الوصف"
+            placeholder="الوصف ( ان وجد )"
+          />
+          <input
+            className="inventory__input"
+            type="text"
+            name="color"
+            value={product.color}
+            onChange={handleChange}
+            placeholder="اللون ( ان وجد )"
           />
           <input
             className="inventory__input"
@@ -94,7 +183,7 @@ const Inventory = () => {
             name="price"
             value={product.price}
             onChange={handleChange}
-            placeholder="السعر"
+            placeholder="السعر ( اجباري )"
             required
           />
           <input
@@ -103,26 +192,84 @@ const Inventory = () => {
             name="quantity"
             value={product.quantity}
             onChange={handleChange}
-            placeholder="الكمية"
+            placeholder="الكمية ( اجباري )"
             required
           />
+
+          {/* Main Category Selection */}
           <select
             className="inventory__select"
-            name="category"
-            value={product.category}
-            onChange={handleChange}
+            name="mainCategory"
+            value={mainCategory}
+            onChange={handleMainCategoryChange}
             required
           >
-            <option value="">اختر التصنيف</option>
-            <option value="devices">اجهزة</option>
-            <option value="accessories">اكسسوارات</option>
+            <option value="">اختر التصنيف الرئيسي</option>
+            {Object.keys(categories).map((category) => (
+              <option key={category} value={category}>
+                {category === 'اجهزة' ? 'اجهزة' : category === 'اكسسوارات' ? 'اكسسوارات' : 'اخري'}
+              </option>
+            ))}
           </select>
+
+          {/* Subcategory Selection */}
+          {mainCategory && Object.keys(categories[mainCategory]).length > 0 && (
+            <select
+              className="inventory__select"
+              name="subCategory"
+              value={subCategory}
+              onChange={handleSubCategoryChange}
+              required
+            >
+              <option value="">اختر التصنيف الفرعي</option>
+              {Object.keys(categories[mainCategory]).map((sub, index) => (
+                <option key={index} value={sub}>
+                  {sub}
+                </option>
+              ))}
+            </select>
+          )}
+
+          {/* Third Category Selection */}
+          {subCategory &&
+            categories[mainCategory][subCategory] &&
+            categories[mainCategory][subCategory].length > 0 && (
+              <select
+                className="inventory__select"
+                name="thirdCategory"
+                value={thirdCategory}
+                onChange={(e) => setThirdCategory(e.target.value)}
+                required
+              >
+                <option value="">اختر النوع</option>
+                {categories[mainCategory][subCategory].map((type, index) => (
+                  <option key={index} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
+            )}
+
+             {/* Fourth Category Selection for Condition */}
+          {mainCategory === 'اجهزة' && (
+            <select
+              className="inventory__select"
+              name="condition"
+              value={condition}
+              onChange={(e) => setCondition(e.target.value)}
+              required
+            >
+              <option value="">اختر حالة المنتج</option>
+              <option value="جديد">جديد</option>
+              <option value="مستعمل">مستعمل</option>
+            </select>
+          )}
+
           <button className="inventory__submit-btn" type="submit">
-            {editingProductId ? 'تحديث المنتج' : 'إضافة المنتج'}
+            إضافة المنتج
           </button>
         </form>
         {addedProduct && <p className="inventory__confirmation">تم إضافة المنتج: {addedProduct.name}</p>}
-
       </section>
     </>
   );
