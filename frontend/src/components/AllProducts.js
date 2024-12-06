@@ -10,27 +10,80 @@ const AllProducts = () => {
   const role = localStorage.getItem('role'); // Get role from localStorage
   const isAdmin = role === 'admin'; // Determine if the user is an admin
   const [searchQuery, setSearchQuery] = useState(''); // For the search input
-  const [selectedCategory, setSelectedCategory] = useState('');
   const [currentPage, setCurrentPage] = useState(1); // Track current page
   const productsPerPage = 10; // Number of products per page
+
+
+
+  const [categories] = useState({
+    اجهزة: {
+      موبايلات: ['سامسونج', 'آيفون', 'هواوي', 'اوبو', 'ريلمي', 'فيفو', 'ريدمي ( شاومي )', 'هونر', 'نوكيا', 'جوجل', 'اخري'],
+      سماعات: ['سماعات سلكية', 'سماعات اير بودز', 'سماعات بيتس', 'سماعات ستريو', 'اخري'],
+      ساعات: ['ايفون', 'سامسونج', 'هواوي', 'اخري'],
+      اضائات: ['رينج لايت', 'اخري'],
+      ميكات: []
+    },
+    اكسسوارات: {
+      جرابات: ['جرابات موبايلات', 'جرابات اير بودز', 'جرابات ساعات'],
+      اسكرينات: [],
+      شواحن: [],
+      كابلات: [],
+      'سترابات ساعات': [],
+      'ميموري كارد': [],
+      فلاشات: [],
+      'لينسات كاميرة': [],
+      'باور بانك': [],
+      'حوامل موبايلات': [],
+      بطاريات: []
+    },
+    others: {}
+  });
+  
+  const [mainCategory, setMainCategory] = useState('');
+  const [subCategory, setSubCategory] = useState('');
+  const [thirdCategory, setThirdCategory] = useState('');
+  const [condition, setCondition] = useState('');
+
+  const handleMainCategoryChange = (e) => {
+    setMainCategory(e.target.value);
+    setSubCategory('');
+    setThirdCategory('');
+    setCondition('');
+  };
+
+  const handleSubCategoryChange = (e) => {
+    setSubCategory(e.target.value);
+    setThirdCategory('');
+    setCondition('');
+  };
+
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
+   
+        // إرسال التصنيف مع البحث
         const response = await axios.get('http://localhost:5000/api/products', {
           params: {
-            category: selectedCategory,
-            query: searchQuery,
+            mainCategory, // إرسال mainCategory
+            subCategory,  // إرسال subCategory
+            thirdCategory, // إرسال thirdCategory
+            condition,    // إرسال condition
+            query: searchQuery, // البحث
           },
         });
+  
         setProducts(response.data);
       } catch (error) {
         console.error('خطأ في استرجاع المنتجات', error);
       }
     };
-
+  
     fetchProducts();
-  }, [searchQuery, selectedCategory]);
+  }, [mainCategory, subCategory, thirdCategory, condition, searchQuery]); 
+  
+  
+  
 
   const handleEditClick = (product) => {
     setEditingProductId(product._id); // Set the ID of the product to be edited
@@ -86,6 +139,7 @@ const AllProducts = () => {
     pageNumbers.push(i);
   }
 
+
   return (
     <>
       <Navbar isAdmin={isAdmin} />
@@ -101,26 +155,87 @@ const AllProducts = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="allproduct-search-input"
           />
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
+            {/* Main Category Selection */}
+            <select
             className="allproduct-category-select"
+            name="mainCategory"
+            value={mainCategory}
+            onChange={handleMainCategoryChange}
+            required
           >
-            <option value="">كل التصنيفات</option>
-            <option value="devices">اجهزة</option>
-            <option value="accessories">إكسسوارات</option>
-            {/* Add more categories dynamically if needed */}
+            <option value="">اختر التصنيف الرئيسي</option>
+            {Object.keys(categories).map((category) => (
+              <option key={category} value={category}>
+                {category === 'اجهزة' ? 'اجهزة' : category === 'اكسسوارات' ? 'اكسسوارات' : 'اخري'}
+              </option>
+            ))}
           </select>
+
+          {/* Subcategory Selection */}
+          {mainCategory && Object.keys(categories[mainCategory]).length > 0 && (
+            <select
+              className="allproduct-category-select"
+              name="subCategory"
+              value={subCategory}
+              onChange={handleSubCategoryChange}
+              required
+            >
+              <option value="">اختر التصنيف الفرعي</option>
+              {Object.keys(categories[mainCategory]).map((sub, index) => (
+                <option key={index} value={sub}>
+                  {sub}
+                </option>
+              ))}
+            </select>
+          )}
+
+          {/* Third Category Selection */}
+          {subCategory &&
+            categories[mainCategory][subCategory] &&
+            categories[mainCategory][subCategory].length > 0 && (
+              <select
+                className="allproduct-category-select"
+                name="thirdCategory"
+                value={thirdCategory}
+                onChange={(e) => setThirdCategory(e.target.value)}
+                required
+              >
+                <option value="">اختر النوع</option>
+                {categories[mainCategory][subCategory].map((type, index) => (
+                  <option key={index} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
+            )}
+
+             {/* Fourth Category Selection for Condition */}
+          {mainCategory === 'اجهزة' && (
+            <select
+              className="allproduct-category-select"
+              name="condition"
+              value={condition}
+              onChange={(e) => setCondition(e.target.value)}
+              required
+            >
+              <option value="">اختر حالة المنتج</option>
+              <option value="جديد">جديد</option>
+              <option value="مستعمل">مستعمل</option>
+            </select>
+          )}
         </div>
 
         {currentProducts.length > 0 ? (
           <table className="allproduct-table">
             <thead>
               <tr>
-                <th>رمز المنتج</th>
+                <th>باركود</th>
                 <th>اسم المنتج</th>
+                <th>رقم السريال</th>
                 <th>الوصف</th>
+                <th>اللون</th>
                 <th>التصنيف</th>
+                <th>المورد</th>
                 <th>الكمية</th>
                 <th>السعر</th>
                 <th>الإجراءات</th>
@@ -132,8 +247,16 @@ const AllProducts = () => {
                   <tr className="allproduct-table-row">
                     <td>{item.barcode}</td>
                     <td>{item.name}</td>
+                    <td>{item.sn}</td>
                     <td>{item.description}</td>
-                    <td>{item.category}</td>
+                    <td>{item.color}</td>
+                    <td>
+                    {item.mainCategory} <br/>
+                    {item.subCategory} <br/>
+                    {item.thirdCategory} <br/>
+                    {item.condition}
+                    </td>
+                    <td>{item.supplier}</td>
                     <td>{item.quantity}</td>
                     <td>{item.price}</td>
                     <td>
@@ -143,51 +266,8 @@ const AllProducts = () => {
                   </tr>
                   {editingProductId === item._id && (
                     <tr className="allproduct-edit-form-row">
-                      <td colSpan={7}>
+                      <td colSpan={10}>
                         <form onSubmit={handleEditSubmit} className="allproduct-edit-form">
-                          <div className="allproduct-form-group">
-                            <label>اسم المنتج:</label>
-                            <input
-                              type="text"
-                              name="name"
-                              value={editFormData.name || ''}
-                              onChange={handleEditChange}
-                              required
-                              className="allproduct-form-input"
-                            />
-                          </div>
-                          <div className="allproduct-form-group">
-                            <label>الوصف:</label>
-                            <textarea
-                              name="description"
-                              value={editFormData.description || ''}
-                              onChange={handleEditChange}
-                              required
-                              className="allproduct-form-input"
-                            />
-                          </div>
-                          <div className="allproduct-form-group">
-                            <label>التصنيف:</label>
-                            <input
-                              type="text"
-                              name="category"
-                              value={editFormData.category || ''}
-                              onChange={handleEditChange}
-                              required
-                              className="allproduct-form-input"
-                            />
-                          </div>
-                          <div className="allproduct-form-group">
-                            <label>الكمية:</label>
-                            <input
-                              type="number"
-                              name="quantity"
-                              value={editFormData.quantity || ''}
-                              onChange={handleEditChange}
-                              required
-                              className="allproduct-form-input"
-                            />
-                          </div>
                           <div className="allproduct-form-group">
                             <label>السعر:</label>
                             <input

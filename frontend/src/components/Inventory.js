@@ -13,8 +13,11 @@ const Inventory = () => {
     color: '',
     price: '',
     quantity: '',
-    category: '',
+    mainCategory: '',
+    subCategory: '',
+    thirdCategory: '',
     condition: '',
+    supplier: '',
   });
 
   const navigate = useNavigate();
@@ -85,20 +88,21 @@ const Inventory = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // تكوين التصنيف الكامل
-    const fullCategory = `${mainCategory} > ${subCategory} > ${thirdCategory} > ${condition}`.trim();
-
+    
     // إعداد كائن المنتج مع التصنيف الكامل
     const productWithCategory = {
       ...product,
-      category: fullCategory, // إرسال التصنيف الكامل إلى قاعدة البيانات
+      mainCategory, // استخدام mainCategory بدلاً من category
+      subCategory,  // استخدام subCategory بدلاً من category
+      thirdCategory, // استخدام thirdCategory بدلاً من category
+      condition,    // إضافة condition إذا تم تحديده
+      supplier: product.supplier,
     };
-
+  
     try {
       const response = await axios.post('http://localhost:5000/api/products/add', productWithCategory);
       setAddedProduct(response.data.product);
-
+  
       // إعادة تعيين الحقول
       setProduct({
         barcode: '',
@@ -108,12 +112,13 @@ const Inventory = () => {
         color: '',
         price: '',
         quantity: '',
-        category: '',
+        // إزالة category لأننا أصبحنا نستخدم الحقول الجديدة
       });
       setMainCategory('');
       setSubCategory('');
       setThirdCategory('');
-
+      setCondition('');
+  
       setTimeout(() => {
         setAddedProduct(null);
       }, 3000);
@@ -125,6 +130,7 @@ const Inventory = () => {
       }
     }
   };
+  
 
   return (
     <>
@@ -194,6 +200,15 @@ const Inventory = () => {
             onChange={handleChange}
             placeholder="الكمية ( اجباري )"
             required
+          />
+          <input
+            className="inventory__input"
+            type="text"
+            name="supplier"
+            value={product.supplier}
+            onChange={handleChange}
+            placeholder="اسم المورد (ان وجد)"
+
           />
 
           {/* Main Category Selection */}

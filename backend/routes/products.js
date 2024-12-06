@@ -2,6 +2,8 @@
 const express = require('express');
 const Product = require('../models/Product');
 const router = express.Router();
+const Supplier = require('../models/Supplier');
+
 
 // Route to get a product by barcode 
 router.get('/:barcode' , async (req, res) => {
@@ -18,17 +20,25 @@ router.get('/:barcode' , async (req, res) => {
   }
 });
 
-// Route to add a product to inventory
 router.post('/add', async (req, res) => {
-  const { barcode, name, sn ,description, color, price, quantity, category } = req.body; 
-
-  const existingProduct = await Product.findOne({ barcode });
-if (existingProduct) {
-    return res.status(400).json({ message: 'هذا المنتج متوفر بالفعل' });
-}
+  const { barcode, name, sn, description, color, price, quantity, mainCategory, subCategory, thirdCategory, condition, supplier } = req.body;
 
   try {
-    // Create a new product instance
+    // Check if the product already exists
+    const existingProduct = await Product.findOne({ barcode });
+    if (existingProduct) {
+      return res.status(400).json({ message: 'هذا المنتج متوفر بالفعل' });
+    }
+
+    // Check if the supplier exists
+    let existingSupplier = await Supplier.findOne({ name: supplier });
+    if (!existingSupplier) {
+      // Create a new supplier if it doesn't exist
+      existingSupplier = new Supplier({ name: supplier, phoneNumber: '', company: '', notes: '' });
+      await existingSupplier.save();
+    }
+
+    // Create the product
     const newProduct = new Product({
       barcode,
       name,
@@ -37,11 +47,15 @@ if (existingProduct) {
       color,
       price,
       quantity,
-      category,
+      mainCategory,
+      subCategory,
+      thirdCategory,
+      condition,
+      supplier: existingSupplier.name,
     });
 
-    // Save the product to the database
     await newProduct.save();
+
     res.status(201).json({ message: 'تم اضافة المنتج الي المخزن بنجاح', product: newProduct });
   } catch (error) {
     console.error('خطأ في اضافة المنتج', error);
@@ -49,34 +63,53 @@ if (existingProduct) {
   }
 });
 
-// Route to search for products by category, query
+
 router.get('/', async (req, res) => {
-  const { category, query } = req.query; 
+  const { mainCategory, subCategory, thirdCategory, condition, query,barcode } = req.query;
+
   const filter = {};
 
+  // تصفية المنتجات بناءً على mainCategory
+  if (mainCategory) {
+    filter.mainCategory = { $regex: `^${mainCategory}`, $options: 'i' }; // تصفية حسب الفئة الرئيسية
+  }
+
+  // تصفية المنتجات بناءً على subCategory
+  if (subCategory) {
+    filter.subCategory = { $regex: `^${subCategory}`, $options: 'i' }; // تصفية حسب الفئة الفرعية
+  }
+
+  // تصفية المنتجات بناءً على thirdCategory
+  if (thirdCategory) {
+    filter.thirdCategory = { $regex: `^${thirdCategory}`, $options: 'i' }; // تصفية حسب النوع
+  }
+
+  // تصفية المنتجات بناءً على حالة المنتج
+  if (condition) {
+    filter.condition = { $regex: `^${condition}`, $options: 'i' }; // تصفية حسب الحالة (جديد أو مستعمل)
+  }
+
+  // تصفية المنتجات بناءً على اسم المنتج أو البحث
+  if (query) {
+    filter.name = { $regex: query, $options: 'i' }; // البحث عن المنتج
+  }
+  if (barcode) {
+    // البحث باستخدام الباركود
+    filter.barcode = barcode;
+  }
 
   try {
-
-    // Check if category is provided
-    if (category) {
-      filter.category = category;
-    }
-
-    // Check if query is provided
-    if (query) {
-      filter.$or = [
-        { name: { $regex: query, $options: 'i' } }, // Case-insensitive search for name
-        { description: { $regex: query, $options: 'i' } }, // Case-insensitive search for description
-      ];
-    }
-
-    const products = await Product.find(filter);
+    const products = await Product.find(filter).sort({ createdAt: -1 });
     res.json(products);
   } catch (error) {
-    console.error('خطأ في استرجاع المنتجات', error);
-    res.status(500).send('خطأ في السيرفر');
+    console.error(error);
+    res.status(500).send('حدث خطأ أثناء استرجاع المنتجات');
   }
 });
+
+
+
+
 
 // Backend route to decrease product quantity by barcode
 router.put('/:barcode/decrease', async (req, res) => {

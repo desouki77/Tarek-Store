@@ -4,11 +4,11 @@ const mongoose = require('mongoose');
 const supplierSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true,
+        required: false,
     },
     phoneNumber: {
         type: String,
-        required: true,
+        required: false,
     },
     company: {
         type: String,
