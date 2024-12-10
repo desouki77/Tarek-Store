@@ -10,9 +10,10 @@ const InputTransaction = () => {
   const [transactions, setTransactions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const navigate = useNavigate();
-
   const userId = localStorage.getItem('userId');
   const branchId = localStorage.getItem('branchId');
   const role = localStorage.getItem('role');
@@ -21,109 +22,104 @@ const InputTransaction = () => {
 
   const fetchUserData = async (userId) => {
     try {
-      const [userResponse] = await Promise.all([
-        axios.get(`http://localhost:5000/api/users/${userId}`),
-      ]);
-      console.log("Fetched userName:", userResponse.data.username); // Log to check user data
-      return { 
-        userName: userResponse.data.username, 
-      };
+      const userResponse = await axios.get(`http://localhost:5000/api/users/${userId}`);
+      return { userName: userResponse.data.username };
     } catch (error) {
       console.error("Error fetching user", error);
       return { userName: 'Unknown' };
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-  
-    if (!userId || !branchId) {
-        console.error("User ID or branch ID is not set in localStorage");
-        return;
-    }
-  
+  const fetchTransactions = async (page) => {
     setIsLoading(true);
     setError(null);
-  
-    try {
-        // إرسال العملية إلى الـ API
-        const response = await axios.post('http://localhost:5000/api/transactions/input', {
-            branchId: branchId,
-            user: userId,
-            type: type,
-            description,
-            amount: parseFloat(amount),
-            date: new Date(),
-        });
 
-        // استرجاع بيانات المستخدم الجديد
-        const { userName } = await fetchUserData(userId);
+    const today = new Date();
+    const startDate = new Date(today.setHours(0, 0, 0, 0)).toISOString();
+    const endDate = new Date(today.setHours(23, 59, 59, 999)).toISOString();
 
-        // تحديث حالة العمليات بالعملية الجديدة مع اسم المستخدم
-        const newTransaction = { ...response.data, userName };
-        setTransactions((prevTransactions) => [newTransaction, ...prevTransactions]);
-
-        // إعادة تعيين الحقول
-        setDescription('');
-        setAmount('');
-    } catch (error) {
-        console.error("Error adding transaction:", error.response ? error.response.data : error.message);
-        setError(error.message);
-    } finally {
-        setIsLoading(false);
+    if (!branchId) {
+      console.error('Branch ID is not available.');
+      setIsLoading(false);
+      return;
     }
-};
 
-  
+    try {
+      const response = await axios.get('http://localhost:5000/api/transactions/input', {
+        params: { branchId, startDate, endDate, page, limit: 5 },
+      });
+
+      const transactionsWithUserData = await Promise.all(
+        response.data.transactions.map(async (transaction) => {
+          const { userName } = await fetchUserData(transaction.user);
+          return { ...transaction, userName };
+        })
+      );
+
+      setTransactions(transactionsWithUserData);
+      setCurrentPage(response.data.currentPage);
+      setTotalPages(response.data.totalPages);
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+      setError(error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchTransactions = async () => {
-      setIsLoading(true);
-      setError(null);
-  
-      const today = new Date();
-      const startDate = new Date(today.setHours(0, 0, 0, 0)).toISOString(); // Start of today
-      const endDate = new Date(today.setHours(23, 59, 59, 999)).toISOString(); // End of today
-  
-      if (!branchId) {
-        console.error('Branch ID is not available.');
-        setIsLoading(false);
-        return;
-      }
-  
-      try {
-        const response = await axios.get('http://localhost:5000/api/transactions/input', {
-          params: { branchId, startDate, endDate },
-        });
-  
-        // Fetch user and branch data in parallel for all transactions
-        const transactionsWithUserData = await Promise.all(
-          response.data.transactions.map(async (transaction) => {
-            const { userName, branchName } = await fetchUserData(transaction.user, transaction.branch);
-            return { ...transaction, userName, branchName };
-          })
-        );
+    fetchTransactions(currentPage);
+  }, [branchId, currentPage]);
 
-        setTransactions(transactionsWithUserData);
-      } catch (error) {
-        console.error('Error fetching transactions:', error);
-        setError(error.message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-  
-    fetchTransactions();
-  }, [branchId]);
-  
   const goToAllTransactions = () => {
     navigate('/all-transactions');
+  };
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!userId || !branchId) {
+      console.error("User ID or branch ID is not set in localStorage");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await axios.post('http://localhost:5000/api/transactions/input', {
+        branchId,
+        user: userId,
+        type,
+        description,
+        amount: parseFloat(amount),
+        date: new Date(),
+      });
+
+      const { userName } = await fetchUserData(userId);
+      const newTransaction = { ...response.data, userName };
+
+      setTransactions((prevTransactions) => [newTransaction, ...prevTransactions]);
+      setDescription('');
+      setAmount('');
+    } catch (error) {
+      console.error("Error adding transaction:", error.response ? error.response.data : error.message);
+      setError(error.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <>
       <Navbar isAdmin={isAdmin} />
-    
-      <div className='input-transaction'>
+      <div className="input-transaction">
         <h2>مدخلات</h2>
         <form className="input-transaction-form" onSubmit={handleSubmit}>
           <input
@@ -178,6 +174,21 @@ const InputTransaction = () => {
                 ))}
               </tbody>
             </table>
+            <div className="pagination">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                السابق
+              </button>
+              <span>الصفحة {currentPage} من {totalPages}</span>
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                التالي
+              </button>
+            </div>
           </>
         )}
 

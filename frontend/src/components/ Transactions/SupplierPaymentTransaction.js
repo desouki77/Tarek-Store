@@ -16,19 +16,21 @@ const SupplierPaymentTransaction = () => {
   const userId = localStorage.getItem('userId');
   const branchId = localStorage.getItem('branchId');
   const role = localStorage.getItem('role');
+  const type = localStorage.getItem('transactionType');
   const isAdmin = role === 'admin';
 
-  const fetchUserData = async (userId, branchId) => {
+  const fetchUserData = async (userId) => {
     try {
-      const userResponse = await axios.get(`http://localhost:5000/api/users/${userId}`);
-      const branchResponse = await axios.get(`http://localhost:5000/api/branches/${branchId}`);
+      const [userResponse] = await Promise.all([
+        axios.get(`http://localhost:5000/api/users/${userId}`),
+      ]);
+      console.log("Fetched userName:", userResponse.data.username); // Log to check user data
       return { 
         userName: userResponse.data.username, 
-        branchName: branchResponse.data.name 
       };
     } catch (error) {
-      console.error("Error fetching user or branch data:", error);
-      return { userName: 'Unknown', branchName: 'Unknown' };
+      console.error("Error fetching user", error);
+      return { userName: 'Unknown' };
     }
   };
 
@@ -36,73 +38,83 @@ const SupplierPaymentTransaction = () => {
     e.preventDefault();
   
     if (!userId || !branchId) {
-      console.error("User ID or branch ID is not set in localStorage");
-      return;
+        console.error("User ID or branch ID is not set in localStorage");
+        return;
     }
   
     setIsLoading(true);
     setError(null);
   
     try {
-      const response = await axios.post('http://localhost:5000/api/transactions/supplier_payment', {
-        user: userId,
-        type: localStorage.getItem('transactionType'),
-        description,
-        amount: parseFloat(amount),
-        branch: branchId,
-        date: new Date(),
-      });
-  
-      const { userName, branchName } = await fetchUserData(response.data.user, response.data.branch);
-  
-      const newTransaction = { ...response.data, userName, branchName };
-      setTransactions([newTransaction, ...transactions]);
-  
-      setDescription('');
-      setAmount('');
-    } catch (error) {
-      console.error("Error adding transaction:", error.response ? error.response.data : error.message);
-      setError(error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+        // إرسال العملية إلى الـ API
+        const response = await axios.post('http://localhost:5000/api/transactions/customer_payment', {
+            branchId: branchId,
+            user: userId,
+            type: type,
+            description,
+            amount: parseFloat(amount),
+            date: new Date(),
+        });
 
+        // استرجاع بيانات المستخدم الجديد
+        const { userName } = await fetchUserData(userId);
+
+        // تحديث حالة العمليات بالعملية الجديدة مع اسم المستخدم
+        const newTransaction = { ...response.data, userName };
+        setTransactions((prevTransactions) => [newTransaction, ...prevTransactions]);
+
+        // إعادة تعيين الحقول
+        setDescription('');
+        setAmount('');
+    } catch (error) {
+        console.error("Error adding transaction:", error.response ? error.response.data : error.message);
+        setError(error.message);
+    } finally {
+        setIsLoading(false);
+    }
+};
+
+  
   useEffect(() => {
     const fetchTransactions = async () => {
       setIsLoading(true);
       setError(null);
-
-      const today = new Date().toISOString().split('T')[0];
-
+  
+      const today = new Date();
+      const startDate = new Date(today.setHours(0, 0, 0, 0)).toISOString(); // Start of today
+      const endDate = new Date(today.setHours(23, 59, 59, 999)).toISOString(); // End of today
+  
+      if (!branchId) {
+        console.error('Branch ID is not available.');
+        setIsLoading(false);
+        return;
+      }
+  
       try {
-        const response = await axios.get('http://localhost:5000/api/transactions/supplier_payment', {
-          params: { date: today },
+        const response = await axios.get('http://localhost:5000/api/transactions/customer_payment', {
+          params: { branchId, startDate, endDate },
         });
-
+  
+        // Fetch user and branch data in parallel for all transactions
         const transactionsWithUserData = await Promise.all(
           response.data.transactions.map(async (transaction) => {
             const { userName, branchName } = await fetchUserData(transaction.user, transaction.branch);
-            return {
-              ...transaction,
-              userName,
-              branchName,
-            };
+            return { ...transaction, userName, branchName };
           })
         );
 
         setTransactions(transactionsWithUserData);
       } catch (error) {
-        console.error("Error fetching transactions:", error);
+        console.error('Error fetching transactions:', error);
         setError(error.message);
       } finally {
         setIsLoading(false);
       }
     };
-
+  
     fetchTransactions();
-  }, []);
-
+  }, [branchId]);
+  
   const goToAllTransactions = () => {
     navigate('/all-transactions');
   };
@@ -112,7 +124,7 @@ const SupplierPaymentTransaction = () => {
       <Navbar isAdmin={isAdmin} />
     
       <div className='input-transaction'>
-        <h2>سداد موردين</h2>
+        <h2> سداد موردين</h2>
         <form className="input-transaction-form" onSubmit={handleSubmit}>
           <input
             type="text"

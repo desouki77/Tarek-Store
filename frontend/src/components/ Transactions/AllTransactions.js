@@ -9,10 +9,13 @@ const AllTransactions = () => {
     const [endDate, setEndDate] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [currentPage, setCurrentPage] = useState(1); // Current page state
+    const [totalPages, setTotalPages] = useState(1); // Total pages
     const role = localStorage.getItem('role');
     const branchId = localStorage.getItem('branchId');
     const transactionType = localStorage.getItem('transactionType'); // Dynamically fetch the type
     const isAdmin = role === 'admin';
+    const limit = 10; // Limit for transactions per page
 
     const fetchUserData = async (userId) => {
         try {
@@ -24,51 +27,59 @@ const AllTransactions = () => {
         }
     };
 
-    useEffect(() => {
-        const fetchAllTransactions = async () => {
-            if (!branchId) {
-                setError('Branch ID is missing.');
-                return;
-            }
+    const fetchAllTransactions = async (page = 1) => {
+        if (!branchId) {
+            setError('Branch ID is missing.');
+            return;
+        }
 
-            if (!transactionType) {
-                setError('Transaction type is missing.');
-                return;
-            }
+        if (!transactionType) {
+            setError('Transaction type is missing.');
+            return;
+        }
 
-            setLoading(true); // Start loading
-            try {
-                let url = `http://localhost:5000/api/transactions/${transactionType}?branchId=${branchId}`;
-                if (startDate) url += `&startDate=${startDate}`;
-                if (endDate) url += `&endDate=${endDate}`;
+        setLoading(true); // Start loading
+        try {
+            let url = `http://localhost:5000/api/transactions/${transactionType}?branchId=${branchId}&page=${page}&limit=${limit}`;
+            if (startDate) url += `&startDate=${startDate}`;
+            if (endDate) url += `&endDate=${endDate}`;
 
-                const response = await axios.get(url);
+            const response = await axios.get(url);
 
-                if (response.data.transactions.length === 0) {
-                    setTransactions([]);
-                    setError('');
-                } else {
-                    const transactionsWithUserData = await Promise.all(
-                        response.data.transactions.map(async (transaction) => {
-                            const userName = await fetchUserData(transaction.user);
-                            return { ...transaction, userName };
-                        })
-                    );
-
-                    setTransactions(transactionsWithUserData);
-                    setError('');
-                }
-            } catch (error) {
-                console.error('Error fetching transactions:', error);
-                setError('Failed to retrieve transactions. Please try again.');
+            if (response.data.transactions.length === 0 && page === 1) {
                 setTransactions([]);
-            } finally {
-                setLoading(false); // Stop loading
-            }
-        };
+                setTotalPages(1);
+                setError('');
+            } else {
+                const transactionsWithUserData = await Promise.all(
+                    response.data.transactions.map(async (transaction) => {
+                        const userName = await fetchUserData(transaction.user);
+                        return { ...transaction, userName };
+                    })
+                );
 
-        fetchAllTransactions();
-    }, [startDate, endDate, branchId, transactionType]);
+                setTransactions(transactionsWithUserData);
+                setTotalPages(response.data.totalPages || 1); // Update total pages from API
+                setError('');
+            }
+        } catch (error) {
+            console.error('Error fetching transactions:', error);
+            setError('Failed to retrieve transactions. Please try again.');
+            setTransactions([]);
+        } finally {
+            setLoading(false); // Stop loading
+        }
+    };
+
+    useEffect(() => {
+        fetchAllTransactions(currentPage);
+    }, [startDate, endDate, currentPage]); // Reload when currentPage changes
+
+    const handlePageChange = (newPage) => {
+        if (newPage > 0 && newPage <= totalPages) {
+            setCurrentPage(newPage);
+        }
+    };
 
     return (
         <>
@@ -98,28 +109,49 @@ const AllTransactions = () => {
                 {loading ? (
                     <p className="alltransaction-loading">يتم تحميل المعاملات...</p>
                 ) : transactions.length > 0 ? (
-                    <table className="alltransaction-table">
-                        <thead>
-                            <tr>
-                                <th>الوصف</th>
-                                <th>المبلغ</th>
-                                <th>التاريخ</th>
-                                <th>الوقت</th>
-                                <th>المستخدم</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {transactions.map((transaction) => (
-                                <tr key={transaction._id}>
-                                    <td>{transaction.description}</td>
-                                    <td>{transaction.amount}</td>
-                                    <td>{new Date(transaction.date).toLocaleDateString()}</td>
-                                    <td>{new Date(transaction.date).toLocaleTimeString()}</td>
-                                    <td>{transaction.userName}</td>
+                    <>
+                        <table className="alltransaction-table">
+                            <thead>
+                                <tr>
+                                    <th>الوصف</th>
+                                    <th>المبلغ</th>
+                                    <th>التاريخ</th>
+                                    <th>الوقت</th>
+                                    <th>المستخدم</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {transactions.map((transaction) => (
+                                    <tr key={transaction._id}>
+                                        <td>{transaction.description}</td>
+                                        <td>{transaction.amount}</td>
+                                        <td>{new Date(transaction.date).toLocaleDateString()}</td>
+                                        <td>{new Date(transaction.date).toLocaleTimeString()}</td>
+                                        <td>{transaction.userName}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                        <div className="pagination">
+                            <button
+                                onClick={() => handlePageChange(currentPage - 1)}
+                                disabled={currentPage === 1}
+                                className="pagination-button"
+                            >
+                                السابق
+                            </button>
+                            <span className="pagination-info">
+                                صفحة {currentPage} من {totalPages}
+                            </span>
+                            <button
+                                onClick={() => handlePageChange(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                                className="pagination-button"
+                            >
+                                التالي
+                            </button>
+                        </div>
+                    </>
                 ) : (
                     !error && <p className="alltransaction-no-data">لا توجد معاملات لعرضها.</p>
                 )}
