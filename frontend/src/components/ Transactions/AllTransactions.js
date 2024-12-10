@@ -7,11 +7,22 @@ const AllTransactions = () => {
     const [transactions, setTransactions] = useState([]);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const role = localStorage.getItem('role');
     const branchId = localStorage.getItem('branchId');
     const transactionType = localStorage.getItem('transactionType'); // Dynamically fetch the type
     const isAdmin = role === 'admin';
+
+    const fetchUserData = async (userId) => {
+        try {
+            const response = await axios.get(`http://localhost:5000/api/users/${userId}`);
+            return response.data.username;
+        } catch (error) {
+            console.error("Error fetching user data:", error);
+            return 'غير معروف'; // Default if user data fetch fails
+        }
+    };
 
     useEffect(() => {
         const fetchAllTransactions = async () => {
@@ -25,23 +36,34 @@ const AllTransactions = () => {
                 return;
             }
 
+            setLoading(true); // Start loading
             try {
                 let url = `http://localhost:5000/api/transactions/${transactionType}?branchId=${branchId}`;
                 if (startDate) url += `&startDate=${startDate}`;
                 if (endDate) url += `&endDate=${endDate}`;
 
                 const response = await axios.get(url);
+
                 if (response.data.transactions.length === 0) {
                     setTransactions([]);
-                    setError('No transactions found for the selected date range.');
+                    setError('');
                 } else {
-                    setTransactions(response.data.transactions);
+                    const transactionsWithUserData = await Promise.all(
+                        response.data.transactions.map(async (transaction) => {
+                            const userName = await fetchUserData(transaction.user);
+                            return { ...transaction, userName };
+                        })
+                    );
+
+                    setTransactions(transactionsWithUserData);
                     setError('');
                 }
             } catch (error) {
                 console.error('Error fetching transactions:', error);
                 setError('Failed to retrieve transactions. Please try again.');
                 setTransactions([]);
+            } finally {
+                setLoading(false); // Stop loading
             }
         };
 
@@ -73,7 +95,9 @@ const AllTransactions = () => {
                     />
                 </div>
 
-                {transactions.length > 0 ? (
+                {loading ? (
+                    <p className="alltransaction-loading">يتم تحميل المعاملات...</p>
+                ) : transactions.length > 0 ? (
                     <table className="alltransaction-table">
                         <thead>
                             <tr>
@@ -81,6 +105,7 @@ const AllTransactions = () => {
                                 <th>المبلغ</th>
                                 <th>التاريخ</th>
                                 <th>الوقت</th>
+                                <th>المستخدم</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -90,6 +115,7 @@ const AllTransactions = () => {
                                     <td>{transaction.amount}</td>
                                     <td>{new Date(transaction.date).toLocaleDateString()}</td>
                                     <td>{new Date(transaction.date).toLocaleTimeString()}</td>
+                                    <td>{transaction.userName}</td>
                                 </tr>
                             ))}
                         </tbody>

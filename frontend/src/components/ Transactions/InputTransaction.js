@@ -38,46 +38,42 @@ const InputTransaction = () => {
     e.preventDefault();
   
     if (!userId || !branchId) {
-      console.error("User ID or branch ID is not set in localStorage");
-      return;
+        console.error("User ID or branch ID is not set in localStorage");
+        return;
     }
   
     setIsLoading(true);
     setError(null);
   
     try {
-      // Post the transaction to the API
-      const response = await axios.post('http://localhost:5000/api/transactions/input', {
-        branchId: branchId,
-        user: userId,
-        type: type,
-        description,
-        amount: parseFloat(amount),
-        date: new Date(),
-      });
-  
-      // Fetch the user data after the transaction is created
-      const { userName } = await fetchUserData(response.data.userId);
-  
-      // Update the state with the new transaction and userName
-      const newTransaction = { ...response.data, userName };
-      
-      setTransactions((prevTransactions) => {
-        const updatedTransactions = [newTransaction, ...prevTransactions];
-        console.log("Updated transactions:", updatedTransactions); // Log the updated state
-        return updatedTransactions;
-      });
-  
-      // Clear the form fields
-      setDescription('');
-      setAmount('');
+        // إرسال العملية إلى الـ API
+        const response = await axios.post('http://localhost:5000/api/transactions/input', {
+            branchId: branchId,
+            user: userId,
+            type: type,
+            description,
+            amount: parseFloat(amount),
+            date: new Date(),
+        });
+
+        // استرجاع بيانات المستخدم الجديد
+        const { userName } = await fetchUserData(userId);
+
+        // تحديث حالة العمليات بالعملية الجديدة مع اسم المستخدم
+        const newTransaction = { ...response.data, userName };
+        setTransactions((prevTransactions) => [newTransaction, ...prevTransactions]);
+
+        // إعادة تعيين الحقول
+        setDescription('');
+        setAmount('');
     } catch (error) {
-      console.error("Error adding transaction:", error.response ? error.response.data : error.message);
-      setError(error.message);
+        console.error("Error adding transaction:", error.response ? error.response.data : error.message);
+        setError(error.message);
     } finally {
-      setIsLoading(false);
+        setIsLoading(false);
     }
-  };
+};
+
   
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -107,7 +103,6 @@ const InputTransaction = () => {
           })
         );
 
-        console.log("Fetched transactions with user data:", transactionsWithUserData); // Log transactions
         setTransactions(transactionsWithUserData);
       } catch (error) {
         console.error('Error fetching transactions:', error);
