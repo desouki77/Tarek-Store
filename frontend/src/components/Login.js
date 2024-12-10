@@ -60,6 +60,8 @@ const Login = () => {
         localStorage.setItem('branchId', response.data.user.branchId);
         localStorage.setItem('branchName', selectedBranch.name);
         localStorage.setItem('userId', response.data.user.id);
+        localStorage.setItem('username', response.data.user.username);
+
         navigate('/dashboard');
       }
     } catch (error) {

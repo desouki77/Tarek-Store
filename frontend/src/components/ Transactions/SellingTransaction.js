@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import Navbar from '../Navbar';
 import '../../styles/SellingTransaction.css';
@@ -6,8 +6,8 @@ import { useNavigate } from 'react-router-dom';
 
 const SellingTransaction = () => {
     const role = localStorage.getItem('role');
-    const branchId = localStorage.getItem('branchId');
     const isAdmin = role === 'admin';
+    const branchId = localStorage.getItem('branchId');
 
     const navigate = useNavigate();
     const barcodeInputRef = useRef(null); // Ref for the barcode input field
@@ -18,51 +18,32 @@ const SellingTransaction = () => {
         itemDescription: '',
         price: 0,
     });
-    const [currentPage, setCurrentPage] = useState(0);
-    const itemsPerPage = 5;
     const [errorMessage, setErrorMessage] = useState('');
-    const [lastOrders, setLastOrders] = useState([]);
-    const [totalPages, setTotalPages] = useState(0);
-    const [loading, setLoading] = useState(true);
+    const [orders, setOrders] = useState([]); // To store the fetched orders of the day
 
+    // Fetch today's orders when the component mounts
     useEffect(() => {
-        const fetchLastOrders = async () => {
-            setLoading(true);
-            try {
-                const today = new Date();
-                const startDate = today.toISOString().split('T')[0];
-                const endDate = startDate;
-
-                const response = await axios.get(
-                    `http://localhost:5000/api/orders?branchId=${branchId}&startDate=${startDate}&endDate=${endDate}`
-                );
-
-                if (response.data && response.data.orders && Array.isArray(response.data.orders)) {
-                    const todaysOrders = response.data.orders.filter(order => {
-                        const orderDate = new Date(order.createdAt).toISOString().split('T')[0];
-                        return orderDate === startDate;
-                    });
-                    setLastOrders(todaysOrders);
-                    setTotalPages(Math.ceil(todaysOrders.length / itemsPerPage));
-                } else {
-                    console.error('Orders not found or wrong response structure:', response.data);
-                }
-            } catch (error) {
-                console.error('Error fetching last orders:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchLastOrders();
-    }, [branchId]);
-
-      // Automatically focus on barcode input field when the component loads
-      useEffect(() => {
         if (barcodeInputRef.current) {
             barcodeInputRef.current.focus(); // Automatically focus on the barcode input
         }
-    }, []);
+
+        const fetchOrders = async () => {
+            const today = new Date();
+            const startDate = new Date(today.setHours(0, 0, 0, 0)).toISOString(); // Start of today
+            const endDate = new Date(today.setHours(23, 59, 59, 999)).toISOString(); // End of today
+
+            try {
+                const response = await axios.get('http://localhost:5000/api/day_orders', {
+                    params: { branchId, startDate, endDate },
+                });
+                setOrders(response.data.orders);
+            } catch (error) {
+                console.error('Error fetching orders:', error);
+            }
+        };
+
+        fetchOrders();
+    }, [branchId]);
 
     const handleInputChange = (e) => {
         setOrderData((prevData) => ({
@@ -71,21 +52,21 @@ const SellingTransaction = () => {
         }));
         setErrorMessage(''); // Clear error while typing
     };
-    
+
     const handleBarcodeInput = async (e) => {
         if (e.key === 'Enter') {
             const scannedBarcode = orderData.barcode.trim();
-    
+
             if (!/^\d*$/.test(scannedBarcode)) {
                 setErrorMessage('Barcode must be numeric.');
                 return;
             }
-    
+
             try {
                 const response = await axios.get(`http://localhost:5000/api/products/${scannedBarcode}`, {
                     params: { branchId },
                 });
-    
+
                 if (response.data) {
                     const product = {
                         barcode: scannedBarcode,
@@ -112,7 +93,6 @@ const SellingTransaction = () => {
             }
         }
     };
-    
 
     const totalAmount = products.reduce((total, product) => total + product.price, 0);
 
@@ -142,9 +122,6 @@ const SellingTransaction = () => {
         navigate(`/order-receipt/${orderId}`);
     };
 
-    const startIndex = currentPage * itemsPerPage;
-    const currentOrders = lastOrders.slice(startIndex, startIndex + itemsPerPage);
-
     return (
         <>
             <Navbar isAdmin={isAdmin} />
@@ -163,73 +140,29 @@ const SellingTransaction = () => {
 
                 {products.length > 0 && (
                     <>
-                <table className="selling-transaction-product-table">
-                    <thead>
-                        <tr>
-                            <th>باركود</th>
-                            <th>اسم المنتج</th>
-                            <th>وصف</th>
-                            <th>السعر</th>
-                            <th>عمليات</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {products.map((product, index) => (
-                            <tr key={index}>
-                                <td>{product.barcode}</td>
-                                <td>{product.name}</td>
-                                <td>{product.description}</td>
-                                <td>{product.price} EGP</td>
-                                <td>
-                                    <button
-                                        onClick={() => removeProduct(index)}
-                                        className="selling-transaction-remove-btn"
-                                    >
-                                        مسح
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-
-                <div className="selling-transaction-total-amount">اجمالي المبلغ: {totalAmount} EGP</div>
-                <button onClick={handleCheckout} className="selling-transaction-checkout-btn">
-                    اتمام البيع
-                </button>
-                </>
-                
-            )}
-
-
-
-                {loading && <p>Loading...</p>}
-
-                {lastOrders.length > 0 && (
-                    <div className="selling-transaction-last-orders">
-                        <h2>مبيعات اليوم</h2>
-
-                        <table className="selling-transaction-orders-table">
+                        <table className="selling-transaction-product-table">
                             <thead>
                                 <tr>
-                                    <th>رقم الفاتورة</th>
-                                    <th>اجمالي المبلغ</th>
-                                    <th>التاريخ والوقت</th>
-                                    <th>فواتير</th>
+                                    <th>باركود</th>
+                                    <th>اسم المنتج</th>
+                                    <th>وصف</th>
+                                    <th>السعر</th>
+                                    <th>عمليات</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentOrders.map((order) => (
-                                    <tr key={order._id}>
-                                        <td>{order._id}</td>
-                                        <td>{order.paid ? `${order.paid} EGP` : 'N/A'}</td>
-                                        <td>{new Date(order.createdAt).toLocaleString()}</td>
+                                {products.map((product, index) => (
+                                    <tr key={index}>
+                                        <td>{product.barcode}</td>
+                                        <td>{product.name}</td>
+                                        <td>{product.description}</td>
+                                        <td>{product.price} EGP</td>
                                         <td>
                                             <button
-                                                onClick={() => viewOrderDetails(order._id)}
-                                                className="selling-transaction-invoice-btn"
+                                                onClick={() => removeProduct(index)}
+                                                className="selling-transaction-remove-btn"
                                             >
-                                                الفاتورة
+                                                مسح
                                             </button>
                                         </td>
                                     </tr>
@@ -237,31 +170,55 @@ const SellingTransaction = () => {
                             </tbody>
                         </table>
 
-                        <div className="selling-transaction-pagination">
-                            {Array.from({ length: totalPages }, (_, index) => (
-                                <button
-                                    key={index}
-                                    onClick={() => setCurrentPage(index)}
-                                    disabled={currentPage === index}
-                                    className={`selling-transaction-page-button ${
-                                        currentPage === index ? 'active' : ''
-                                    }`}
-                                >
-                                    {index + 1}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
+                        <div className="selling-transaction-total-amount">اجمالي المبلغ: {totalAmount} EGP</div>
+                        <button onClick={handleCheckout} className="selling-transaction-checkout-btn">
+                            اتمام البيع
+                        </button>
+                    </>
                 )}
 
                 <div>
-                <button
-                    onClick={() => (window.location.href = '/all-orders')}
-                    className="selling-transaction-all-orders-btn"
-                >
-                    جميع الفواتير
-                </button>
+                    <button
+                        onClick={() => (window.location.href = '/all-orders')}
+                        className="selling-transaction-all-orders-btn"
+                    >
+                        جميع الفواتير
+                    </button>
                 </div>
+
+                {/* Display Orders of the Day */}
+                <h2>الفواتير اليومية</h2>
+                {orders.length > 0 ? (
+                    <table className="selling-transaction-orders-table">
+                        <thead>
+                            <tr>
+                                <th>رقم الفاتورة</th>
+                                <th>المبلغ الكلي</th>
+                                <th>التاريخ والوقت</th>
+                                <th>إيصال</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {orders.map((order) => (
+                                <tr key={order._id}>
+                                    <td>{order._id}</td>
+                                    <td>{order.paid} EGP</td>
+                                    <td>{new Date(order.createdAt).toLocaleString()}</td>
+                                    <td>
+                                        <button
+                                            onClick={() => viewOrderDetails(order._id)}
+                                            className="selling-transaction-receipt-btn"
+                                        >
+                                            عرض الإيصال
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                ) : (
+                    <p>لا توجد فواتير اليوم</p> // No orders for the day
+                )}
             </div>
         </>
     );

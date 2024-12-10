@@ -63,6 +63,7 @@ const Sales = () => {
                     <tr>
                         <th>اسم موظف المبيات</th>
                         <th>رقم الموبايل</th>
+                        <th> المرتب</th>
                         <th>تاريخ التسجيل</th>
                         <th>حذف</th>
                     </tr>
@@ -72,6 +73,8 @@ const Sales = () => {
                         <tr key={sale._id}> 
                             <td>{sale.username}</td>
                             <td>{sale.phone}</td>
+                            <td>{sale.salary}</td>
+
                             <td>{sale.createdAt}</td>
                             <td>
                                 <button

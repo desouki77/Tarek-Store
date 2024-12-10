@@ -88,6 +88,41 @@ router.get('/orders', validateBranchId, async (req, res) => {
     }
 });
 
+// Route to get orders for a specific branch and date range
+// GET /orders - Fetch all orders for a specific branchId with optional date filter and pagination
+router.get('/day_orders', validateBranchId, async (req, res) => {
+    try {
+        const { branchId, startDate, endDate } = req.query;
+
+        if (!branchId) {
+            return res.status(400).json({ message: 'branchId is required' });
+        }
+
+        // Construct the filter object
+        let filter = { branchId };
+
+        // Add date range filter if provided
+        if (startDate && endDate) {
+            filter.createdAt = {
+                $gte: new Date(new Date(startDate).toISOString()), // Start of day in UTC
+                $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999)).toISOString() // End of day in UTC
+            };
+        } else if (startDate) {
+            filter.createdAt = { $gte: new Date(new Date(startDate).toISOString()) };
+        } else if (endDate) {
+            filter.createdAt = { $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999)).toISOString() };
+        }
+
+        // Fetch all orders matching the filter and sort by createdAt (newest to oldest)
+        const orders = await Order.find(filter).sort({ createdAt: -1 });
+
+        res.json({ orders });
+    } catch (error) {
+        console.error('Error fetching orders:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
 // GET /orders/:orderId - Get a specific order by ID, with branchId check
 router.get('/orders/:orderId', validateBranchId, async (req, res) => {
     try {

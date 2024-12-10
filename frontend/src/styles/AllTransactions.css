@@ -1,0 +1,119 @@
+/* AllTransactions.css */
+
+/* General Container */
+.alltransaction-container {
+    padding: 20px;
+    margin: 0 auto;
+    max-width: 1200px;
+    font-family: Arial, sans-serif;
+}
+
+/* Title */
+.alltransaction-title {
+    text-align: center;
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Error Message */
+.alltransaction-error {
+    color: red;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+/* Date Filter */
+.alltransaction-date-filter {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.alltransaction-label {
+    font-size: 14px;
+    color: #555;
+    padding-top: 10px;
+}
+
+.alltransaction-input {
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* Transactions Table */
+.alltransaction-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.alltransaction-table th,
+.alltransaction-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+
+.alltransaction-table th {
+    background-color: #343a40;
+}
+
+.alltransaction-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.alltransaction-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* No Data Message */
+.alltransaction-no-data {
+    text-align: center;
+    font-size: 16px;
+    color: #777;
+    margin-top: 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .alltransaction-date-filter {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .alltransaction-input {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .alltransaction-table th,
+    .alltransaction-table td {
+        font-size: 12px;
+        padding: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .alltransaction-title {
+        font-size: 20px;
+    }
+
+    .alltransaction-date-filter {
+        gap: 5px;
+    }
+
+    .alltransaction-input {
+        padding: 6px;
+    }
+
+    .alltransaction-table th,
+    .alltransaction-table td {
+        font-size: 10px;
+        padding: 6px;
+    }
+}

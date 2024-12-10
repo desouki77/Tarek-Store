@@ -26,6 +26,7 @@ import AllTransactions from './components/ Transactions/AllTransactions';
 import Sales from './components/Sales';
 import Suppliers from './components/Suppliers';
 import Client from './components/Client';
+import OutputStaff from './components/ Transactions/OutputStaff';
 
 function App() {
   const [loading, setLoading] = useState(false); // Track loading state
@@ -68,6 +69,8 @@ function App() {
             <Route path="/transactions/supplier_payment" element={<SupplierPaymentTransaction />} />
             <Route path="/transactions/purchasing" element={<PurchasingTransaction />} />
             <Route path="/transactions/returns" element={<ReturnsTransaction />} />
+            <Route path='/transactions/output_staff' element={<OutputStaff />}/>
+
             <Route path="inventory" element={<Inventory />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/order-receipt/:orderId" element={<OrderReceipt />} />
@@ -77,7 +80,7 @@ function App() {
             <Route path="all-transactions" element={<AllTransactions />} />
             <Route path='sales' element={<Sales />} />
             <Route path='suppliers' element={<Suppliers />} />
-            <Route path='customers' element={<Client/>}/>
+            <Route path='customers' element={<Client />}/>
           </Routes>
         </div>
       )}

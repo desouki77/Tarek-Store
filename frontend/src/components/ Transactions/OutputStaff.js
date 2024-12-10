@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import "../../styles/Transactions.css";
 
-const InputTransaction = () => {
+const OutputStaff = () => {
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [transactions, setTransactions] = useState([]);
@@ -16,110 +16,95 @@ const InputTransaction = () => {
   const userId = localStorage.getItem('userId');
   const branchId = localStorage.getItem('branchId');
   const role = localStorage.getItem('role');
-  const type = localStorage.getItem('transactionType');
   const isAdmin = role === 'admin';
 
-  const fetchUserData = async (userId) => {
+  const fetchUserData = async (userId, branchId) => {
     try {
-      const [userResponse] = await Promise.all([
-        axios.get(`http://localhost:5000/api/users/${userId}`),
-      ]);
-      console.log("Fetched userName:", userResponse.data.username); // Log to check user data
+      const userResponse = await axios.get(`http://localhost:5000/api/users/${userId}`);
+      const branchResponse = await axios.get(`http://localhost:5000/api/branches/${branchId}`);
       return { 
         userName: userResponse.data.username, 
+        branchName: branchResponse.data.name 
       };
     } catch (error) {
-      console.error("Error fetching user", error);
-      return { userName: 'Unknown' };
+      console.error("Error fetching user or branch data:", error);
+      return { userName: 'Unknown', branchName: 'Unknown' };
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (!userId || !branchId) {
-      console.error("User ID or branch ID is not set in localStorage");
-      return;
+        console.error("User ID or branch ID is not set in localStorage");
+        return;
     }
-  
+
     setIsLoading(true);
     setError(null);
-  
+
     try {
-      // Post the transaction to the API
-      const response = await axios.post('http://localhost:5000/api/transactions/input', {
-        branchId: branchId,
-        user: userId,
-        type: type,
-        description,
-        amount: parseFloat(amount),
-        date: new Date(),
-      });
-  
-      // Fetch the user data after the transaction is created
-      const { userName } = await fetchUserData(response.data.userId);
-  
-      // Update the state with the new transaction and userName
-      const newTransaction = { ...response.data, userName };
-      
-      setTransactions((prevTransactions) => {
-        const updatedTransactions = [newTransaction, ...prevTransactions];
-        console.log("Updated transactions:", updatedTransactions); // Log the updated state
-        return updatedTransactions;
-      });
-  
-      // Clear the form fields
-      setDescription('');
-      setAmount('');
+        const response = await axios.post('http://localhost:5000/api/transactions/output_staff', {
+            user: userId,
+            type: localStorage.getItem('transactionType'),
+            description,
+            amount: parseFloat(amount),
+            branch: branchId,
+            date: new Date(),
+        });
+
+        const { userName, branchName } = await fetchUserData(response.data.user, response.data.branch);
+
+        const newTransaction = { ...response.data, userName, branchName };
+        setTransactions([newTransaction, ...transactions]);
+
+        setDescription('');
+        setAmount('');
     } catch (error) {
-      console.error("Error adding transaction:", error.response ? error.response.data : error.message);
-      setError(error.message);
+        console.error("Error adding transaction:", error.response ? error.response.data : error.message);
+        setError(error.message);
     } finally {
-      setIsLoading(false);
+        setIsLoading(false);
     }
-  };
-  
+};
+
+
+
   useEffect(() => {
     const fetchTransactions = async () => {
       setIsLoading(true);
       setError(null);
-  
-      const today = new Date();
-      const startDate = new Date(today.setHours(0, 0, 0, 0)).toISOString(); // Start of today
-      const endDate = new Date(today.setHours(23, 59, 59, 999)).toISOString(); // End of today
-  
-      if (!branchId) {
-        console.error('Branch ID is not available.');
-        setIsLoading(false);
-        return;
-      }
-  
+
+      const today = new Date().toISOString().split('T')[0];
+
       try {
-        const response = await axios.get('http://localhost:5000/api/transactions/input', {
-          params: { branchId, startDate, endDate },
+        const response = await axios.get('http://localhost:5000/api/transactions/output_staff', {
+          params: { date: today },
         });
-  
-        // Fetch user and branch data in parallel for all transactions
+
         const transactionsWithUserData = await Promise.all(
           response.data.transactions.map(async (transaction) => {
             const { userName, branchName } = await fetchUserData(transaction.user, transaction.branch);
-            return { ...transaction, userName, branchName };
+            return {
+              ...transaction,
+              userName,
+              branchName,
+            };
           })
         );
 
-        console.log("Fetched transactions with user data:", transactionsWithUserData); // Log transactions
         setTransactions(transactionsWithUserData);
       } catch (error) {
-        console.error('Error fetching transactions:', error);
+        console.error("Error fetching transactions:", error);
         setError(error.message);
       } finally {
         setIsLoading(false);
       }
     };
-  
+
     fetchTransactions();
-  }, [branchId]);
-  
+  }, []);
+
   const goToAllTransactions = () => {
     navigate('/all-transactions');
   };
@@ -129,7 +114,7 @@ const InputTransaction = () => {
       <Navbar isAdmin={isAdmin} />
     
       <div className='input-transaction'>
-        <h2>مدخلات</h2>
+        <h2> مسحوبات موظفين</h2>
         <form className="input-transaction-form" onSubmit={handleSubmit}>
           <input
             type="text"
@@ -194,4 +179,4 @@ const InputTransaction = () => {
   );
 };
 
-export default InputTransaction;
+export default OutputStaff;

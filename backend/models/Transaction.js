@@ -2,6 +2,11 @@ const mongoose = require('mongoose');
 
 // Define the Transaction schema
 const transactionSchema = new mongoose.Schema({
+    branchId: { // New field to associate the order with a specific branch
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Branch', // Reference to a Branch model (you'll need to create this if you haven't already)
+        required: true, // Make this field required
+    },
     user: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
@@ -9,7 +14,7 @@ const transactionSchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ['input', 'output','recharge','maintenance','supplier_payment','customer_payment','purchasing','returns'], 
+        enum: ['input', 'output','recharge','maintenance','supplier_payment','customer_payment','purchasing','returns','warranty','output_staff'], 
         required: true,
     },
     description: {
@@ -21,11 +26,6 @@ const transactionSchema = new mongoose.Schema({
         type: Number,
         required: true,
         min: 0, // Ensure the amount is not negative
-    },
-    branch: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true,
-        ref: 'Branch', // Reference to the Branch model
     },
     date: {
         type: Date,

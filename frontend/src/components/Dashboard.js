@@ -93,9 +93,8 @@ function Dashboard() {
                       <button className="transaction" onClick={() => handleTransactionClick('customer_payment')}>سداد عملاء</button>
                       <button className="transaction" onClick={() => handleTransactionClick('purchasing')}>مشتروات</button>
                       <button className="transaction" onClick={() => handleTransactionClick('returns')}>مرتجعات</button>
-                      <button className="transaction" onClick={() => handleTransactionClick('returns')} >الضمان</button>
-                      <button className="transaction" onClick={() => handleTransactionClick('returns')} >الجرد</button>
-                      <button className="transaction" onClick={() => handleTransactionClick('returns')} >الدرج </button>
+                      <button className="transaction" onClick={() => handleTransactionClick('warranty')} >الضمان</button>
+                      <button className="transaction" onClick={() => handleTransactionClick('output_staff')} >مسحوبات موظفين </button>
 
 
 

@@ -1,12 +1,25 @@
 const express = require('express');
 const router = express.Router();
 const Transaction = require('../models/Transaction');
+const User = require('../models/User');
+const validateBranchId = require('../middlewares/validateBranch');
+
 
 // Create a transaction with a specific type (e.g., "input")
-router.post('/input', async (req, res) => {
+router.post('/input', validateBranchId, async (req, res) => {
+    const { branchId, description, amount, user, type, date } = req.body;
+
+    if (!branchId) {
+        return res.status(400).json({ message: 'branchId is required' });
+    }
+
     const transaction = new Transaction({
-        ...req.body,
-        type: 'input', // Ensure type is set to "input" for InputTransaction component
+        description,
+        amount,
+        user,
+        type: 'input',
+        branchId,  // Using branchId from the request body
+        date
     });
 
     try {
@@ -17,30 +30,35 @@ router.post('/input', async (req, res) => {
     }
 });
 
-router.get('/input', async (req, res) => {
-    const { startDate, endDate } = req.query;
+
+router.get('/input', validateBranchId, async (req, res) => {
+    const { branchId, startDate, endDate } = req.query;
+
+    if (!branchId) {
+        return res.status(400).json({ message: 'branchId is required' });
+    }
 
     try {
-        // Set the date range based on the provided startDate and endDate, or use today's date range by default
         const startOfDay = startDate ? new Date(startDate) : new Date();
         const endOfDay = endDate ? new Date(endDate) : new Date();
 
-        // Default to the start and end of the current day if no date filters are provided
         if (!startDate) startOfDay.setHours(0, 0, 0, 0);
         if (!endDate) endOfDay.setHours(23, 59, 59, 999);
 
         const query = {
             type: 'input',
+            branchId: branchId,
             date: { $gte: startOfDay, $lte: endOfDay },
         };
 
-        // Return all transactions for the given date range
         const transactions = await Transaction.find(query).sort({ date: -1 });
         res.json({ transactions });
     } catch (error) {
         res.status(500).json({ error: "Failed to retrieve transactions: " + error.message });
     }
 });
+
+
 
 
 // Create a transaction with a specific type (e.g., "input")
@@ -329,6 +347,111 @@ router.get('/returns', async (req, res) => {
     }
 });
 
+// Create a transaction with a specific type (e.g., "recharge")
+router.post('/output_staff', async (req, res) => {
+    const { user, description, amount, branch, date } = req.body;
+
+    try {
+        // التحقق من وجود المستخدم
+        const existingUser = await User.findById(user);
+        if (!existingUser) {
+            return res.status(404).json({ error: 'الموظف غير موجود' });
+        }
+
+        // التحقق من صحة الراتب
+        if (existingUser.salary < amount) {
+            return res.status(400).json({ error: 'لا يوجد راتب كافٍ لهذه العملية' });
+        }
+
+        // طرح المبلغ من الراتب
+        existingUser.salary -= amount;
+        await existingUser.save();
+
+        // إنشاء المعاملة
+        const transaction = new Transaction({
+            user,
+            description,
+            amount,
+            branch,
+            date,
+            type: 'output_staff', // تعيين نوع العملية
+        });
+
+        // حفظ المعاملة في قاعدة البيانات
+        const savedTransaction = await transaction.save();
+
+        // إرجاع الاستجابة مع المعاملة المحفوظة
+        res.status(201).json(savedTransaction);
+    } catch (error) {
+        console.error('Error during transaction:', error);
+        res.status(500).json({ error: 'حدث خطأ أثناء معالجة الطلب' });
+    }
+});
+
+router.get('/output_staff', async (req, res) => {
+    const { startDate, endDate } = req.query;
+
+    try {
+        // Set the date range based on the provided startDate and endDate, or use today's date range by default
+        const startOfDay = startDate ? new Date(startDate) : new Date();
+        const endOfDay = endDate ? new Date(endDate) : new Date();
+
+        // Default to the start and end of the current day if no date filters are provided
+        if (!startDate) startOfDay.setHours(0, 0, 0, 0);
+        if (!endDate) endOfDay.setHours(23, 59, 59, 999);
+
+        const query = {
+            type: 'output_staff',
+            date: { $gte: startOfDay, $lte: endOfDay },
+        };
+
+        // Return all transactions for the given date range
+        const transactions = await Transaction.find(query).sort({ date: -1 });
+        res.json({ transactions });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to retrieve transactions: " + error.message });
+    }
+});
+
+// Create a transaction with a specific type (e.g., "recharge")
+router.post('/warranty', async (req, res) => {
+    const transaction = new Transaction({
+        ...req.body,
+        type: 'warranty', // Ensure type is set to "recharge" for RechargeTransaction component
+    });
+
+    try {
+        const savedTransaction = await transaction.save();
+        res.status(201).json(savedTransaction);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+router.get('/warranty', async (req, res) => {
+    const { startDate, endDate } = req.query;
+
+    try {
+        // Set the date range based on the provided startDate and endDate, or use today's date range by default
+        const startOfDay = startDate ? new Date(startDate) : new Date();
+        const endOfDay = endDate ? new Date(endDate) : new Date();
+
+        // Default to the start and end of the current day if no date filters are provided
+        if (!startDate) startOfDay.setHours(0, 0, 0, 0);
+        if (!endDate) endOfDay.setHours(23, 59, 59, 999);
+
+        const query = {
+            type: 'warranty',
+            date: { $gte: startOfDay, $lte: endOfDay },
+        };
+
+        // Return all transactions for the given date range
+        const transactions = await Transaction.find(query).sort({ date: -1 });
+        res.json({ transactions });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to retrieve transactions: " + error.message });
+    }
+});
 
 
 

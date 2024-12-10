@@ -11,7 +11,7 @@ const Branch = require('../models/Branch'); // Adjust the path according to your
 
 // Register a new user (without branchId)
 router.post('/register', async (req, res) => {
-    const { username, password, phone , role } = req.body; // Removed branchId
+    const { username, password, phone , role , salary} = req.body; // Removed branchId
 
     try {
         // Check if the user already exists in the database
@@ -24,7 +24,7 @@ router.post('/register', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Create a new user without branchId
-        const newUser = new User({ username, password: hashedPassword, phone ,role });
+        const newUser = new User({ username, password: hashedPassword, phone ,role , salary});
         await newUser.save();
 
         // Generate JWT
@@ -130,6 +130,31 @@ router.delete('/:id', async (req, res) => {
         res.status(200).json({ message: 'User deleted successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Failed to delete user', error: error.message });
+    }
+});
+
+// Update user's salary after deduction
+router.put('/:id/updateSalary', async (req, res) => {
+    const { id } = req.params;
+    const { deduction } = req.body;
+
+    try {
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Convert salary to a number and apply the deduction
+        const currentSalary = parseFloat(user.salary) || 0;
+        const updatedSalary = currentSalary - deduction;
+
+        // Update the user's salary in the database
+        user.salary = updatedSalary.toString();
+        await user.save();
+
+        res.status(200).json({ message: 'Salary updated successfully', updatedSalary });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to update salary', error: error.message });
     }
 });
 

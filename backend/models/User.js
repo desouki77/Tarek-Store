@@ -24,7 +24,13 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Branch', // Reference to the Branch model
         required: false, // This could be optional if some users are not assigned to a branch
+    },
+    salary: {
+        type: Number,
+        required: false,
+        default: 0, // Default salary if not provided
     }
+    
 }, {
     timestamps: true,
 });

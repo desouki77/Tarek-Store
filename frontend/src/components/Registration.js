@@ -10,6 +10,7 @@ const Registration = () => {
   const [password, setPassword] = useState('');
   const [role, setRole] = useState(''); // Default to 'sales'
   const [phone, setPhone] = useState('');
+  const [salary, setSalary] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const [loading, setIsLoading] = useState(false);
@@ -25,6 +26,7 @@ const Registration = () => {
         password,
         phone,
         role,
+        salary,
       });
 
       // Check if the response is successful
@@ -89,6 +91,17 @@ const Registration = () => {
             <option value="admin">مدير</option>
           </select>
         </div>
+        <div className="registration-component-form-group">
+            <label htmlFor="salary"> المرتب </label>
+            <input
+            type="string"
+            id="salary"
+            value={salary}
+            onChange={(e) => setSalary(e.target.value)}
+            className="registration-component-input"
+          />
+          </div>
+        
         <button type="submit" className="registration-component-btn">تسجيل</button>
       </form>
     </div>
