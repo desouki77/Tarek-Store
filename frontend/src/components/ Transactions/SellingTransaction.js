@@ -177,14 +177,7 @@ const SellingTransaction = () => {
                     </>
                 )}
 
-                <div>
-                    <button
-                        onClick={() => (window.location.href = '/all-orders')}
-                        className="selling-transaction-all-orders-btn"
-                    >
-                        جميع الفواتير
-                    </button>
-                </div>
+             
 
                 {/* Display Orders of the Day */}
                 <h2>الفواتير اليومية</h2>
@@ -219,6 +212,15 @@ const SellingTransaction = () => {
                 ) : (
                     <p>لا توجد فواتير اليوم</p> // No orders for the day
                 )}
+
+                <div>
+                    <button
+                        onClick={() => (window.location.href = '/all-orders')}
+                        className="selling-transaction-all-orders-btn"
+                    >
+                        جميع الفواتير
+                    </button>
+                </div>
             </div>
         </>
     );

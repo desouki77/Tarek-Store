@@ -61,11 +61,21 @@ router.get('/input', validateBranchId, async (req, res) => {
 
 
 
-// Create a transaction with a specific type (e.g., "input")
-router.post('/output', async (req, res) => {
+// Create a transaction with a specific type (e.g., "output")
+router.post('/output', validateBranchId, async (req, res) => {
+    const { branchId, description, amount, user, type, date } = req.body;
+
+    if (!branchId) {
+        return res.status(400).json({ message: 'branchId is required' });
+    }
+
     const transaction = new Transaction({
-        ...req.body,
-        type: 'output', // Ensure type is set to "input" for InputTransaction component
+        description,
+        amount,
+        user,
+        type: 'output',
+        branchId,  // Using branchId from the request body
+        date
     });
 
     try {
@@ -76,24 +86,27 @@ router.post('/output', async (req, res) => {
     }
 });
 
-router.get('/output', async (req, res) => {
-    const { startDate, endDate } = req.query;
+
+router.get('/output', validateBranchId, async (req, res) => {
+    const { branchId, startDate, endDate } = req.query;
+
+    if (!branchId) {
+        return res.status(400).json({ message: 'branchId is required' });
+    }
 
     try {
-        // Set the date range based on the provided startDate and endDate, or use today's date range by default
         const startOfDay = startDate ? new Date(startDate) : new Date();
         const endOfDay = endDate ? new Date(endDate) : new Date();
 
-        // Default to the start and end of the current day if no date filters are provided
         if (!startDate) startOfDay.setHours(0, 0, 0, 0);
         if (!endDate) endOfDay.setHours(23, 59, 59, 999);
 
         const query = {
             type: 'output',
+            branchId: branchId,
             date: { $gte: startOfDay, $lte: endOfDay },
         };
 
-        // Return all transactions for the given date range
         const transactions = await Transaction.find(query).sort({ date: -1 });
         res.json({ transactions });
     } catch (error) {
@@ -103,10 +116,20 @@ router.get('/output', async (req, res) => {
 
 
 // Create a transaction with a specific type (e.g., "recharge")
-router.post('/recharge', async (req, res) => {
+router.post('/recharge', validateBranchId, async (req, res) => {
+    const { branchId, description, amount, user, type, date } = req.body;
+
+    if (!branchId) {
+        return res.status(400).json({ message: 'branchId is required' });
+    }
+
     const transaction = new Transaction({
-        ...req.body,
-        type: 'recharge', // Ensure type is set to "recharge" for RechargeTransaction component
+        description,
+        amount,
+        user,
+        type: 'recharge',
+        branchId,  // Using branchId from the request body
+        date
     });
 
     try {
@@ -117,24 +140,27 @@ router.post('/recharge', async (req, res) => {
     }
 });
 
-router.get('/recharge', async (req, res) => {
-    const { startDate, endDate } = req.query;
+
+router.get('/recharge', validateBranchId, async (req, res) => {
+    const { branchId, startDate, endDate } = req.query;
+
+    if (!branchId) {
+        return res.status(400).json({ message: 'branchId is required' });
+    }
 
     try {
-        // Set the date range based on the provided startDate and endDate, or use today's date range by default
         const startOfDay = startDate ? new Date(startDate) : new Date();
         const endOfDay = endDate ? new Date(endDate) : new Date();
 
-        // Default to the start and end of the current day if no date filters are provided
         if (!startDate) startOfDay.setHours(0, 0, 0, 0);
         if (!endDate) endOfDay.setHours(23, 59, 59, 999);
 
         const query = {
             type: 'recharge',
+            branchId: branchId,
             date: { $gte: startOfDay, $lte: endOfDay },
         };
 
-        // Return all transactions for the given date range
         const transactions = await Transaction.find(query).sort({ date: -1 });
         res.json({ transactions });
     } catch (error) {
@@ -143,11 +169,21 @@ router.get('/recharge', async (req, res) => {
 });
 
 
-// Create a transaction with a specific type (e.g., "recharge")
-router.post('/maintenance', async (req, res) => {
+// Create a transaction with a specific type (e.g., "maintenance")
+router.post('/maintenance', validateBranchId, async (req, res) => {
+    const { branchId, description, amount, user, type, date } = req.body;
+
+    if (!branchId) {
+        return res.status(400).json({ message: 'branchId is required' });
+    }
+
     const transaction = new Transaction({
-        ...req.body,
-        type: 'maintenance', // Ensure type is set to "recharge" for RechargeTransaction component
+        description,
+        amount,
+        user,
+        type: 'maintenance',
+        branchId,  // Using branchId from the request body
+        date
     });
 
     try {
@@ -158,24 +194,27 @@ router.post('/maintenance', async (req, res) => {
     }
 });
 
-router.get('/maintenance', async (req, res) => {
-    const { startDate, endDate } = req.query;
+
+router.get('/maintenance', validateBranchId, async (req, res) => {
+    const { branchId, startDate, endDate } = req.query;
+
+    if (!branchId) {
+        return res.status(400).json({ message: 'branchId is required' });
+    }
 
     try {
-        // Set the date range based on the provided startDate and endDate, or use today's date range by default
         const startOfDay = startDate ? new Date(startDate) : new Date();
         const endOfDay = endDate ? new Date(endDate) : new Date();
 
-        // Default to the start and end of the current day if no date filters are provided
         if (!startDate) startOfDay.setHours(0, 0, 0, 0);
         if (!endDate) endOfDay.setHours(23, 59, 59, 999);
 
         const query = {
             type: 'maintenance',
+            branchId: branchId,
             date: { $gte: startOfDay, $lte: endOfDay },
         };
 
-        // Return all transactions for the given date range
         const transactions = await Transaction.find(query).sort({ date: -1 });
         res.json({ transactions });
     } catch (error) {
