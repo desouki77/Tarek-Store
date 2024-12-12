@@ -306,18 +306,26 @@ const AllProducts = () => {
           <p className="allproduct-no-products">لا توجد منتجات تطابق معايير البحث</p>
         )}
 
-        {/* Pagination Controls */}
-        <div className="allproduct-pagination">
-          {pageNumbers.map((number) => (
-            <button
-              key={number}
-              onClick={() => paginate(number)}
-              className={`allproduct-pagination-btn ${currentPage === number ? 'active' : ''}`}
-            >
-              {number}
-            </button>
-          ))}
-        </div>
+      <div className="allproduct-pagination">
+        <button
+          onClick={() => paginate(currentPage - 1)}
+          className={`allproduct-pagination-btn ${currentPage === 1 ? 'disabled' : ''}`}
+          disabled={currentPage === 1}
+        >
+          السابق
+        </button>
+        
+        {/* Show current page number */}
+        <span className="pagination-current-page">{currentPage}</span>
+
+        <button
+          onClick={() => paginate(currentPage + 1)}
+          className={`allproduct-pagination-btn ${currentPage === pageNumbers.length ? 'disabled' : ''}`}
+          disabled={currentPage === pageNumbers.length}
+        >
+          التالي
+        </button>
+      </div>
       </section>
     </>
   );

@@ -138,6 +138,10 @@ const Inventory = () => {
   return (
     <>
       <Navbar isAdmin={isAdmin} />
+
+      <button className="inventory__all-products-btn" onClick={() => navigate('/all-products')}>
+        عرض جميع المنتجات
+      </button>
      
       <section className="inventory__section">
         <h2 className="inventory__heading">إضافة منتج</h2>
@@ -287,9 +291,7 @@ const Inventory = () => {
         </form>
         {addedProduct && <p className="inventory__confirmation">تم إضافة المنتج: {addedProduct.name}</p>}
       </section>
-      <button className="inventory__all-products-btn" onClick={() => navigate('/all-products')}>
-        عرض جميع المنتجات
-      </button>
+    
     </>
   );
 };

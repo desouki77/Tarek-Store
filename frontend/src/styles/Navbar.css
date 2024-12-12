@@ -3,7 +3,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #343a40;
+    background-color: #333;
     padding: 15px 30px;
     direction: rtl;
 }
@@ -117,7 +117,7 @@
         position: absolute; /* Position the dropdown */
         top: 60px; /* Adjust based on your navbar height */
         right: 0; /* Align to the right */
-        background-color: #343a40; /* Same as navbar background */
+        background-color: #333; /* Same as navbar background */
         width: 100%; /* Full width */
         z-index: 10; /* Above other elements */
 

@@ -8,6 +8,7 @@
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   font-family: Arial, sans-serif;
+  margin-top: 20px;
 }
 
 .inventory__heading {
@@ -70,7 +71,7 @@
   margin: 1rem auto;
   text-align: center;
   transition: background-color 0.3s ease;
-  width: 200px;
+  width: 300px;
 }
 
 .inventory__all-products-btn:hover {

@@ -36,7 +36,7 @@ const Suppliers = () => {
 
     const fetchSuppliers = async (page = 1) => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/suppliers?page=${page}&limit=10`);
+            const response = await axios.get(`http://localhost:5000/api/suppliers?page=${page}&limit=7`);
             setSuppliers(response.data.suppliers);
             setCurrentPage(response.data.currentPage);
             setTotalPages(response.data.totalPages);

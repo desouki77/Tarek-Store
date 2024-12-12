@@ -75,20 +75,32 @@
 
 .clients-pagination {
     display: flex;
-    justify-content: space-evenly;
+    justify-content: center;
     align-items: center;
     margin-top: 20px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
 }
 
 .clients-pagination-button {
-    background-color: #007bff;
-    color: #fff;
-    padding: 8px 12px;
-    border: none;
-    border-radius: 5px;
+    padding: 4px 8px;  /* Smaller padding for more compact buttons */
+    margin: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #007BFF;
     cursor: pointer;
-    max-width: 100px;
+    font-size: 12px;  /* Smaller font size */
+    color: #fff;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    width: auto; /* Allow button width to adjust based on content */
+    min-width: 40px;  /* Minimum width to ensure buttons are not too narrow */
 
+}
+
+/* Hover effect */
+.clients-pagination-button:hover {
+    background-color: darkslategray;
+    color: #fff;
 }
 
 .clients-pagination-button:disabled {

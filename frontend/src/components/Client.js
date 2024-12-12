@@ -35,7 +35,7 @@ const Clients = () => {
 
     const fetchClients = async (page = 1) => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/clients?page=${page}&limit=10`);
+            const response = await axios.get(`http://localhost:5000/api/clients?page=${page}&limit=7`);
             setClients(response.data.clients);
             setCurrentPage(response.data.currentPage);
             setTotalPages(response.data.totalPages);

@@ -10,7 +10,7 @@ const Sales = () => {
     const [error, setError] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const limit = 10; // Number of items per page
+    const limit = 7; // Number of items per page
     const role = localStorage.getItem('role'); // Get role from localStorage
 
     const fetchSalesData = useCallback(async (page) => {
@@ -102,10 +102,11 @@ const Sales = () => {
                         ))}
                     </tbody>
                 </table>
-                <div className="pagination">
+                <div className="sales-pagination">
                     <button
                         onClick={() => handlePageChange(currentPage - 1)}
                         disabled={currentPage === 1}
+                        className='sales-pagination-button'
                     >
                         السابق
                     </button>
@@ -113,6 +114,7 @@ const Sales = () => {
                     <button
                         onClick={() => handlePageChange(currentPage + 1)}
                         disabled={currentPage === totalPages}
+                        className='sales-pagination-button'
                     >
                         التالي
                     </button>
