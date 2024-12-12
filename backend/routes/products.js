@@ -21,13 +21,13 @@ router.get('/:barcode' , async (req, res) => {
 });
 
 router.post('/add', async (req, res) => {
-  const { barcode, name, sn, description, color, price, quantity, mainCategory, subCategory, thirdCategory, condition, supplier } = req.body;
+  const { barcode, name, sn, description, color, price, quantity, mainCategory, subCategory, thirdCategory, condition, supplier, branchId } = req.body;
 
   try {
-    // Check if the product already exists
-    const existingProduct = await Product.findOne({ barcode });
+    // Check if the product already exists in the same branch
+    const existingProduct = await Product.findOne({ barcode, branchId });
     if (existingProduct) {
-      return res.status(400).json({ message: 'هذا المنتج متوفر بالفعل' });
+      return res.status(400).json({ message: 'هذا المنتج موجود بالفعل في هذا الفرع' });
     }
 
     // Check if the supplier exists
@@ -52,11 +52,12 @@ router.post('/add', async (req, res) => {
       thirdCategory,
       condition,
       supplier: existingSupplier.name,
+      branchId, // Associate product with branch
     });
 
     await newProduct.save();
 
-    res.status(201).json({ message: 'تم اضافة المنتج الي المخزن بنجاح', product: newProduct });
+    res.status(201).json({ message: 'تم اضافة المنتج بنجاح', product: newProduct });
   } catch (error) {
     console.error('خطأ في اضافة المنتج', error);
     res.status(500).send('خطأ في السيرفر');
@@ -64,38 +65,29 @@ router.post('/add', async (req, res) => {
 });
 
 
+
 router.get('/', async (req, res) => {
-  const { mainCategory, subCategory, thirdCategory, condition, query,barcode } = req.query;
+  const { branchId, mainCategory, subCategory, thirdCategory, condition, query, barcode } = req.query;
 
-  const filter = {};
+  const filter = { branchId }; // تصفية حسب الفرع
 
-  // تصفية المنتجات بناءً على mainCategory
   if (mainCategory) {
-    filter.mainCategory = { $regex: `^${mainCategory}`, $options: 'i' }; // تصفية حسب الفئة الرئيسية
+    filter.mainCategory = { $regex: `^${mainCategory}`, $options: 'i' };
   }
-
-  // تصفية المنتجات بناءً على subCategory
   if (subCategory) {
-    filter.subCategory = { $regex: `^${subCategory}`, $options: 'i' }; // تصفية حسب الفئة الفرعية
+    filter.subCategory = { $regex: `^${subCategory}`, $options: 'i' };
   }
-
-  // تصفية المنتجات بناءً على thirdCategory
   if (thirdCategory) {
-    filter.thirdCategory = { $regex: `^${thirdCategory}`, $options: 'i' }; // تصفية حسب النوع
+    filter.thirdCategory = { $regex: `^${thirdCategory}`, $options: 'i' };
   }
-
-  // تصفية المنتجات بناءً على حالة المنتج
   if (condition) {
-    filter.condition = { $regex: `^${condition}`, $options: 'i' }; // تصفية حسب الحالة (جديد أو مستعمل)
+    filter.condition = { $regex: `^${condition}`, $options: 'i' };
   }
-
-  // تصفية المنتجات بناءً على اسم المنتج أو البحث
   if (query) {
-    filter.name = { $regex: query, $options: 'i' }; // البحث عن المنتج
-  }
-  if (barcode) {
-    // البحث باستخدام الباركود
-    filter.barcode = barcode;
+    filter.$or = [
+      { name: { $regex: query, $options: 'i' } },
+      { barcode: { $regex: query, $options: 'i' } }, // Allow search by barcode as part of the query
+    ];
   }
 
   try {
@@ -106,6 +98,7 @@ router.get('/', async (req, res) => {
     res.status(500).send('حدث خطأ أثناء استرجاع المنتجات');
   }
 });
+
 
 
 

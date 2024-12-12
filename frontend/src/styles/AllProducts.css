@@ -40,11 +40,11 @@
 
 /* Table Styles */
 .allproduct-table {
-  width: 100%;
-  display: block;
-  border-collapse: collapse;
-  margin-top: 20px;
-  overflow-x: auto; /* Allows horizontal scroll on small screens */
+  width: 1200px; /* تحديد عرض الجدول */
+  table-layout: fixed; /* لتحديد عرض الأعمدة */
+  margin: 0 auto; /* لجعل الجدول في المنتصف */
+  word-wrap: break-word; /* لتقسيم النص الطويل في الأعمدة */
+  overflow-wrap: break-word; /* للتأكد من تقطيع النص الطويل */
 }
 
 .allproduct-table th, .allproduct-table td {
@@ -52,6 +52,8 @@
   border: 1px solid #ddd;
   text-align: center;
   font-size: 14px; /* Slightly smaller font for better mobile fit */
+  white-space: normal; /* لتقسيم النص الطويل إلى سطور متعددة */
+  overflow: hidden; /* لمنع التمدد */
 }
 
 .allproduct-table-row {
@@ -78,13 +80,13 @@
 .allproduct-edit-btn {
   background-color: #4CAF50;
   color: white;
-  width: 70px;
+  width: 70px !important;
 }
 
 .allproduct-delete-btn {
   background-color: #d9534f;
   color: white;
-  width: 70px;
+  width: 70px !important;
 }
 .allproduct-delete-btn:hover{
   background-color: #c82333;
@@ -95,11 +97,13 @@
 .allproduct-update-btn {
   background-color: #2196F3;
   color: white;
+  width: 100px !important;
 }
 
 .allproduct-cancel-btn {
   background-color: #ccc;
   color: black;
+  width: 100px !important;
 }
 
 /* Edit Form Styles */
@@ -114,12 +118,12 @@
 }
 
 .allproduct-form-input {
-  width: 100%;
+  width: 100px !important;
   padding: 12px; /* Increase padding for better clickability */
   font-size: 16px;
   border-radius: 4px;
   border: 1px solid #ddd;
-  box-sizing: border-box;
+  box-sizing: border-box !important;
 }
 
 .allproduct-edit-form {
@@ -168,6 +172,17 @@
 
 .allproduct-pagination-btn:focus {
   outline: none;
+}
+
+@media (max-width: 1200px) {
+  .allproduct-table {
+    width: 100%; /* اجعل عرض الجدول 100% للشاشات الأصغر */
+    overflow-x: auto; /* إضافة شريط تمرير أفقي */
+  }
+}
+
+.allproduct-table-container {
+  overflow-x: auto; /* لجعل الجدول قابلاً للتمرير أفقيًا */
 }
 
 /* Responsive Styles */

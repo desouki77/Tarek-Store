@@ -4,6 +4,7 @@ import Navbar from './Navbar';
 import '../styles/AllProducts.css';
 
 const AllProducts = () => {
+  const branchId = localStorage.getItem('branchId');
   const [products, setProducts] = useState([]);
   const [editingProductId, setEditingProductId] = useState(null); // Track the product being edited
   const [editFormData, setEditFormData] = useState({}); // Store form data for editing
@@ -12,6 +13,8 @@ const AllProducts = () => {
   const [searchQuery, setSearchQuery] = useState(''); // For the search input
   const [currentPage, setCurrentPage] = useState(1); // Track current page
   const productsPerPage = 10; // Number of products per page
+  const [totalProducts, setTotalProducts] = useState(0); // عدد المنتجات
+
 
 
 
@@ -70,17 +73,20 @@ const AllProducts = () => {
             thirdCategory, // إرسال thirdCategory
             condition,    // إرسال condition
             query: searchQuery, // البحث
+            branchId,
+            
           },
         });
   
         setProducts(response.data);
+        setTotalProducts(response.data.length); // تحديث عدد المنتجات
       } catch (error) {
         console.error('خطأ في استرجاع المنتجات', error);
       }
     };
   
     fetchProducts();
-  }, [mainCategory, subCategory, thirdCategory, condition, searchQuery]); 
+  }, [mainCategory, subCategory, thirdCategory, condition, searchQuery,branchId]); 
   
   
   
@@ -144,7 +150,7 @@ const AllProducts = () => {
     <>
       <Navbar isAdmin={isAdmin} />
       <section className="allproduct-section">
-        <h2 className="allproduct-title">جميع المنتجات </h2>
+        <h2 className="allproduct-title">جميع المنتجات لدي الفرح</h2>
 
         {/* Search and Filter Section */}
         <div className="allproduct-search-section">
@@ -225,7 +231,13 @@ const AllProducts = () => {
           )}
         </div>
 
+        {/* عدد المنتجات */}
+        <div className="allproduct-count">
+          <p>عدد المنتجات: {totalProducts}</p>
+        </div>
+
         {currentProducts.length > 0 ? (
+           <div className="allproduct-table-container">
           <table className="allproduct-table">
             <thead>
               <tr>
@@ -289,6 +301,7 @@ const AllProducts = () => {
               ))}
             </tbody>
           </table>
+          </div>
         ) : (
           <p className="allproduct-no-products">لا توجد منتجات تطابق معايير البحث</p>
         )}

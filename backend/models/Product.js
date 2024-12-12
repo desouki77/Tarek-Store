@@ -14,6 +14,11 @@ const productSchema = new mongoose.Schema({
   subCategory: { type: String, required: false },
   thirdCategory: { type: String, required: false },
   condition: { type: String, required: false },
+  branchId: { // New field to associate the order with a specific branch
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Branch', // Reference to a Branch model (you'll need to create this if you haven't already)
+    required: true, // Make this field required
+},
 },{ timestamps: true }); // Enable timestamps);
 
 const Product = mongoose.model('Product', productSchema);
