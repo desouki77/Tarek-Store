@@ -1,11 +1,11 @@
 .sales-container {
-    padding: 20px;
     background-color: #f9f9f9;
     border-radius: 8px;
     max-width: 1200px;
     margin: 0 auto;
     margin-top: 18px;
-
+    padding-top: 15px;
+    padding: 20px 20px;
 
 }
 

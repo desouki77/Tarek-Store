@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Navbar from './Navbar';
 import axios from 'axios';
 import "../styles/Sales.css";
@@ -8,33 +8,42 @@ const Sales = () => {
     const [salesData, setSalesData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const limit = 10; // Number of items per page
     const role = localStorage.getItem('role'); // Get role from localStorage
 
-    useEffect(() => {
-        if (role === 'admin') { // Fetch data only if the user is an admin
-            const fetchSalesData = async () => {
-                try {
-                    const response = await axios.get('http://localhost:5000/api/users');
-                    console.log(response.data);  // Log the response
-                    setSalesData(response.data); // Set the data to salesData state
-                } catch (err) {
-                    console.error('Error fetching data:', err);  // Log the error
-                    setError('Failed to fetch sales data');
-                } finally {
-                    setLoading(false);
-                }
-            };
-            fetchSalesData();
-        } else {
-            setLoading(false); // No need to fetch data if not an admin
+    const fetchSalesData = useCallback(async (page) => {
+        if (role !== 'admin') {
+            setLoading(false);
+            return;
         }
-    }, [role]); // Make sure the effect runs when role changes
 
-    // Handle delete
+        setLoading(true);
+        setError(null);
+
+        try {
+            const response = await axios.get('http://localhost:5000/api/users', {
+                params: { page, limit },
+            });
+
+            setSalesData(response.data.users); // Assuming API returns an array of users in `users`
+            setTotalPages(response.data.totalPages); // Assuming API provides total pages
+        } catch (err) {
+            console.error('Error fetching data:', err);
+            setError('Failed to fetch sales data');
+        } finally {
+            setLoading(false);
+        }
+    }, [role, limit]);
+
+    useEffect(() => {
+        fetchSalesData(currentPage);
+    }, [fetchSalesData, currentPage]);
+
     const handleDelete = async (id) => {
         try {
-            const response = await axios.delete(`http://localhost:5000/api/users/${id}`)
-            // Remove the deleted user from the state
+            const response = await axios.delete(`http://localhost:5000/api/users/${id}`);
             if (response.status === 200) {
                 const updatedSalesData = salesData.filter(sale => sale._id !== id);
                 setSalesData(updatedSalesData);
@@ -44,6 +53,13 @@ const Sales = () => {
             setError('Failed to delete the user');
         }
     };
+
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= totalPages) {
+            setCurrentPage(newPage);
+        }
+    };
+
     if (loading) {
         return <Loader />;
     }
@@ -54,41 +70,54 @@ const Sales = () => {
 
     return (
         <>
-        <Navbar isAdmin={role === 'admin'} /> 
-        
-        <div className="sales-container">
-            <h2>موظفين المبيعات</h2>
-            <table className="sales-table">
-                <thead>
-                    <tr>
-                        <th>اسم موظف المبيات</th>
-                        <th>رقم الموبايل</th>
-                        <th> المرتب</th>
-                        <th>تاريخ التسجيل</th>
-                        <th>حذف</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {salesData.map(sale => (
-                        <tr key={sale._id}> 
-                            <td>{sale.username}</td>
-                            <td>{sale.phone}</td>
-                            <td>{sale.salary}</td>
-
-                            <td>{sale.createdAt}</td>
-                            <td>
-                                <button
-                                    onClick={() => handleDelete(sale._id)}
-                                    className="sales-delete-btn"
-                                >
-                                    حذف
-                                </button>
-                            </td>
+            <Navbar isAdmin={role === 'admin'} />
+            <div className="sales-container">
+                <h2>موظفين المبيعات</h2>
+                <table className="sales-table">
+                    <thead>
+                        <tr>
+                            <th>اسم موظف المبيعات</th>
+                            <th>رقم الموبايل</th>
+                            <th>المرتب</th>
+                            <th>تاريخ التسجيل</th>
+                            <th>حذف</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
+                    </thead>
+                    <tbody>
+                        {salesData.map(sale => (
+                            <tr key={sale._id}>
+                                <td>{sale.username}</td>
+                                <td>{sale.phone}</td>
+                                <td>{sale.salary}</td>
+                                <td>{new Date(sale.createdAt).toLocaleDateString()}</td>
+                                <td>
+                                    <button
+                                        onClick={() => handleDelete(sale._id)}
+                                        className="sales-delete-btn"
+                                    >
+                                        حذف
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+                <div className="pagination">
+                    <button
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={currentPage === 1}
+                    >
+                        السابق
+                    </button>
+                    <span>الصفحة {currentPage} من {totalPages}</span>
+                    <button
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                    >
+                        التالي
+                    </button>
+                </div>
+            </div>
         </>
     );
 };

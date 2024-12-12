@@ -21,6 +21,10 @@ const SellingTransaction = () => {
     const [errorMessage, setErrorMessage] = useState('');
     const [orders, setOrders] = useState([]); // To store the fetched orders of the day
 
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(0);
+    const limit = 5;
+
     // Fetch today's orders when the component mounts
     useEffect(() => {
         if (barcodeInputRef.current) {
@@ -34,16 +38,18 @@ const SellingTransaction = () => {
 
             try {
                 const response = await axios.get('http://localhost:5000/api/day_orders', {
-                    params: { branchId, startDate, endDate },
+                    params: { branchId, startDate, endDate, limit, page:currentPage },
                 });
                 setOrders(response.data.orders);
+                setTotalPages(response.data.totalPages);
+                setCurrentPage(response.data.currentPage);
             } catch (error) {
                 console.error('Error fetching orders:', error);
             }
         };
 
         fetchOrders();
-    }, [branchId]);
+    }, [branchId,currentPage]);
 
     const handleInputChange = (e) => {
         setOrderData((prevData) => ({
@@ -212,6 +218,23 @@ const SellingTransaction = () => {
                 ) : (
                     <p>لا توجد فواتير اليوم</p> // No orders for the day
                 )}
+                    <div className="pagination-container">
+                <button
+                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                >
+                    السابق
+                </button>
+
+                <span>صفحة {currentPage} من {totalPages}</span>
+
+                <button
+                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                >
+                    التالي
+                </button>
+            </div>
 
                 <div>
                     <button

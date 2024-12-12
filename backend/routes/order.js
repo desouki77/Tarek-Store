@@ -88,11 +88,9 @@ router.get('/orders', validateBranchId, async (req, res) => {
     }
 });
 
-// Route to get orders for a specific branch and date range
-// GET /orders - Fetch all orders for a specific branchId with optional date filter and pagination
 router.get('/day_orders', validateBranchId, async (req, res) => {
     try {
-        const { branchId, startDate, endDate } = req.query;
+        const { branchId, startDate, endDate, limit = 10, page = 1 } = req.query;
 
         if (!branchId) {
             return res.status(400).json({ message: 'branchId is required' });
@@ -113,15 +111,30 @@ router.get('/day_orders', validateBranchId, async (req, res) => {
             filter.createdAt = { $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999)).toISOString() };
         }
 
-        // Fetch all orders matching the filter and sort by createdAt (newest to oldest)
-        const orders = await Order.find(filter).sort({ createdAt: -1 });
+        const parsedLimit = parseInt(limit);
+        const parsedPage = parseInt(page);
 
-        res.json({ orders });
+        // Fetch paginated orders
+        const orders = await Order.find(filter)
+            .sort({ createdAt: -1 })
+            .skip((parsedPage - 1) * parsedLimit)
+            .limit(parsedLimit);
+
+        // Count total orders for pagination metadata
+        const totalOrders = await Order.countDocuments(filter);
+
+        res.json({
+            orders,
+            totalOrders,
+            totalPages: Math.ceil(totalOrders / parsedLimit),
+            currentPage: parsedPage,
+        });
     } catch (error) {
         console.error('Error fetching orders:', error);
         res.status(500).json({ message: 'Server error' });
     }
 });
+
 
 // GET /orders/:orderId - Get a specific order by ID, with branchId check
 router.get('/orders/:orderId', validateBranchId, async (req, res) => {

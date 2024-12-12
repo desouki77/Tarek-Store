@@ -95,23 +95,37 @@ router.get('/protected-route', authenticateJWT, (req, res) => {
     res.status(200).json({ message: 'This is a protected route', user: req.user });
 });
 
-// New route to get all users
+// New route to get all users with pagination
 router.get('/', async (req, res) => {
     try {
-        // Fetch users with the 'sales' role only
-        const salesUsers = await User.find({ role: 'sales' });
+        const { page = 1, limit = 10 } = req.query; // Get page and limit from query, default values: page 1, limit 10
+
+        // Convert page and limit to integers
+        const pageNumber = parseInt(page, 10);
+        const limitNumber = parseInt(limit, 10);
+
+        // Fetch users with the 'sales' role only, apply pagination
+        const totalUsers = await User.countDocuments({ role: 'sales' }); // Get total count of sales users
+        const salesUsers = await User.find({ role: 'sales' })
+            .skip((pageNumber - 1) * limitNumber) // Skip documents for pagination
+            .limit(limitNumber); // Limit the number of documents
 
         // Check if no sales users were found
         if (salesUsers.length === 0) {
             return res.status(404).json({ message: 'No sales users found' });
         }
 
-        // Send the filtered users as a response
-        res.status(200).json(salesUsers);
+        // Send the filtered users along with pagination info
+        res.status(200).json({
+            users: salesUsers,
+            totalPages: Math.ceil(totalUsers / limitNumber),
+            currentPage: pageNumber,
+        });
     } catch (error) {
         res.status(500).json({ message: 'Failed to fetch sales users', error: error.message });
     }
 });
+
 
 // backend/routes/userRoutes.js
 router.delete('/:id', async (req, res) => {

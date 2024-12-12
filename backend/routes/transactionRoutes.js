@@ -31,7 +31,7 @@ router.post('/input', validateBranchId, async (req, res) => {
 });
 
 
-router.get('/input', validateBranchId, async (req, res) => {
+router.get('/dayinput', validateBranchId, async (req, res) => {
     const { branchId, startDate, endDate, page = 1, limit = 10 } = req.query;
 
     if (!branchId) {
@@ -50,6 +50,52 @@ router.get('/input', validateBranchId, async (req, res) => {
             branchId: branchId,
             date: { $gte: startOfDay, $lte: endOfDay },
         };
+
+        const skip = (page - 1) * limit; // Calculate how many documents to skip
+
+        // Find transactions with pagination
+        const transactions = await Transaction.find(query)
+            .sort({ date: -1 })
+            .skip(skip)
+            .limit(parseInt(limit)); // Limit the number of documents
+
+        const totalTransactions = await Transaction.countDocuments(query); // Total count for pagination
+        const totalPages = Math.ceil(totalTransactions / limit);
+
+        res.json({
+            transactions,
+            totalTransactions,
+            totalPages,
+            currentPage: parseInt(page),
+        });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to retrieve transactions: " + error.message });
+    }
+});
+
+router.get('/input', validateBranchId, async (req, res) => {
+    const { branchId, startDate, endDate, page = 1, limit = 10 } = req.query;
+
+    if (!branchId) {
+        return res.status(400).json({ message: 'branchId is required' });
+    }
+
+    try {
+        const query = {
+            type: 'input',
+            branchId: branchId,
+        };
+        
+        if (startDate || endDate) {
+            const startOfDay = startDate ? new Date(startDate) : new Date();
+            const endOfDay = endDate ? new Date(endDate) : new Date();
+        
+            if (!startDate) startOfDay.setHours(0, 0, 0, 0);
+            if (!endDate) endOfDay.setHours(23, 59, 59, 999);
+        
+            query.date = { $gte: startOfDay, $lte: endOfDay };
+        }
+        
 
         const skip = (page - 1) * limit; // Calculate how many documents to skip
 

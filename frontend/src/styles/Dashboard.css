@@ -8,9 +8,8 @@
     justify-content: space-evenly; /* Align items with space evenly */
     flex-wrap: wrap; /* Allow wrapping of items */
     padding-top: 5vh;
-    padding-bottom: 20px;
-    padding-top: 60px;
-    margin-top: 11px;
+    padding-bottom: 42px;
+    padding-top: 82px;
 }
 
 .welcome {
