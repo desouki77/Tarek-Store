@@ -59,38 +59,47 @@ const SellingTransaction = () => {
         setErrorMessage(''); // Clear error while typing
     };
 
+    
     const handleBarcodeInput = async (e) => {
         if (e.key === 'Enter') {
             const scannedBarcode = orderData.barcode.trim();
-
+    
             if (!/^\d*$/.test(scannedBarcode)) {
-                setErrorMessage('الباركود يجب ان يكون رقم');
+                setErrorMessage('الباركود يجب أن يكون رقمًا');
                 return;
             }
-
+    
             try {
                 const response = await axios.get(`http://localhost:5000/api/products/${scannedBarcode}`, {
                     params: { branchId },
                 });
-
+    
                 if (response.data) {
-                    const product = {
-                        barcode: scannedBarcode,
-                        name: response.data.name,
-                        description: response.data.description || '',
-                        price: response.data.price,
-                    };
-                    setProducts((prevProducts) => [...prevProducts, product]);
-                    setOrderData({ barcode: '', itemName: '', itemDescription: '', price: 0 });
-                    setErrorMessage('');
+                    const productData = response.data;
+    
+                    if (productData.quantity > 0) {
+                        // Check if quantity is available
+                        const product = {
+                            barcode: scannedBarcode,
+                            name: productData.name,
+                            description: productData.description || '',
+                            price: productData.price,
+                        };
+    
+                        setProducts((prevProducts) => [...prevProducts, product]);
+                        setOrderData({ barcode: '', itemName: '', itemDescription: '', price: 0 });
+                        setErrorMessage('');
+                    } else {
+                        setErrorMessage('لا توجد كمية كافية لهذا المنتج في المخزن');
+                    }
                 } else {
-                    setErrorMessage('خطأ في الباركود برجاء المحاولة مرة اخري');
+                    setErrorMessage('خطأ في الباركود، برجاء المحاولة مرة أخرى');
                 }
             } catch (error) {
                 if (error.response && error.response.status === 404) {
-                    setErrorMessage('منتج غير موجود برجاء مراجعة الباركود');
+                    setErrorMessage('منتج غير موجود، برجاء مراجعة الباركود');
                 } else {
-                    setErrorMessage('هناك خطأ برجاء المحاولة مرة اخري');
+                    setErrorMessage('هناك خطأ، برجاء المحاولة مرة أخرى');
                 }
             } finally {
                 if (barcodeInputRef.current) {
@@ -99,6 +108,7 @@ const SellingTransaction = () => {
             }
         }
     };
+    
 
     const totalAmount = products.reduce((total, product) => total + product.price, 0);
 

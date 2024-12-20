@@ -105,7 +105,6 @@ const AllProducts = () => {
     e.preventDefault();
     try {
       await axios.put(`http://localhost:5000/api/products/id/${editingProductId}`, editFormData);
-      alert('تم تحديث المنتج بنجاح.'); // Alert in Arabic
       // Update the products state with the edited product
       setProducts(products.map(product => (product._id === editingProductId ? { ...product, ...editFormData } : product)));
       setEditingProductId(null); // Reset the editing state
@@ -123,7 +122,6 @@ const AllProducts = () => {
 
         // Remove the deleted product from the state
         setProducts(products.filter(product => product.barcode !== barcode));
-        alert('تم حذف المنتج بنجاح.'); // Alert in Arabic
       } catch (error) {
         console.error('Error deleting product:', error);
         alert('فشل حذف المنتج.'); // Alert in Arabic
@@ -287,6 +285,17 @@ const AllProducts = () => {
                               type="number"
                               name="price"
                               value={editFormData.price || ''}
+                              onChange={handleEditChange}
+                              required
+                              className="allproduct-form-input"
+                            />
+                          </div>
+                          <div className="allproduct-form-group">
+                            <label>الكمية:</label>
+                            <input
+                              type="number"
+                              name="quantity"
+                              value={editFormData.quantity || ''}
                               onChange={handleEditChange}
                               required
                               className="allproduct-form-input"

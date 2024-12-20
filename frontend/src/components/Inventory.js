@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState , useEffect } from 'react';
 import axios from 'axios';
 import Navbar from './Navbar';
 import { useNavigate } from 'react-router-dom';
@@ -115,6 +115,7 @@ const Inventory = () => {
         color: '',
         price: '',
         quantity: '',
+        supplier:'',
         // إزالة category لأننا أصبحنا نستخدم الحقول الجديدة
       });
       setMainCategory('');
@@ -133,6 +134,21 @@ const Inventory = () => {
       }
     }
   };
+
+  const [suppliers, setSuppliers] = useState([]); // لتخزين قائمة الموردين
+
+   // جلب الموردين من الـ API
+   useEffect(() => {
+    const fetchSuppliers = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/suppliers');
+        setSuppliers(response.data.suppliers);
+      } catch (error) {
+        console.error('Error fetching suppliers:', error);
+      }
+    };
+    fetchSuppliers();
+  }, []);
   
 
   return (
@@ -206,15 +222,19 @@ const Inventory = () => {
             placeholder="الكمية ( اجباري )"
             required
           />
-          <input
-            className="inventory__input"
-            type="text"
+           <select
+            className="inventory__select"
             name="supplier"
             value={product.supplier}
             onChange={handleChange}
-            placeholder="اسم المورد (ان وجد)"
-
-          />
+          >
+            <option value="">اختر المورد</option>
+            {suppliers.map((supplier) => (
+              <option key={supplier.id} value={supplier.name}>
+                {supplier.name}
+              </option>
+            ))}
+          </select>
 
           {/* Main Category Selection */}
           <select

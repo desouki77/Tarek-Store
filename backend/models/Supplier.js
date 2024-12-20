@@ -17,6 +17,10 @@ const supplierSchema = new mongoose.Schema({
     notes: {
         type: String,
         required: false,
+    },
+    moneyOwed: {
+        type: Number,
+        required: false,
     }
 }, {
     timestamps: true,

@@ -9,6 +9,7 @@ const Suppliers = () => {
         phoneNumber: '',
         company: '',
         notes: '',
+        moneyOwed: 0,
     });
     const [message, setMessage] = useState('');
     const [suppliers, setSuppliers] = useState([]);
@@ -26,7 +27,7 @@ const Suppliers = () => {
         try {
             const response = await axios.post('http://localhost:5000/api/suppliers/add', supplier);
             setMessage(response.data.message);
-            setSupplier({ name: '', phoneNumber: '', company: '', notes: '' });
+            setSupplier({ name: '', phoneNumber: '', company: '', notes: '', moneyOwed: 0 });
             fetchSuppliers();
         } catch (error) {
             setMessage('خطأ في اضافة المورد');
@@ -126,6 +127,18 @@ const Suppliers = () => {
                                 className="suppliers-form-textarea"
                             ></textarea>
                         </div>
+                        <div className="suppliers-form-group">
+                            <label htmlFor="moneyOwed"> المبلغ المستحق</label>
+                            <input
+                                type="text"
+                                id="moneyOwed"
+                                name="moneyOwed"
+                                value={supplier.moneyOwed}
+                                onChange={handleChange}
+                                required
+                                className="suppliers-form-input"
+                            />
+                        </div>
                         <button type="submit" className="suppliers-form-button">
                             اضافة مورد
                         </button>
@@ -144,6 +157,7 @@ const Suppliers = () => {
                                     <th>رقم الموبايل</th>
                                     <th>الشركة</th>
                                     <th>التعليقات</th>
+                                    <th>المبلغ المستحق</th>
                                     {isAdmin && <th>حذف</th>}
                                 </tr>
                             </thead>
@@ -154,6 +168,8 @@ const Suppliers = () => {
                                         <td>{sup.phoneNumber}</td>
                                         <td>{sup.company || 'N/A'}</td>
                                         <td>{sup.notes || 'N/A'}</td>
+                                        <td>{sup.moneyOwed || 0}</td>
+
                                         {isAdmin && (
                                             <td>
                                                 <button

@@ -6,12 +6,12 @@ const router = express.Router();
 
 // Create a new supplier
 router.post('/add', async (req, res) => {
-    const { name, phoneNumber, company, notes } = req.body;
+    const { name, phoneNumber, company, notes ,moneyOwed } = req.body;
 
     try {
-        const newSupplier = new Supplier({ name, phoneNumber, company, notes });
+        const newSupplier = new Supplier({ name, phoneNumber, company, notes ,moneyOwed });
         await newSupplier.save();
-        res.status(201).json({ message: 'تم اضافة المورد بنجاخ', supplier: newSupplier });
+        res.status(201).json({ message: 'تم اضافة المورد بنجاح', supplier: newSupplier });
     } catch (error) {
         res.status(400).json({ message: 'خطاء في اضافة المورد', error });
     }

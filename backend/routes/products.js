@@ -30,13 +30,7 @@ router.post('/add', async (req, res) => {
       return res.status(400).json({ message: 'هذا المنتج موجود بالفعل في هذا الفرع' });
     }
 
-    // Check if the supplier exists
-    let existingSupplier = await Supplier.findOne({ name: supplier });
-    if (!existingSupplier) {
-      // Create a new supplier if it doesn't exist
-      existingSupplier = new Supplier({ name: supplier, phoneNumber: '', company: '', notes: '' });
-      await existingSupplier.save();
-    }
+   
 
     // Create the product
     const newProduct = new Product({
@@ -51,7 +45,7 @@ router.post('/add', async (req, res) => {
       subCategory,
       thirdCategory,
       condition,
-      supplier: existingSupplier.name,
+      supplier,
       branchId, // Associate product with branch
     });
 
