@@ -123,11 +123,11 @@ td {
 /* Pagination Container */
 .all-orders-pagination {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
 .all-orders-pagination-button {
@@ -135,10 +135,10 @@ td {
     margin: 5px;
     border: 1px solid #ddd;
     border-radius: 4px;
-    background-color: #f0f0f0;
+    background-color: #007BFF;
     cursor: pointer;
     font-size: 12px;  /* Smaller font size */
-    color: #333;
+    color: #fff;
     transition: background-color 0.3s ease, color 0.3s ease;
     width: auto; /* Allow button width to adjust based on content */
     min-width: 40px;  /* Minimum width to ensure buttons are not too narrow */
@@ -146,15 +146,14 @@ td {
 
 /* Hover effect */
 .all-orders-pagination-button:hover {
-    background-color: #007BFF;
-    color: white;
+    background-color: darkslategray;
+  color: #fff;
 }
 
 /* Disabled state */
-.all-orders-pagination-button.disabled {
-    cursor: not-allowed;
-    background-color: #ddd;
-    color: #aaa;
+.all-orders-pagination-button:disabled {
+    background-color: #ccc;
+  cursor: not-allowed;
 }
 
 /* Responsive adjustments */

@@ -30,11 +30,15 @@
 }
 
 /* Product Table */
+.selling-transaction-products-container{
+    overflow: auto;
+}
 .selling-transaction-product-table {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 20px;
     background-color: white;
+    overflow: hidden;
 
 
 }
@@ -101,11 +105,15 @@
 }
 
 /* Orders Table */
+.selling-transaction-orders-container{
+    overflow: auto;
+}
 .selling-transaction-orders-table {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 20px;
     background-color: white;
+    overflow: hidden;
 
 }
 
@@ -139,38 +147,39 @@
     background: #0056b3;
 }
 
-/* Pagination */
-.selling-transaction-pagination {
+/* Pagination styles */
+.selling-transaction-pagination-container {
     display: flex;
     justify-content: center;
-    gap: 5px;
-    margin-top: 10px;
-    
-}
-
-.selling-transaction-page-button {
-    padding: 10px 15px;
-    margin: 0 5px;
-    cursor: pointer;
-    border-radius: 5px;
-    font-size: 14px;
-    background-color: #f4f4f4;
-    border: 1px solid #ddd;
-    color: #333;
-    width: 40px;
-}
-
-.selling-transaction-page-button.active{
-    background-color: #4CAF50;
-    color: white;
-}
-.selling-transaction-page-button:hover {
-    background-color: #ddd;
-}
-.selling-transaction-page-button:focus{
-    outline: none;
-
-}
+    align-items: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .selling-transaction-pagination-btn {
+    padding: 4px 8px;  /* Smaller padding for more compact buttons */
+      margin: 5px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background-color: #007BFF;
+      cursor: pointer;
+      font-size: 12px;  /* Smaller font size */
+      color: #fff;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      width: auto; /* Allow button width to adjust based on content */
+      min-width: 40px;  /* Minimum width to ensure buttons are not too narrow */
+  }
+  
+  
+  .selling-transaction-pagination-btn:hover {
+    background-color: darkslategray;
+    color: #fff;
+  }
+  
+  .selling-transaction-pagination-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;}
 
 
 /* All Orders Button */

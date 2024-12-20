@@ -48,10 +48,16 @@
   margin-top: 20px;
 }
 
+
+.input-transaction-table-container {
+overflow: auto;
+}
+
 .input-transaction-table {
   width: 100%;
   margin-top: 20px;
   border-collapse: collapse;
+  overflow: hidden;
 }
 
 .input-transaction-table th, .input-transaction-table td {
@@ -60,23 +66,39 @@
   text-align: center;
 }
 
+
+
+
 .input-transaction-pagination {
-  margin-top: 20px;
   display: flex;
   justify-content: center;
-  gap: 5px;
+  align-items: center;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
 .input-transaction-page-button {
-  padding: 8px 12px;
-  background-color: #ccc;
-  border: none;
+  padding: 4px 8px;  /* Smaller padding for more compact buttons */
+  margin: 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #007BFF;
   cursor: pointer;
+  font-size: 12px;  /* Smaller font size */
+  color: #fff;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  width: auto; /* Allow button width to adjust based on content */
+  min-width: 40px;  /* Minimum width to ensure buttons are not too narrow */
 }
 
-.input-transaction-page-button.active {
-  background-color: #007BFF;
-  color: white;
+.input-transaction-page-button:hover {
+  background-color: darkslategray;
+  color: #fff;
+}
+.input-transaction-page-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 
 .input-transaction-all-transactions-button {
@@ -111,4 +133,12 @@
     font-size: 14px;
     padding: 8px;
   }
+}
+
+@media (max-width: 480px) {
+  .input-transaction-pagination {
+      flex-wrap: wrap;
+  }
+
+ 
 }

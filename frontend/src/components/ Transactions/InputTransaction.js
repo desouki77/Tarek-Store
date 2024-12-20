@@ -155,6 +155,7 @@ const InputTransaction = () => {
         ) : (
           <>
             <h3>المعاملات اليوم</h3>
+            <div className="input-transaction-table-container">
             <table className="input-transaction-table">
               <thead>
                 <tr>
@@ -177,17 +178,20 @@ const InputTransaction = () => {
                 ))}
               </tbody>
             </table>
-            <div className="pagination">
+            </div>
+            <div className="input-transaction-pagination">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
+                className='input-transaction-page-button'
               >
-                السابق
+                 السابق 
               </button>
               <span>الصفحة {currentPage} من {totalPages}</span>
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
+                className='input-transaction-page-button'
               >
                 التالي
               </button>

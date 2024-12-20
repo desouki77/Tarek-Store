@@ -120,9 +120,6 @@ router.get('/input', validateBranchId, async (req, res) => {
 });
 
 
-
-
-
 // Create a transaction with a specific type (e.g., "output")
 router.post('/output', validateBranchId, async (req, res) => {
     const { branchId, description, amount, user, type, date } = req.body;
@@ -149,8 +146,8 @@ router.post('/output', validateBranchId, async (req, res) => {
 });
 
 
-router.get('/output', validateBranchId, async (req, res) => {
-    const { branchId, startDate, endDate } = req.query;
+router.get('/dayoutput', validateBranchId, async (req, res) => {
+    const { branchId, startDate, endDate, page = 1, limit = 10 } = req.query;
 
     if (!branchId) {
         return res.status(400).json({ message: 'branchId is required' });
@@ -169,15 +166,78 @@ router.get('/output', validateBranchId, async (req, res) => {
             date: { $gte: startOfDay, $lte: endOfDay },
         };
 
-        const transactions = await Transaction.find(query).sort({ date: -1 });
-        res.json({ transactions });
+        const skip = (page - 1) * limit; // Calculate how many documents to skip
+
+        // Find transactions with pagination
+        const transactions = await Transaction.find(query)
+            .sort({ date: -1 })
+            .skip(skip)
+            .limit(parseInt(limit)); // Limit the number of documents
+
+        const totalTransactions = await Transaction.countDocuments(query); // Total count for pagination
+        const totalPages = Math.ceil(totalTransactions / limit);
+
+        res.json({
+            transactions,
+            totalTransactions,
+            totalPages,
+            currentPage: parseInt(page),
+        });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to retrieve transactions: " + error.message });
+    }
+});
+
+router.get('/output', validateBranchId, async (req, res) => {
+    const { branchId, startDate, endDate, page = 1, limit = 10 } = req.query;
+
+    if (!branchId) {
+        return res.status(400).json({ message: 'branchId is required' });
+    }
+
+    try {
+        const query = {
+            type: 'output',
+            branchId: branchId,
+        };
+        
+        if (startDate || endDate) {
+            const startOfDay = startDate ? new Date(startDate) : new Date();
+            const endOfDay = endDate ? new Date(endDate) : new Date();
+        
+            if (!startDate) startOfDay.setHours(0, 0, 0, 0);
+            if (!endDate) endOfDay.setHours(23, 59, 59, 999);
+        
+            query.date = { $gte: startOfDay, $lte: endOfDay };
+        }
+        
+
+        const skip = (page - 1) * limit; // Calculate how many documents to skip
+
+        // Find transactions with pagination
+        const transactions = await Transaction.find(query)
+            .sort({ date: -1 })
+            .skip(skip)
+            .limit(parseInt(limit)); // Limit the number of documents
+
+        const totalTransactions = await Transaction.countDocuments(query); // Total count for pagination
+        const totalPages = Math.ceil(totalTransactions / limit);
+
+        res.json({
+            transactions,
+            totalTransactions,
+            totalPages,
+            currentPage: parseInt(page),
+        });
     } catch (error) {
         res.status(500).json({ error: "Failed to retrieve transactions: " + error.message });
     }
 });
 
 
-// Create a transaction with a specific type (e.g., "recharge")
+
+
+// Create a transaction with a specific type (e.g., "output")
 router.post('/recharge', validateBranchId, async (req, res) => {
     const { branchId, description, amount, user, type, date } = req.body;
 
@@ -203,8 +263,8 @@ router.post('/recharge', validateBranchId, async (req, res) => {
 });
 
 
-router.get('/recharge', validateBranchId, async (req, res) => {
-    const { branchId, startDate, endDate } = req.query;
+router.get('/dayrecharge', validateBranchId, async (req, res) => {
+    const { branchId, startDate, endDate, page = 1, limit = 10 } = req.query;
 
     if (!branchId) {
         return res.status(400).json({ message: 'branchId is required' });
@@ -223,15 +283,76 @@ router.get('/recharge', validateBranchId, async (req, res) => {
             date: { $gte: startOfDay, $lte: endOfDay },
         };
 
-        const transactions = await Transaction.find(query).sort({ date: -1 });
-        res.json({ transactions });
+        const skip = (page - 1) * limit; // Calculate how many documents to skip
+
+        // Find transactions with pagination
+        const transactions = await Transaction.find(query)
+            .sort({ date: -1 })
+            .skip(skip)
+            .limit(parseInt(limit)); // Limit the number of documents
+
+        const totalTransactions = await Transaction.countDocuments(query); // Total count for pagination
+        const totalPages = Math.ceil(totalTransactions / limit);
+
+        res.json({
+            transactions,
+            totalTransactions,
+            totalPages,
+            currentPage: parseInt(page),
+        });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to retrieve transactions: " + error.message });
+    }
+});
+
+router.get('/recharge', validateBranchId, async (req, res) => {
+    const { branchId, startDate, endDate, page = 1, limit = 10 } = req.query;
+
+    if (!branchId) {
+        return res.status(400).json({ message: 'branchId is required' });
+    }
+
+    try {
+        const query = {
+            type: 'recharge',
+            branchId: branchId,
+        };
+        
+        if (startDate || endDate) {
+            const startOfDay = startDate ? new Date(startDate) : new Date();
+            const endOfDay = endDate ? new Date(endDate) : new Date();
+        
+            if (!startDate) startOfDay.setHours(0, 0, 0, 0);
+            if (!endDate) endOfDay.setHours(23, 59, 59, 999);
+        
+            query.date = { $gte: startOfDay, $lte: endOfDay };
+        }
+        
+
+        const skip = (page - 1) * limit; // Calculate how many documents to skip
+
+        // Find transactions with pagination
+        const transactions = await Transaction.find(query)
+            .sort({ date: -1 })
+            .skip(skip)
+            .limit(parseInt(limit)); // Limit the number of documents
+
+        const totalTransactions = await Transaction.countDocuments(query); // Total count for pagination
+        const totalPages = Math.ceil(totalTransactions / limit);
+
+        res.json({
+            transactions,
+            totalTransactions,
+            totalPages,
+            currentPage: parseInt(page),
+        });
     } catch (error) {
         res.status(500).json({ error: "Failed to retrieve transactions: " + error.message });
     }
 });
 
 
-// Create a transaction with a specific type (e.g., "maintenance")
+// Create a transaction with a specific type (e.g., "output")
 router.post('/maintenance', validateBranchId, async (req, res) => {
     const { branchId, description, amount, user, type, date } = req.body;
 
@@ -257,8 +378,8 @@ router.post('/maintenance', validateBranchId, async (req, res) => {
 });
 
 
-router.get('/maintenance', validateBranchId, async (req, res) => {
-    const { branchId, startDate, endDate } = req.query;
+router.get('/daymaintenance', validateBranchId, async (req, res) => {
+    const { branchId, startDate, endDate, page = 1, limit = 10 } = req.query;
 
     if (!branchId) {
         return res.status(400).json({ message: 'branchId is required' });
@@ -277,12 +398,76 @@ router.get('/maintenance', validateBranchId, async (req, res) => {
             date: { $gte: startOfDay, $lte: endOfDay },
         };
 
-        const transactions = await Transaction.find(query).sort({ date: -1 });
-        res.json({ transactions });
+        const skip = (page - 1) * limit; // Calculate how many documents to skip
+
+        // Find transactions with pagination
+        const transactions = await Transaction.find(query)
+            .sort({ date: -1 })
+            .skip(skip)
+            .limit(parseInt(limit)); // Limit the number of documents
+
+        const totalTransactions = await Transaction.countDocuments(query); // Total count for pagination
+        const totalPages = Math.ceil(totalTransactions / limit);
+
+        res.json({
+            transactions,
+            totalTransactions,
+            totalPages,
+            currentPage: parseInt(page),
+        });
     } catch (error) {
         res.status(500).json({ error: "Failed to retrieve transactions: " + error.message });
     }
 });
+
+router.get('/maintenance', validateBranchId, async (req, res) => {
+    const { branchId, startDate, endDate, page = 1, limit = 10 } = req.query;
+
+    if (!branchId) {
+        return res.status(400).json({ message: 'branchId is required' });
+    }
+
+    try {
+        const query = {
+            type: 'maintenance',
+            branchId: branchId,
+        };
+        
+        if (startDate || endDate) {
+            const startOfDay = startDate ? new Date(startDate) : new Date();
+            const endOfDay = endDate ? new Date(endDate) : new Date();
+        
+            if (!startDate) startOfDay.setHours(0, 0, 0, 0);
+            if (!endDate) endOfDay.setHours(23, 59, 59, 999);
+        
+            query.date = { $gte: startOfDay, $lte: endOfDay };
+        }
+        
+
+        const skip = (page - 1) * limit; // Calculate how many documents to skip
+
+        // Find transactions with pagination
+        const transactions = await Transaction.find(query)
+            .sort({ date: -1 })
+            .skip(skip)
+            .limit(parseInt(limit)); // Limit the number of documents
+
+        const totalTransactions = await Transaction.countDocuments(query); // Total count for pagination
+        const totalPages = Math.ceil(totalTransactions / limit);
+
+        res.json({
+            transactions,
+            totalTransactions,
+            totalPages,
+            currentPage: parseInt(page),
+        });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to retrieve transactions: " + error.message });
+    }
+});
+
+
+
 
 // Create a transaction with a specific type (e.g., "supplier_payment")
 router.post('/supplier_payment', validateBranchId, async (req, res) => {

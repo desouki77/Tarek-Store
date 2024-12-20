@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Navbar from './Navbar';
-import '../styles/Client.css'
+import '../styles/Client.css';
 
 const Clients = () => {
     const [client, setClient] = useState({
@@ -48,7 +48,9 @@ const Clients = () => {
         fetchClients();
     }, []);
 
-    const handleDeleteSupplier = async (id) => {
+    const handleDeleteClients = async (id) => {
+        const confirmDelete = window.confirm('هل أنت متأكد أنك تريد حذف هذا العميل'); // Confirmation in Arabic
+        if (confirmDelete) {
         try {
             const response = await axios.delete(`http://localhost:5000/api/clients/${id}`);
             setMessage(response.data.message);
@@ -57,6 +59,7 @@ const Clients = () => {
             setMessage('خطأ في مسح العميل');
             console.error(error);
         }
+    }
     };
 
     const handlePageChange = (direction) => {
@@ -117,59 +120,66 @@ const Clients = () => {
                 </div>
 
                 {/* Client Table */}
-                <div className="clients-table-container">
-                    <h2 className="clients-table-title">جميع العملاء</h2>
-                    <table className="clients-table">
-                        <thead>
-                            <tr>
-                                <th>الاسم</th>
-                                <th>رقم الموبايل</th>
-                                <th>تعليقات</th>
-                                {isAdmin && <th>حذف</th>} {/* Show delete button only for admins */}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {clients.map((client) => (
-                                <tr key={client._id}>
-                                    <td>{client.name}</td>
-                                    <td>{client.phoneNumber}</td>
-                                    <td>{client.notes || 'N/A'}</td>
-                                    {isAdmin && (
-                                        <td>
-                                            <button
-                                                onClick={() => handleDeleteSupplier(client._id)}
-                                                className="clients-delete-button"
-                                            >
-                                                حذف
-                                            </button>
-                                        </td>
-                                    )}
+                {clients.length > 0 ? (
+                    <>
+                    <div className="clients-table-container">
+                        <h2 className="clients-table-title">جميع العملاء</h2>
+                        <table className="clients-table">
+                            <thead>
+                                <tr>
+                                    <th>الاسم</th>
+                                    <th>رقم الموبايل</th>
+                                    <th>تعليقات</th>
+                                    {isAdmin && <th>حذف</th>} {/* Show delete button only for admins */}
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {clients.map((client) => (
+                                    <tr key={client._id}>
+                                        <td>{client.name}</td>
+                                        <td>{client.phoneNumber}</td>
+                                        <td>{client.notes || 'N/A'}</td>
+                                        {isAdmin && (
+                                            <td>
+                                                <button
+                                                    onClick={() => handleDeleteClients(client._id)}
+                                                    className="clients-delete-button"
+                                                >
+                                                    حذف
+                                                </button>
+                                            </td>
+                                        )}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
 
-                    {/* Pagination */}
-                    <div className="clients-pagination">
-                        <button
-                            onClick={() => handlePageChange(-1)}
-                            className="clients-pagination-button"
-                            disabled={currentPage === 1}
-                        >
-                            السابق
-                        </button>
-                        <span className="clients-pagination-info">
-                            Page {currentPage} of {totalPages}
-                        </span>
-                        <button
-                            onClick={() => handlePageChange(1)}
-                            className="clients-pagination-button"
-                            disabled={currentPage === totalPages}
-                        >
-                            التالي
-                        </button>
+                      
                     </div>
-                </div>
+                      {/* Pagination */}
+                      <div className="clients-pagination">
+                            <button
+                                onClick={() => handlePageChange(-1)}
+                                className="clients-pagination-button"
+                                disabled={currentPage === 1}
+                            >
+                                السابق
+                            </button>
+                            <span className="clients-pagination-info">
+                                الصفحة {currentPage} من {totalPages}
+                            </span>
+                            <button
+                                onClick={() => handlePageChange(1)}
+                                className="clients-pagination-button"
+                                disabled={currentPage === totalPages}
+                            >
+                                التالي
+                            </button>
+                        </div>
+                    </>
+                ) : (
+                    <p className="clients-no-data">لا توجد بيانات لعرضها</p>
+                )}
             </div>
         </>
     );

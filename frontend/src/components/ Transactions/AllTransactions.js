@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import Navbar from '../Navbar';
 import '../../styles/AllTransactions.css';
@@ -27,7 +27,8 @@ const AllTransactions = () => {
         }
     };
 
-    const fetchAllTransactions = async (page = 1) => {
+    // Using useCallback to memoize the fetchAllTransactions function
+    const fetchAllTransactions = useCallback(async (page = 1) => {
         if (!branchId) {
             setError('Branch ID is missing.');
             return;
@@ -69,11 +70,11 @@ const AllTransactions = () => {
         } finally {
             setLoading(false); // Stop loading
         }
-    };
+    }, [branchId, transactionType, startDate, endDate]); // Dependencies
 
     useEffect(() => {
         fetchAllTransactions(currentPage);
-    }, [startDate, endDate, currentPage]); // Reload when currentPage changes
+    }, [fetchAllTransactions, currentPage]); // Reload when currentPage or fetchAllTransactions changes
 
     const handlePageChange = (newPage) => {
         if (newPage > 0 && newPage <= totalPages) {
@@ -110,6 +111,7 @@ const AllTransactions = () => {
                     <p className="alltransaction-loading">يتم تحميل المعاملات...</p>
                 ) : transactions.length > 0 ? (
                     <>
+                    <div className="alltransaction-table-container">
                         <table className="alltransaction-table">
                             <thead>
                                 <tr>
@@ -132,21 +134,22 @@ const AllTransactions = () => {
                                 ))}
                             </tbody>
                         </table>
-                        <div className="pagination">
+                    </div>
+                        <div className="alltransaction-pagination">
                             <button
                                 onClick={() => handlePageChange(currentPage - 1)}
                                 disabled={currentPage === 1}
-                                className="pagination-button"
+                                className="alltransaction-pagination-button"
                             >
                                 السابق
                             </button>
                             <span className="pagination-info">
-                                صفحة {currentPage} من {totalPages}
+                                الصفحة {currentPage} من {totalPages}
                             </span>
                             <button
                                 onClick={() => handlePageChange(currentPage + 1)}
                                 disabled={currentPage === totalPages}
-                                className="pagination-button"
+                                className="alltransaction-pagination-button"
                             >
                                 التالي
                             </button>

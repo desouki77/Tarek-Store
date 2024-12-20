@@ -54,14 +54,17 @@ const Suppliers = () => {
     };
 
     const handleDeleteSupplier = async (id) => {
+        const confirmDelete = window.confirm('هل أنت متأكد أنك تريد حذف هذا المورد'); // Confirmation in Arabic
+        if (confirmDelete){
         try {
             const response = await axios.delete(`http://localhost:5000/api/suppliers/${id}`);
             setMessage(response.data.message);
-            fetchSuppliers(currentPage); // Re-fetch suppliers to update the table
+            fetchSuppliers(currentPage);
         } catch (error) {
             setMessage('خطأ في مسح المورد');
             console.error(error);
         }
+    }
     };
 
     useEffect(() => {
@@ -130,61 +133,68 @@ const Suppliers = () => {
                 </div>
 
                 {/* Suppliers Table */}
-                <div className="suppliers-table-container">
-                    <h2 className="suppliers-table-title">جميع الموردين</h2>
-                    <table className="suppliers-table">
-                        <thead>
-                            <tr>
-                                <th>الاسم</th>
-                                <th>رقم الموبايل</th>
-                                <th>الشركة</th>
-                                <th>التعليقات</th>
-                                {isAdmin && <th>حذف</th>} {/* Show delete button only for admins */}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {suppliers.map((sup, index) => (
-                                <tr key={index}>
-                                    <td>{sup.name}</td>
-                                    <td>{sup.phoneNumber}</td>
-                                    <td>{sup.company || 'N/A'}</td>
-                                    <td>{sup.notes || 'N/A'}</td>
-                                    {isAdmin && (
-                                        <td>
-                                            <button
-                                                onClick={() => handleDeleteSupplier(sup._id)}
-                                                className="suppliers-delete-button"
-                                            >
-                                                حذف
-                                            </button>
-                                        </td>
-                                    )}
+                {suppliers.length > 0 ? (
+                    <>
+                    <div className="suppliers-table-container">
+                        <h2 className="suppliers-table-title">جميع الموردين</h2>
+                        <table className="suppliers-table">
+                            <thead>
+                                <tr>
+                                    <th>الاسم</th>
+                                    <th>رقم الموبايل</th>
+                                    <th>الشركة</th>
+                                    <th>التعليقات</th>
+                                    {isAdmin && <th>حذف</th>}
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {suppliers.map((sup, index) => (
+                                    <tr key={index}>
+                                        <td>{sup.name}</td>
+                                        <td>{sup.phoneNumber}</td>
+                                        <td>{sup.company || 'N/A'}</td>
+                                        <td>{sup.notes || 'N/A'}</td>
+                                        {isAdmin && (
+                                            <td>
+                                                <button
+                                                    onClick={() => handleDeleteSupplier(sup._id)}
+                                                    className="suppliers-delete-button"
+                                                >
+                                                    حذف
+                                                </button>
+                                            </td>
+                                        )}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
 
-                    {/* Pagination Controls */}
-                    <div className="suppliers-pagination">
-                        <button
-                            onClick={handlePreviousPage}
-                            disabled={currentPage === 1}
-                            className="suppliers-pagination-button"
-                        >
-                            السابق
-                        </button>
-                        <span className="suppliers-pagination-info">
-                            Page {currentPage} of {totalPages}
-                        </span>
-                        <button
-                            onClick={handleNextPage}
-                            disabled={currentPage === totalPages}
-                            className="suppliers-pagination-button"
-                        >
-                            التالي
-                        </button>
+                       
                     </div>
-                </div>
+                     {/* Pagination Controls */}
+                     <div className="suppliers-pagination">
+                            <button
+                                onClick={handlePreviousPage}
+                                disabled={currentPage === 1}
+                                className="suppliers-pagination-button"
+                            >
+                                السابق
+                            </button>
+                            <span className="suppliers-pagination-info">
+                                الصفحة {currentPage} من {totalPages}
+                            </span>
+                            <button
+                                onClick={handleNextPage}
+                                disabled={currentPage === totalPages}
+                                className="suppliers-pagination-button"
+                            >
+                                التالي
+                            </button>
+                        </div>
+                    </>
+                ) : (
+                    <p className="suppliers-no-data">لا يوجد موردين لعرضهم</p>
+                )}
             </div>
         </>
     );

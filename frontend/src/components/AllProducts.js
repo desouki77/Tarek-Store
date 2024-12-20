@@ -233,10 +233,11 @@ const AllProducts = () => {
 
         {/* عدد المنتجات */}
         <div className="allproduct-count">
-          <p>عدد المنتجات: {totalProducts}</p>
+          <h1>عدد المنتجات: {totalProducts}</h1>
         </div>
 
         {currentProducts.length > 0 ? (
+          <>
            <div className="allproduct-table-container">
           <table className="allproduct-table">
             <thead>
@@ -302,11 +303,7 @@ const AllProducts = () => {
             </tbody>
           </table>
           </div>
-        ) : (
-          <p className="allproduct-no-products">لا توجد منتجات تطابق معايير البحث</p>
-        )}
-
-      <div className="allproduct-pagination">
+          <div className="allproduct-pagination">
         <button
           onClick={() => paginate(currentPage - 1)}
           className={`allproduct-pagination-btn ${currentPage === 1 ? 'disabled' : ''}`}
@@ -315,8 +312,9 @@ const AllProducts = () => {
           السابق
         </button>
         
-        {/* Show current page number */}
-        <span className="pagination-current-page">{currentPage}</span>
+        <span className="allproduct-pagination-info">
+          صفحة {currentPage} من {pageNumbers}
+        </span>
 
         <button
           onClick={() => paginate(currentPage + 1)}
@@ -326,6 +324,13 @@ const AllProducts = () => {
           التالي
         </button>
       </div>
+          </>
+        ) : (
+          <p className="allproduct-no-products">لا توجد منتجات تطابق معايير البحث</p>
+        )}
+        
+
+     
       </section>
     </>
   );

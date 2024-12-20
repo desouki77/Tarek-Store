@@ -64,7 +64,7 @@ const SellingTransaction = () => {
             const scannedBarcode = orderData.barcode.trim();
 
             if (!/^\d*$/.test(scannedBarcode)) {
-                setErrorMessage('Barcode must be numeric.');
+                setErrorMessage('الباركود يجب ان يكون رقم');
                 return;
             }
 
@@ -84,13 +84,13 @@ const SellingTransaction = () => {
                     setOrderData({ barcode: '', itemName: '', itemDescription: '', price: 0 });
                     setErrorMessage('');
                 } else {
-                    setErrorMessage('Invalid barcode. Please try again.');
+                    setErrorMessage('خطأ في الباركود برجاء المحاولة مرة اخري');
                 }
             } catch (error) {
                 if (error.response && error.response.status === 404) {
-                    setErrorMessage('Product not found. Please check the barcode.');
+                    setErrorMessage('منتج غير موجود برجاء مراجعة الباركود');
                 } else {
-                    setErrorMessage('An error occurred. Please try again.');
+                    setErrorMessage('هناك خطأ برجاء المحاولة مرة اخري');
                 }
             } finally {
                 if (barcodeInputRef.current) {
@@ -128,6 +128,12 @@ const SellingTransaction = () => {
         navigate(`/order-receipt/${orderId}`);
     };
 
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= totalPages) {
+            setCurrentPage(newPage);
+        }
+    };
+
     return (
         <>
             <Navbar isAdmin={isAdmin} />
@@ -146,6 +152,7 @@ const SellingTransaction = () => {
 
                 {products.length > 0 && (
                     <>
+                        <div className="selling-transaction-products-container">
                         <table className="selling-transaction-product-table">
                             <thead>
                                 <tr>
@@ -175,6 +182,7 @@ const SellingTransaction = () => {
                                 ))}
                             </tbody>
                         </table>
+                        </div>
 
                         <div className="selling-transaction-total-amount">اجمالي المبلغ: {totalAmount} EGP</div>
                         <button onClick={handleCheckout} className="selling-transaction-checkout-btn">
@@ -188,6 +196,8 @@ const SellingTransaction = () => {
                 {/* Display Orders of the Day */}
                 <h2>الفواتير اليومية</h2>
                 {orders.length > 0 ? (
+                    <>
+                    <div className="selling-transaction-orders-container">
                     <table className="selling-transaction-orders-table">
                         <thead>
                             <tr>
@@ -215,26 +225,37 @@ const SellingTransaction = () => {
                             ))}
                         </tbody>
                     </table>
+                    </div>
+                    
+                    <div className="selling-transaction-pagination-container">
+                        <button
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        className="selling-transaction-pagination-btn"
+                        disabled={currentPage === 1}
+                        >
+                        السابق
+                        </button>
+
+                        <span className="selling-transaction-pagination-info">
+                        صفحة {currentPage} من {totalPages}
+                        </span>
+
+                        <button
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        className="selling-transaction-pagination-btn"
+                        >
+                        التالي
+                        </button>
+                    </div>
+                    
+                    </>
                 ) : (
                     <p>لا توجد فواتير اليوم</p> // No orders for the day
+                    
                 )}
-                    <div className="pagination-container">
-                <button
-                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                    disabled={currentPage === 1}
-                >
-                    السابق
-                </button>
 
-                <span>صفحة {currentPage} من {totalPages}</span>
 
-                <button
-                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                    disabled={currentPage === totalPages}
-                >
-                    التالي
-                </button>
-            </div>
 
                 <div>
                     <button

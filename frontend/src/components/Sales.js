@@ -27,11 +27,11 @@ const Sales = () => {
                 params: { page, limit },
             });
 
-            setSalesData(response.data.users); // Assuming API returns an array of users in `users`
-            setTotalPages(response.data.totalPages); // Assuming API provides total pages
+            setSalesData(response.data.users || []);
+            setTotalPages(response.data.totalPages || 1);
         } catch (err) {
             console.error('Error fetching data:', err);
-            setError('Failed to fetch sales data');
+            setError('لا يوجد موظفين! برجاء تسجيل موظف جديد');
         } finally {
             setLoading(false);
         }
@@ -42,6 +42,8 @@ const Sales = () => {
     }, [fetchSalesData, currentPage]);
 
     const handleDelete = async (id) => {
+        const confirmDelete = window.confirm('هل أنت متأكد أنك تريد حذف هذا الموظف؟'); // Confirmation in Arabic
+        if(confirmDelete) {
         try {
             const response = await axios.delete(`http://localhost:5000/api/users/${id}`);
             if (response.status === 200) {
@@ -52,6 +54,7 @@ const Sales = () => {
             console.error('Error deleting user:', err);
             setError('Failed to delete the user');
         }
+    }
     };
 
     const handlePageChange = (newPage) => {
@@ -60,65 +63,70 @@ const Sales = () => {
         }
     };
 
-    if (loading) {
-        return <Loader />;
-    }
-
-    if (error) {
-        return <div>{error}</div>;
-    }
-
     return (
         <>
             <Navbar isAdmin={role === 'admin'} />
             <div className="sales-container">
                 <h2>موظفين المبيعات</h2>
-                <table className="sales-table">
-                    <thead>
-                        <tr>
-                            <th>اسم موظف المبيعات</th>
-                            <th>رقم الموبايل</th>
-                            <th>المرتب</th>
-                            <th>تاريخ التسجيل</th>
-                            <th>حذف</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {salesData.map(sale => (
-                            <tr key={sale._id}>
-                                <td>{sale.username}</td>
-                                <td>{sale.phone}</td>
-                                <td>{sale.salary}</td>
-                                <td>{new Date(sale.createdAt).toLocaleDateString()}</td>
-                                <td>
-                                    <button
-                                        onClick={() => handleDelete(sale._id)}
-                                        className="sales-delete-btn"
-                                    >
-                                        حذف
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-                <div className="sales-pagination">
-                    <button
-                        onClick={() => handlePageChange(currentPage - 1)}
-                        disabled={currentPage === 1}
-                        className='sales-pagination-button'
-                    >
-                        السابق
-                    </button>
-                    <span>الصفحة {currentPage} من {totalPages}</span>
-                    <button
-                        onClick={() => handlePageChange(currentPage + 1)}
-                        disabled={currentPage === totalPages}
-                        className='sales-pagination-button'
-                    >
-                        التالي
-                    </button>
-                </div>
+                {loading ? (
+                    <Loader />
+                ) : error ? (
+                    <div className="error-message">{error}</div>
+                ) : salesData.length === 0 ? (
+                    <p>لا يوجد موظفين</p>
+                ) : (
+                    <>
+                    <div className="sales-table-container">
+                        <table className="sales-table">
+                            <thead>
+                                <tr>
+                                    <th>اسم موظف المبيعات</th>
+                                    <th>رقم الموبايل</th>
+                                    <th>المرتب</th>
+                                    <th>تاريخ التسجيل</th>
+                                    <th>حذف</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {salesData.map(sale => (
+                                    <tr key={sale._id}>
+                                        <td>{sale.username}</td>
+                                        <td>{sale.phone}</td>
+                                        <td>{sale.salary}</td>
+                                        <td>{new Date(sale.createdAt).toLocaleDateString()}</td>
+                                        <td>
+                                            <button
+                                                onClick={() => handleDelete(sale._id)}
+                                                className="sales-delete-btn"
+                                            >
+                                                حذف
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                        <div className="sales-pagination">
+                            <button
+                                onClick={() => handlePageChange(currentPage - 1)}
+                                disabled={currentPage === 1}
+                                className="sales-pagination-button"
+                            >
+                                السابق
+                            </button>
+                            <span>الصفحة {currentPage} من {totalPages}</span>
+                            <button
+                                onClick={() => handlePageChange(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                                className="sales-pagination-button"
+                            >
+                                التالي
+                            </button>
+                        </div>
+                       
+                    </>
+                )}
             </div>
         </>
     );

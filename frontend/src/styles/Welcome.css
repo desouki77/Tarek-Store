@@ -10,10 +10,12 @@
     color: #333; /* Dark text color */
     text-align: center; /* Center the text */
     font-family: 'Arial', sans-serif; /* Font family */
+    margin: 0;
+    padding: 0;
 }
 
 .welcome-container img {
-    width: 650px; /* Set a fixed width for the logo */
+    width: 600px; /* Set a fixed width for the logo */
     height: auto; /* Maintain aspect ratio */
 }
 
