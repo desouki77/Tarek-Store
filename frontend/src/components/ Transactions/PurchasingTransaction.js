@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Navbar from '../Navbar';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -10,56 +10,148 @@ const PurchasingTransaction = () => {
   const [transactions, setTransactions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const navigate = useNavigate();
-
   const userId = localStorage.getItem('userId');
   const branchId = localStorage.getItem('branchId');
   const role = localStorage.getItem('role');
+  const type = localStorage.getItem('transactionType');
   const isAdmin = role === 'admin';
+  
+  // Suppliers state initialized as an empty array to prevent map errors
+  const [suppliers, setSuppliers] = useState([]); 
 
-  const fetchUserData = async (userId, branchId) => {
+  const [supplier, setSupplier] = useState({
+    name: '',
+    phoneNumber: '',
+    company: '',
+    notes: '',
+    moneyOwed: '',
+  });
+  
+  const [selectedSupplier, setSelectedSupplier] = useState(''); 
+
+  // Fetch suppliers from API
+  useEffect(() => {
+    const fetchSuppliers = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/suppliers');
+        if (response.data.suppliers && Array.isArray(response.data.suppliers)) {
+          setSuppliers(response.data.suppliers); // استخدم فقط الـ suppliers من الاستجابة
+        } else {
+          setSuppliers([]); // في حالة عدم وجود الموردين
+        }
+      } catch (error) {
+        console.error('Error fetching suppliers:', error);
+        setSuppliers([]); // في حال فشل الاتصال
+      }
+    };
+    fetchSuppliers();
+  }, []);
+
+  const fetchUserData = useCallback(async (userId) => {
     try {
       const userResponse = await axios.get(`http://localhost:5000/api/users/${userId}`);
-      const branchResponse = await axios.get(`http://localhost:5000/api/branches/${branchId}`);
-      return { 
-        userName: userResponse.data.username, 
-        branchName: branchResponse.data.name 
-      };
+      return { userName: userResponse.data.username };
     } catch (error) {
-      console.error("Error fetching user or branch data:", error);
-      return { userName: 'Unknown', branchName: 'Unknown' };
+      console.error("Error fetching user", error);
+      return { userName: 'Unknown' };
+    }
+  }, []);
+
+  const fetchTransactions = useCallback(
+    async (page) => {
+      setIsLoading(true);
+      setError(null);
+
+      const today = new Date();
+      const startDate = new Date(today.setHours(0, 0, 0, 0)).toISOString();
+      const endDate = new Date(today.setHours(23, 59, 59, 999)).toISOString();
+
+      if (!branchId) {
+        console.error('Branch ID is not available.');
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const response = await axios.get('http://localhost:5000/api/transactions/daypurchasing', {
+          params: { branchId, startDate, endDate, page, limit: 5 },
+        });
+
+        const transactionsWithUserData = await Promise.all(
+          response.data.transactions.map(async (transaction) => {
+            const { userName } = await fetchUserData(transaction.user);
+            return { ...transaction, userName };
+          })
+        );
+
+        setTransactions(transactionsWithUserData);
+        setCurrentPage(response.data.currentPage);
+        setTotalPages(response.data.totalPages);
+      } catch (error) {
+        console.error('Error fetching transactions:', error);
+        setError(error.message);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [branchId, fetchUserData]
+  );
+
+  useEffect(() => {
+    fetchTransactions(currentPage);
+  }, [fetchTransactions, currentPage]);
+
+  const goToAllTransactions = () => {
+    navigate('/all-transactions');
+  };
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
+
+  const handleSupplierChange = (e) => {
+    setSelectedSupplier(e.target.value);
+    if (e.target.value === 'new') {
+      setSupplier({ name: '', phoneNumber: '', company: '', notes: '', moneyOwed: '' });
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (!userId || !branchId) {
       console.error("User ID or branch ID is not set in localStorage");
       return;
     }
-  
+
     setIsLoading(true);
     setError(null);
-  
+
     try {
+      const finalSupplier = selectedSupplier === 'new' ? supplier : { name: selectedSupplier };
+
       const response = await axios.post('http://localhost:5000/api/transactions/purchasing', {
+        branchId,
         user: userId,
-        type: localStorage.getItem('transactionType'),
+        type,
         description,
         amount: parseFloat(amount),
-        branch: branchId,
         date: new Date(),
+        supplier: finalSupplier,
       });
-  
-      const { userName, branchName } = await fetchUserData(response.data.user, response.data.branch);
-  
-      const newTransaction = { ...response.data, userName, branchName };
-      setTransactions([newTransaction, ...transactions]);
-  
+
+      const newTransaction = response.data;
+      setTransactions((prevTransactions) => [newTransaction, ...prevTransactions]);
       setDescription('');
       setAmount('');
+      setSupplier({ name: '', phoneNumber: '', company: '', notes: '', moneyOwed: '' });
+      setSelectedSupplier('');
     } catch (error) {
       console.error("Error adding transaction:", error.response ? error.response.data : error.message);
       setError(error.message);
@@ -68,51 +160,11 @@ const PurchasingTransaction = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchTransactions = async () => {
-      setIsLoading(true);
-      setError(null);
-
-      const today = new Date().toISOString().split('T')[0];
-
-      try {
-        const response = await axios.get('http://localhost:5000/api/transactions/purchasing', {
-          params: { date: today },
-        });
-
-        const transactionsWithUserData = await Promise.all(
-          response.data.transactions.map(async (transaction) => {
-            const { userName, branchName } = await fetchUserData(transaction.user, transaction.branch);
-            return {
-              ...transaction,
-              userName,
-              branchName,
-            };
-          })
-        );
-
-        setTransactions(transactionsWithUserData);
-      } catch (error) {
-        console.error("Error fetching transactions:", error);
-        setError(error.message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchTransactions();
-  }, []);
-
-  const goToAllTransactions = () => {
-    navigate('/all-transactions');
-  };
-
   return (
     <>
       <Navbar isAdmin={isAdmin} />
-    
-      <div className='input-transaction'>
-        <h2>مشتروات</h2>
+      <div className="input-transaction">
+        <h1>مشتروات</h1>
         <form className="input-transaction-form" onSubmit={handleSubmit}>
           <input
             type="text"
@@ -130,6 +182,69 @@ const PurchasingTransaction = () => {
             required
             className="input-transaction-input"
           />
+          <h1>اختيار أو إضافة مورد</h1>
+          <select
+            value={selectedSupplier}
+            onChange={handleSupplierChange}
+            className="input-transaction-input"
+          >
+            <option value="">اختر مورد</option>
+            {suppliers.map((supplier) => (
+              <option key={supplier._id} value={supplier.name}>
+                {supplier.name}
+              </option>
+            ))}
+            <option value="new">إضافة مورد جديد</option>
+          </select>
+
+          {selectedSupplier === 'new' && (
+            <>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={supplier.name}
+                onChange={(e) => setSupplier({ ...supplier, name: e.target.value })}
+                className="input-transaction-input"
+                placeholder="اسم المورد"
+              />
+              <input
+                type="text"
+                id="phoneNumber"
+                name="phoneNumber"
+                value={supplier.phoneNumber}
+                onChange={(e) => setSupplier({ ...supplier, phoneNumber: e.target.value })}
+                className="input-transaction-input"
+                placeholder="رقم الموبايل"
+              />
+              <input
+                type="text"
+                id="company"
+                name="company"
+                value={supplier.company}
+                onChange={(e) => setSupplier({ ...supplier, company: e.target.value })}
+                className="input-transaction-input"
+                placeholder="الشركة"
+              />
+              <textarea
+                id="notes"
+                name="notes"
+                value={supplier.notes}
+                onChange={(e) => setSupplier({ ...supplier, notes: e.target.value })}
+                className="input-transaction-input"
+                placeholder="تعليقات"
+              ></textarea>
+              <input
+                type="text"
+                id="moneyOwed"
+                name="moneyOwed"
+                value={supplier.moneyOwed}
+                onChange={(e) => setSupplier({ ...supplier, moneyOwed: e.target.value })}
+                className="input-transaction-input"
+                placeholder="المبلغ المستحق"
+              />
+            </>
+          )}
           <button type="submit" className="input-transaction-button">
             اضافة
           </button>
@@ -144,28 +259,49 @@ const PurchasingTransaction = () => {
         ) : (
           <>
             <h3>المعاملات اليوم</h3>
-            <table className="input-transaction-table">
-              <thead>
-                <tr>
-                  <th>الوصف</th>
-                  <th>المبلغ</th>
-                  <th>التاريخ</th>
-                  <th>الوقت</th>
-                  <th>المستخدم</th>
-                </tr>
-              </thead>
-              <tbody>
-                {transactions.map((transaction) => (
-                  <tr key={transaction._id}>
-                    <td>{transaction.description}</td>
-                    <td>{transaction.amount}</td>
-                    <td>{new Date(transaction.date).toLocaleDateString()}</td>
-                    <td>{new Date(transaction.date).toLocaleTimeString()}</td>
-                    <td>{transaction.userName}</td>
+            <div className="input-transaction-table-container">
+              <table className="input-transaction-table">
+                <thead>
+                  <tr>
+                    <th>الوصف</th>
+                    <th>المبلغ</th>
+                    <th>المورد</th>
+                    <th>التاريخ</th>
+                    <th>الوقت</th>
+                    <th>المستخدم</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {transactions.map((transaction) => (
+                    <tr key={transaction._id}>
+                      <td>{transaction.description}</td>
+                      <td>{transaction.amount}</td>
+                      <td>{transaction.supplier ? transaction.supplier.name : 'غير متوفر'}</td>
+                      <td>{new Date(transaction.date).toLocaleDateString()}</td>
+                      <td>{new Date(transaction.date).toLocaleTimeString()}</td>
+                      <td>{transaction.userName}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="input-transaction-pagination">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="input-transaction-page-button"
+              >
+                السابق
+              </button>
+              <span>الصفحة {currentPage} من {totalPages}</span>
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="input-transaction-page-button"
+              >
+                التالي
+              </button>
+            </div>
           </>
         )}
 

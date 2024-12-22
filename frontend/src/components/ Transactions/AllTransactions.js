@@ -33,20 +33,20 @@ const AllTransactions = () => {
             setError('Branch ID is missing.');
             return;
         }
-
+    
         if (!transactionType) {
             setError('Transaction type is missing.');
             return;
         }
-
+    
         setLoading(true); // Start loading
         try {
             let url = `http://localhost:5000/api/transactions/${transactionType}?branchId=${branchId}&page=${page}&limit=${limit}`;
             if (startDate) url += `&startDate=${startDate}`;
             if (endDate) url += `&endDate=${endDate}`;
-
+    
             const response = await axios.get(url);
-
+    
             if (response.data.transactions.length === 0 && page === 1) {
                 setTransactions([]);
                 setTotalPages(1);
@@ -54,11 +54,13 @@ const AllTransactions = () => {
             } else {
                 const transactionsWithUserData = await Promise.all(
                     response.data.transactions.map(async (transaction) => {
+                        // Check if the supplier exists before accessing the name
+                        const supplierName = transaction.supplierName || 'غير معروف'; // Default if supplier is null or undefined
                         const userName = await fetchUserData(transaction.user);
-                        return { ...transaction, userName };
+                        return { ...transaction, userName, supplierName };
                     })
                 );
-
+    
                 setTransactions(transactionsWithUserData);
                 setTotalPages(response.data.totalPages || 1); // Update total pages from API
                 setError('');
@@ -71,6 +73,7 @@ const AllTransactions = () => {
             setLoading(false); // Stop loading
         }
     }, [branchId, transactionType, startDate, endDate]); // Dependencies
+    
 
     useEffect(() => {
         fetchAllTransactions(currentPage);
@@ -117,6 +120,7 @@ const AllTransactions = () => {
                                 <tr>
                                     <th>الوصف</th>
                                     <th>المبلغ</th>
+                                    {transactionType === 'purchasing' && <th>اسم المورد</th>} {/* إضافة عمود المورد فقط إذا كانت المعاملة شراء */}
                                     <th>التاريخ</th>
                                     <th>الوقت</th>
                                     <th>المستخدم</th>
@@ -127,6 +131,7 @@ const AllTransactions = () => {
                                     <tr key={transaction._id}>
                                         <td>{transaction.description}</td>
                                         <td>{transaction.amount}</td>
+                                        {transactionType === 'purchasing' && <td>{transaction.supplierName}</td>} {/* عرض المورد فقط إذا كانت المعاملة شراء */}
                                         <td>{new Date(transaction.date).toLocaleDateString()}</td>
                                         <td>{new Date(transaction.date).toLocaleTimeString()}</td>
                                         <td>{transaction.userName}</td>

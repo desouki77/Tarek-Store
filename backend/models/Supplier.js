@@ -19,7 +19,7 @@ const supplierSchema = new mongoose.Schema({
         required: false,
     },
     moneyOwed: {
-        type: Number,
+        type: String,
         required: false,
     }
 }, {

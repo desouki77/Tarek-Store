@@ -3,6 +3,8 @@ const router = express.Router();
 const Transaction = require('../models/Transaction');
 const User = require('../models/User');
 const validateBranchId = require('../middlewares/validateBranch');
+const Supplier = require('../models/Supplier'); // تأكد من استيراد نموذج المورد
+
 
 
 // Create a transaction with a specific type (e.g., "input")
@@ -565,14 +567,55 @@ router.get('/customer_payment', async (req, res) => {
 });
 
 
-// Create a transaction with a specific type (e.g., "recharge")
-router.post('/purchasing', async (req, res) => {
-    const transaction = new Transaction({
-        ...req.body,
-        type: 'purchasing', // Ensure type is set to "recharge" for RechargeTransaction component
-    });
+   
+     
+  
+router.post('/purchasing', validateBranchId, async (req, res) => {
+    const { branchId, description, amount, user, type, date, supplier } = req.body;
+
+    if (!branchId) {
+        return res.status(400).json({ message: 'branchId is required' });
+    }
 
     try {
+        // إذا كان المورد موجودًا في الطلب، تحقق من وجوده في قاعدة البيانات
+        if (supplier && supplier.name) {
+            // حاول العثور على المورد في قاعدة البيانات
+            let existingSupplier = await Supplier.findOne({ name: supplier.name });
+
+            if (!existingSupplier) {
+                // إذا لم يكن المورد موجودًا، قم بإنشائه
+                existingSupplier = new Supplier({
+                    name: supplier.name,
+                    phoneNumber: supplier.phoneNumber,
+                    company: supplier.company,
+                    notes: supplier.notes,
+                    moneyOwed: supplier.moneyOwed || 0,
+                });
+            }
+
+            // تحديث المبلغ المستحق للمورد بطرح المبلغ المدفوع
+            existingSupplier.moneyOwed = Math.max(0, existingSupplier.moneyOwed - amount);
+
+            // حفظ المورد بعد التحديث
+            await existingSupplier.save();
+
+            // قم بتعيين supplierId إلى معرف المورد الموجود أو الجديد
+            supplierId = existingSupplier._id;
+        }
+
+        // إنشاء المعاملة باستخدام supplierId
+        const transaction = new Transaction({
+            description,
+            amount,
+            user,
+            type: 'purchasing',
+            branchId,
+            date,
+            supplier: supplierId, // قم بتمرير supplierId هنا
+        });
+
+        // حفظ المعاملة
         const savedTransaction = await transaction.save();
         res.status(201).json(savedTransaction);
     } catch (error) {
@@ -580,30 +623,108 @@ router.post('/purchasing', async (req, res) => {
     }
 });
 
-router.get('/purchasing', async (req, res) => {
-    const { startDate, endDate } = req.query;
+
+
+
+router.get('/daypurchasing', validateBranchId, async (req, res) => {
+    const { branchId, startDate, endDate, page = 1, limit = 10 } = req.query;
+
+    if (!branchId) {
+        return res.status(400).json({ message: 'branchId is required' });
+    }
 
     try {
-        // Set the date range based on the provided startDate and endDate, or use today's date range by default
         const startOfDay = startDate ? new Date(startDate) : new Date();
         const endOfDay = endDate ? new Date(endDate) : new Date();
 
-        // Default to the start and end of the current day if no date filters are provided
         if (!startDate) startOfDay.setHours(0, 0, 0, 0);
         if (!endDate) endOfDay.setHours(23, 59, 59, 999);
 
         const query = {
             type: 'purchasing',
+            branchId: branchId,
             date: { $gte: startOfDay, $lte: endOfDay },
         };
 
-        // Return all transactions for the given date range
-        const transactions = await Transaction.find(query).sort({ date: -1 });
-        res.json({ transactions });
+        const skip = (page - 1) * limit;
+
+        // العثور على المعاملات مع تضمين بيانات المورد
+        const transactions = await Transaction.find(query)
+            .populate('supplier', 'name')  // جلب اسم المورد فقط
+            .sort({ date: -1 })
+            .skip(skip)
+            .limit(parseInt(limit));
+
+        const totalTransactions = await Transaction.countDocuments(query);
+        const totalPages = Math.ceil(totalTransactions / limit);
+
+        res.json({
+            transactions,
+            totalTransactions,
+            totalPages,
+            currentPage: parseInt(page),
+        });
     } catch (error) {
         res.status(500).json({ error: "Failed to retrieve transactions: " + error.message });
     }
 });
+
+
+router.get('/purchasing', validateBranchId, async (req, res) => {
+    const { branchId, startDate, endDate, page = 1, limit = 10 } = req.query;
+
+    if (!branchId) {
+        return res.status(400).json({ message: 'branchId is required' });
+    }
+
+    try {
+        const query = {
+            type: 'purchasing',
+            branchId: branchId,
+        };
+        
+        if (startDate || endDate) {
+            const startOfDay = startDate ? new Date(startDate) : new Date();
+            const endOfDay = endDate ? new Date(endDate) : new Date();
+        
+            if (!startDate) startOfDay.setHours(0, 0, 0, 0);
+            if (!endDate) endOfDay.setHours(23, 59, 59, 999);
+        
+            query.date = { $gte: startOfDay, $lte: endOfDay };
+        }
+
+        const skip = (page - 1) * limit; // Calculate how many documents to skip
+
+        // Find transactions with pagination and populate supplier data
+        const transactions = await Transaction.find(query)
+            .sort({ date: -1 })
+            .skip(skip)
+            .limit(parseInt(limit)) // Limit the number of documents
+            .populate('supplier', 'name'); // Populate supplier field and return only the 'name' field
+
+        const totalTransactions = await Transaction.countDocuments(query); // Total count for pagination
+        const totalPages = Math.ceil(totalTransactions / limit);
+
+        // Include supplier information in the response
+        const transactionsWithSupplier = transactions.map(transaction => ({
+            ...transaction.toObject(),
+            supplierName: transaction.supplier ? transaction.supplier.name : 'غير معروف',
+        }));
+
+        res.json({
+            transactions: transactionsWithSupplier,
+            totalTransactions,
+            totalPages,
+            currentPage: parseInt(page),
+        });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to retrieve transactions: " + error.message });
+    }
+});
+
+
+
+
 
 
 // Create a transaction with a specific type (e.g., "recharge")

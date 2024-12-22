@@ -9,7 +9,7 @@ const Suppliers = () => {
         phoneNumber: '',
         company: '',
         notes: '',
-        moneyOwed: 0,
+        moneyOwed: '',
     });
     const [message, setMessage] = useState('');
     const [suppliers, setSuppliers] = useState([]);
