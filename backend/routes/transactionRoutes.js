@@ -5,8 +5,6 @@ const User = require('../models/User');
 const validateBranchId = require('../middlewares/validateBranch');
 const Supplier = require('../models/Supplier'); // تأكد من استيراد نموذج المورد
 
-
-
 // Create a transaction with a specific type (e.g., "input")
 router.post('/input', validateBranchId, async (req, res) => {
     const { branchId, description, amount, user, type, date } = req.body;
@@ -31,7 +29,6 @@ router.post('/input', validateBranchId, async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 });
-
 
 router.get('/dayinput', validateBranchId, async (req, res) => {
     const { branchId, startDate, endDate, page = 1, limit = 10 } = req.query;
@@ -121,7 +118,6 @@ router.get('/input', validateBranchId, async (req, res) => {
     }
 });
 
-
 // Create a transaction with a specific type (e.g., "output")
 router.post('/output', validateBranchId, async (req, res) => {
     const { branchId, description, amount, user, type, date } = req.body;
@@ -146,7 +142,6 @@ router.post('/output', validateBranchId, async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 });
-
 
 router.get('/dayoutput', validateBranchId, async (req, res) => {
     const { branchId, startDate, endDate, page = 1, limit = 10 } = req.query;
@@ -236,10 +231,7 @@ router.get('/output', validateBranchId, async (req, res) => {
     }
 });
 
-
-
-
-// Create a transaction with a specific type (e.g., "output")
+// Create a transaction with a specific type (e.g., "recharge")
 router.post('/recharge', validateBranchId, async (req, res) => {
     const { branchId, description, amount, user, type, date } = req.body;
 
@@ -263,7 +255,6 @@ router.post('/recharge', validateBranchId, async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 });
-
 
 router.get('/dayrecharge', validateBranchId, async (req, res) => {
     const { branchId, startDate, endDate, page = 1, limit = 10 } = req.query;
@@ -353,8 +344,7 @@ router.get('/recharge', validateBranchId, async (req, res) => {
     }
 });
 
-
-// Create a transaction with a specific type (e.g., "output")
+// Create a transaction with a specific type (e.g., "maintenance")
 router.post('/maintenance', validateBranchId, async (req, res) => {
     const { branchId, description, amount, user, type, date } = req.body;
 
@@ -378,7 +368,6 @@ router.post('/maintenance', validateBranchId, async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 });
-
 
 router.get('/daymaintenance', validateBranchId, async (req, res) => {
     const { branchId, startDate, endDate, page = 1, limit = 10 } = req.query;
@@ -468,8 +457,7 @@ router.get('/maintenance', validateBranchId, async (req, res) => {
     }
 });
 
-
-
+// Create a transaction with a specific type (e.g., "supplier_payment")
 router.post('/supplier_payment', validateBranchId, async (req, res) => {
     const { branchId, description, amount, user, type, date, supplier } = req.body;
 
@@ -514,10 +502,6 @@ router.post('/supplier_payment', validateBranchId, async (req, res) => {
     }
 });
 
-
-
-
-
 router.get('/daysupplier_payment', validateBranchId, async (req, res) => {
     const { branchId, startDate, endDate, page = 1, limit = 10 } = req.query;
 
@@ -560,7 +544,6 @@ router.get('/daysupplier_payment', validateBranchId, async (req, res) => {
         res.status(500).json({ error: "Failed to retrieve transactions: " + error.message });
     }
 });
-
 
 router.get('/supplier_payment', validateBranchId, async (req, res) => {
     const { branchId, startDate, endDate, page = 1, limit = 10 } = req.query;
@@ -614,12 +597,7 @@ router.get('/supplier_payment', validateBranchId, async (req, res) => {
     }
 });
 
-
-
-
-
-
-// Create a transaction with a specific type (e.g., "recharge")
+// Create a transaction with a specific type (e.g., "customer_payment")
 router.post('/customer_payment', async (req, res) => {
     const transaction = new Transaction({
         ...req.body,
@@ -659,10 +637,7 @@ router.get('/customer_payment', async (req, res) => {
     }
 });
 
-
-   
-     
-  
+// Create a transaction with a specific type (e.g., "purchasing")
 router.post('/purchasing', validateBranchId, async (req, res) => {
     const { branchId, description, amount, user, type, date, supplier } = req.body;
 
@@ -716,9 +691,6 @@ router.post('/purchasing', validateBranchId, async (req, res) => {
     }
 });
 
-
-
-
 router.get('/daypurchasing', validateBranchId, async (req, res) => {
     const { branchId, startDate, endDate, page = 1, limit = 10 } = req.query;
 
@@ -761,7 +733,6 @@ router.get('/daypurchasing', validateBranchId, async (req, res) => {
         res.status(500).json({ error: "Failed to retrieve transactions: " + error.message });
     }
 });
-
 
 router.get('/purchasing', validateBranchId, async (req, res) => {
     const { branchId, startDate, endDate, page = 1, limit = 10 } = req.query;
@@ -815,12 +786,7 @@ router.get('/purchasing', validateBranchId, async (req, res) => {
     }
 });
 
-
-
-
-
-
-// Create a transaction with a specific type (e.g., "recharge")
+// Create a transaction with a specific type (e.g., "returns")
 router.post('/returns', async (req, res) => {
     const transaction = new Transaction({
         ...req.body,
@@ -860,7 +826,7 @@ router.get('/returns', async (req, res) => {
     }
 });
 
-// Create a transaction with a specific type (e.g., "recharge")
+// Create a transaction with a specific type (e.g., "output_staff")
 router.post('/output_staff', async (req, res) => {
     const { user, description, amount, branch, date } = req.body;
 
@@ -926,7 +892,7 @@ router.get('/output_staff', async (req, res) => {
     }
 });
 
-// Create a transaction with a specific type (e.g., "recharge")
+// Create a transaction with a specific type (e.g., "warranty")
 router.post('/warranty', async (req, res) => {
     const transaction = new Transaction({
         ...req.body,
@@ -965,8 +931,5 @@ router.get('/warranty', async (req, res) => {
         res.status(500).json({ error: "Failed to retrieve transactions: " + error.message });
     }
 });
-
-
-
 
 module.exports = router;
