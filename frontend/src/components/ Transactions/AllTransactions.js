@@ -120,7 +120,9 @@ const AllTransactions = () => {
                                 <tr>
                                     <th>الوصف</th>
                                     <th>المبلغ</th>
-                                    {transactionType === 'purchasing' && <th>اسم المورد</th>} {/* إضافة عمود المورد فقط إذا كانت المعاملة شراء */}
+                                    {(transactionType === 'purchasing' || transactionType === 'supplier_payment') && (
+                                        <th>اسم المورد</th>
+                                    )} {/* إضافة عمود المورد إذا كانت المعاملة شراء أو دفع للمورد */}
                                     <th>التاريخ</th>
                                     <th>الوقت</th>
                                     <th>المستخدم</th>
@@ -131,7 +133,9 @@ const AllTransactions = () => {
                                     <tr key={transaction._id}>
                                         <td>{transaction.description}</td>
                                         <td>{transaction.amount}</td>
-                                        {transactionType === 'purchasing' && <td>{transaction.supplierName}</td>} {/* عرض المورد فقط إذا كانت المعاملة شراء */}
+                                        {(transactionType === 'purchasing' || transactionType === 'supplier_payment') && (
+                                            <td>{transaction.supplierName}</td>
+                                        )} {/* عرض المورد إذا كانت المعاملة شراء أو دفع للمورد */}
                                         <td>{new Date(transaction.date).toLocaleDateString()}</td>
                                         <td>{new Date(transaction.date).toLocaleTimeString()}</td>
                                         <td>{transaction.userName}</td>

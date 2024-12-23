@@ -57,6 +57,7 @@
     border-collapse: collapse;
     margin-top: 20px;
     overflow: hidden;
+    margin: 0 auto; /* لجعل الجدول في المنتصف */
 }
 
 .suppliers-table th,
@@ -123,12 +124,71 @@
     border: none;
     padding: 5px 10px;
     cursor: pointer;
+   margin: 5px;
 }
 
 .suppliers-delete-button:hover {
     background-color: #c82333;
 }
 
+
+/* Button Styles */
+.suppliers-edit-button{
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    margin: 5px;
+
+    
+}
+.supplier-update-button,
+.supplier-cancel-button {
+    padding: 5px 10px;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  margin: 5px;
+}
+
+
+
+
+
+
+.supplier-update-button {
+  background-color: #2196F3;
+  color: white;
+  width: 150px !important;
+}
+
+.supplier-cancel-button {
+  background-color: #ccc;
+  color: black;
+  width: 100px !important;
+}
+
+/* Edit Form Styles */
+.supplier-edit-form-row {
+  background-color: #f4f4f4;
+}
+
+.supplier-form-group {
+  margin-bottom: 15px;
+  box-sizing: border-box;
+  width: 100%; /* Ensure full width for each input field */
+}
+
+
+
+.supplier-edit-form {
+  padding: 20px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+  width: 100%; /* Ensure the form fits the width */
+}
 
 /* Responsive Design */
 @media (max-width: 768px) {

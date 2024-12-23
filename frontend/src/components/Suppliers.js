@@ -65,12 +65,42 @@ const Suppliers = () => {
             setMessage('خطأ في مسح المورد');
             console.error(error);
         }
+
+       
     }
     };
 
     useEffect(() => {
         fetchSuppliers();
     }, []);
+
+    const [editingSuppliertId, setEditingSupplierId] = useState(null); // Track the supplier being edited
+    const [editFormData, setEditFormData] = useState({}); // Store form data for editing
+        
+    const handleEditClick = (editSupplier) => {
+        setEditingSupplierId(editSupplier._id); // Set the ID of the supplier to be edited
+        setEditFormData(editSupplier); // Pre-fill the form with the supplier data
+      };
+
+      const handleEditSubmit = async (e) => {
+        e.preventDefault();
+        try {
+          await axios.put(`http://localhost:5000/api/suppliers/id/${editingSuppliertId}`, editFormData);
+          // Update the products state with the edited product
+          setSuppliers(suppliers.map(editSupplier => (editSupplier._id === editingSuppliertId ? { ...editSupplier, ...editFormData } : editSupplier)));
+          setEditingSupplierId(null); // Reset the editing state
+        } catch (error) {
+          console.error('Error updating product:', error);
+          alert('فشل تحديث المنتج.'); // Alert in Arabic
+        }
+      };
+
+    const handleEditChange = (e) => {
+        const { name, value } = e.target;
+        setEditFormData({ ...editFormData, [name]: value }); // Update form data on change
+      };
+
+
 
     return (
         <>
@@ -158,11 +188,12 @@ const Suppliers = () => {
                                     <th>الشركة</th>
                                     <th>التعليقات</th>
                                     <th>المبلغ المستحق</th>
-                                    {isAdmin && <th>حذف</th>}
+                                    <th>عمليات</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {suppliers.map((sup, index) => (
+                                    <React.Fragment key={sup._id}>
                                     <tr key={index}>
                                         <td>{sup.name}</td>
                                         <td>{sup.phoneNumber}</td>
@@ -170,17 +201,41 @@ const Suppliers = () => {
                                         <td>{sup.notes || 'N/A'}</td>
                                         <td>{sup.moneyOwed || 0}</td>
 
-                                        {isAdmin && (
+                                        
                                             <td>
+                                            <button className="suppliers-edit-button" onClick={() => handleEditClick(sup)}>تعديل</button>
+
                                                 <button
                                                     onClick={() => handleDeleteSupplier(sup._id)}
                                                     className="suppliers-delete-button"
                                                 >
                                                     حذف
                                                 </button>
+
                                             </td>
-                                        )}
                                     </tr>
+                                    {editingSuppliertId === sup._id && (
+                                        <tr className="supplier-edit-form-row">
+                                          <td colSpan={10}>
+                                            <form onSubmit={handleEditSubmit} className="supplier-edit-form">
+                                              <div className="supplier-form-group">
+                                                <label>المبلغ المستحق:</label>
+                                                <input
+                                                  type="test"
+                                                  name="moneyOwed"
+                                                  value={editFormData.moneyOwed || ''}
+                                                  onChange={handleEditChange}
+                                                  required
+                                                  className="supplier-form-input"
+                                                />
+                                              </div>
+                                              <button type="submit" className="supplier-update-button">تحديث المورد</button>
+                                              <button type="button" onClick={() => setEditingSupplierId(null)} className="supplier-cancel-button">إلغاء</button>
+                                            </form>
+                                          </td>
+                                        </tr>
+                                      )}
+                                      </React.Fragment>
                                 ))}
                             </tbody>
                         </table>

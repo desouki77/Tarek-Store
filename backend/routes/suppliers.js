@@ -53,4 +53,27 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
+// Route to update a supplier by ID 
+router.put('/id/:id', async (req, res) => {
+    const { id } = req.params; // Get the supplier ID from the URL
+    const { ...updatedData } = req.body; 
+  
+    try {
+      const supplier = await Supplier.findOneAndUpdate(
+        { _id: id }, 
+        updatedData, 
+        { new: true } 
+      );
+  
+      if (!supplier) {
+        return res.status(404).json({ message: 'المورد غير متوفر' });
+      }
+  
+      res.json({ message: 'تم تحديث المورد بنجاح', supplier });
+    } catch (error) {
+      console.error('خطأ في تحديث المورد', error);
+      res.status(500).json({ message: 'خطأ في السيرفر' });
+    }
+  });
+
 module.exports = router;

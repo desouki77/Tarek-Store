@@ -470,35 +470,56 @@ router.get('/maintenance', validateBranchId, async (req, res) => {
 
 
 
-
-// Create a transaction with a specific type (e.g., "supplier_payment")
 router.post('/supplier_payment', validateBranchId, async (req, res) => {
-    const { branchId, description, amount, user, type, date } = req.body;
+    const { branchId, description, amount, user, type, date, supplier } = req.body;
 
     if (!branchId) {
         return res.status(400).json({ message: 'branchId is required' });
     }
 
-    const transaction = new Transaction({
-        description,
-        amount,
-        user,
-        type: 'supplier_payment',
-        branchId,  // Using branchId from the request body
-        date
-    });
-
     try {
+        let supplierId = null;
+
+        // Validate and fetch supplier if provided
+        if (supplier) {
+            const existingSupplier = await Supplier.findOne({ name: supplier });
+
+            if (!existingSupplier) {
+                return res.status(400).json({ message: 'Supplier not found' });
+            }
+
+            // Update the owed amount
+            existingSupplier.moneyOwed = Math.max(0, existingSupplier.moneyOwed - amount);
+            await existingSupplier.save();
+
+            supplierId = existingSupplier._id; // Get supplier ID
+        }
+
+        // Save the transaction
+        const transaction = new Transaction({
+            branchId,
+            description,
+            amount,
+            user,
+            type,
+            date,
+            supplier: supplierId, // Use supplier ID if available
+        });
+
         const savedTransaction = await transaction.save();
         res.status(201).json(savedTransaction);
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        console.error('Error saving transaction:', error);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 });
 
 
-router.get('/supplier_payment', validateBranchId, async (req, res) => {
-    const { branchId, startDate, endDate } = req.query;
+
+
+
+router.get('/daysupplier_payment', validateBranchId, async (req, res) => {
+    const { branchId, startDate, endDate, page = 1, limit = 10 } = req.query;
 
     if (!branchId) {
         return res.status(400).json({ message: 'branchId is required' });
@@ -517,12 +538,84 @@ router.get('/supplier_payment', validateBranchId, async (req, res) => {
             date: { $gte: startOfDay, $lte: endOfDay },
         };
 
-        const transactions = await Transaction.find(query).sort({ date: -1 });
-        res.json({ transactions });
+        const skip = (page - 1) * limit;
+
+        // العثور على المعاملات مع تضمين بيانات المورد
+        const transactions = await Transaction.find(query)
+            .populate('supplier', 'name')  // جلب اسم المورد فقط
+            .sort({ date: -1 })
+            .skip(skip)
+            .limit(parseInt(limit));
+
+        const totalTransactions = await Transaction.countDocuments(query);
+        const totalPages = Math.ceil(totalTransactions / limit);
+
+        res.json({
+            transactions,
+            totalTransactions,
+            totalPages,
+            currentPage: parseInt(page),
+        });
     } catch (error) {
         res.status(500).json({ error: "Failed to retrieve transactions: " + error.message });
     }
 });
+
+
+router.get('/supplier_payment', validateBranchId, async (req, res) => {
+    const { branchId, startDate, endDate, page = 1, limit = 10 } = req.query;
+
+    if (!branchId) {
+        return res.status(400).json({ message: 'branchId is required' });
+    }
+
+    try {
+        const query = {
+            type: 'supplier_payment',
+            branchId: branchId,
+        };
+        
+        if (startDate || endDate) {
+            const startOfDay = startDate ? new Date(startDate) : new Date();
+            const endOfDay = endDate ? new Date(endDate) : new Date();
+        
+            if (!startDate) startOfDay.setHours(0, 0, 0, 0);
+            if (!endDate) endOfDay.setHours(23, 59, 59, 999);
+        
+            query.date = { $gte: startOfDay, $lte: endOfDay };
+        }
+
+        const skip = (page - 1) * limit; // Calculate how many documents to skip
+
+        // Find transactions with pagination and populate supplier data
+        const transactions = await Transaction.find(query)
+            .sort({ date: -1 })
+            .skip(skip)
+            .limit(parseInt(limit)) // Limit the number of documents
+            .populate('supplier', 'name'); // Populate supplier field and return only the 'name' field
+
+        const totalTransactions = await Transaction.countDocuments(query); // Total count for pagination
+        const totalPages = Math.ceil(totalTransactions / limit);
+
+        // Include supplier information in the response
+        const transactionsWithSupplier = transactions.map(transaction => ({
+            ...transaction.toObject(),
+            supplierName: transaction.supplier ? transaction.supplier.name : 'غير معروف',
+        }));
+
+        res.json({
+            transactions: transactionsWithSupplier,
+            totalTransactions,
+            totalPages,
+            currentPage: parseInt(page),
+        });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to retrieve transactions: " + error.message });
+    }
+});
+
+
+
 
 
 
