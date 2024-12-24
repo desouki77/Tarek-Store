@@ -7,8 +7,12 @@ const router = express.Router();
 // Add a new client
 router.post('/add', async (req, res) => {
     try {
-        const { name, phoneNumber, notes } = req.body;
-        const newClient = new Client({ name, phoneNumber, notes });
+        const { name, phoneNumber, amountRequired } = req.body;
+
+        // تحويل المبلغ المتبقي إلى قيمة موجبة إذا كان سالبًا
+        const validAmountRequired = Math.abs(amountRequired);
+
+        const newClient = new Client({ name, phoneNumber, amountRequired: validAmountRequired });
         await newClient.save();
         res.status(201).json({ message: 'تم اضافة العميل بنجاح' });
     } catch (error) {
@@ -16,6 +20,7 @@ router.post('/add', async (req, res) => {
         res.status(500).json({ error: 'خطأ في اضافة العميل' });
     }
 });
+
 
 // Get a paginated list of clients
 router.get('/', async (req, res) => {

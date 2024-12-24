@@ -8,7 +8,6 @@
     direction: rtl;
 }
 
-
 /* Logo on the right side */
 .logo {
     order: 2;
@@ -80,7 +79,6 @@
 .dropdown li {
     padding: 10px;
     cursor: pointer; /* Ensures cursor pointer for all dropdown items */
-    
 }
 
 .dropdown li a {
@@ -107,26 +105,21 @@
         display: block;
         order: 0; /* Make sure it appears before the links */
     }
-    .navbar-hidden{
-        transform: translateY(-400px); /* Move navbar off-screen */
-    }
 
     .nav-links {
         display: none; /* Hide nav links by default */
         flex-direction: column; /* Stack links vertically */
-        position: absolute; /* Position the dropdown */
+        position: absolute; /* Position it above content */
         top: 60px; /* Adjust based on your navbar height */
         right: 0; /* Align to the right */
         background-color: #333; /* Same as navbar background */
         width: 100%; /* Full width */
         z-index: 10; /* Above other elements */
-
     }
 
     .nav-links.open {
         display: flex; /* Show links when burger is open */
-        padding-bottom: 40px;
-        padding-bottom: 20px;
+        padding-bottom: 30px;
     }
 
     .nav-item {
@@ -146,29 +139,23 @@
         margin: 15px 0; /* Add margin for touch targets */
     }
 
-    /* When the burger menu is open, shift the main content down */
-    body.menu-open .main-content {
-        margin-top: 400px;
+    /* Close Button Styles */
+    .close-button {
+        position: absolute; /* Positioning the close button */
+        top: 15px; /* Adjust as needed */
+        left: 20px; /* Adjust as needed */
+        cursor: pointer; /* Pointer cursor */
+        color: #ccc; /* Change color to suit your design */
+        transition: color 0.3s ease; /* Smooth transition */
+        z-index: 15; /* Above the nav links */
+        display: none; /* Initially hide the close button */
     }
-    /* Show the close button when the burger menu is open */
-.nav-links.open .close-button {
-    display: block; /* Show close button when menu is open */
-}
-}
 
-/* Close Button Styles */
-.close-button {
-    position: absolute; /* Positioning the close button */
-    top: 15px; /* Adjust as needed */
-    left: 20px; /* Adjust as needed */
-    cursor: pointer; /* Pointer cursor */
-    color: #ccc; /* Change color to suit your design */
-    transition: color 0.3s ease; /* Smooth transition */
-    z-index: 15; /* Above the nav links */
-    display: none; /* Initially hide the close button */
+    .nav-links.open .close-button {
+        display: block; /* Show close button when menu is open */
+    }
 
-}
-
-.close-button:hover {
-    color: #ffc107; /* Change color on hover */
+    .close-button:hover {
+        color: #ffc107; /* Change color on hover */
+    }
 }

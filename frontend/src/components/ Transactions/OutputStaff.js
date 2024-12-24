@@ -18,55 +18,53 @@ const OutputStaff = () => {
   const role = localStorage.getItem('role');
   const isAdmin = role === 'admin';
 
-  const fetchUserData = async (userId, branchId) => {
+  const fetchUserData = async (userId) => {
     try {
       const userResponse = await axios.get(`http://localhost:5000/api/users/${userId}`);
-      const branchResponse = await axios.get(`http://localhost:5000/api/branches/${branchId}`);
-      return { 
-        userName: userResponse.data.username, 
-        branchName: branchResponse.data.name 
-      };
+      return userResponse.data.username;
     } catch (error) {
-      console.error("Error fetching user or branch data:", error);
-      return { userName: 'Unknown', branchName: 'Unknown' };
+      console.error("Error fetching user data:", error);
+      return 'Unknown'; // Return a string directly
     }
   };
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (!userId || !branchId) {
-        console.error("User ID or branch ID is not set in localStorage");
-        return;
+      console.error("User ID or branch ID is not set in localStorage");
+      return;
     }
-
+  
     setIsLoading(true);
     setError(null);
-
+  
     try {
-        const response = await axios.post('http://localhost:5000/api/transactions/output_staff', {
-            user: userId,
-            type: localStorage.getItem('transactionType'),
-            description,
-            amount: parseFloat(amount),
-            branch: branchId,
-            date: new Date(),
-        });
-
-        const { userName, branchName } = await fetchUserData(response.data.user, response.data.branch);
-
-        const newTransaction = { ...response.data, userName, branchName };
-        setTransactions([newTransaction, ...transactions]);
-
-        setDescription('');
-        setAmount('');
+      const response = await axios.post('http://localhost:5000/api/transactions/output_staff', {
+        user: userId,
+        type: localStorage.getItem('transactionType'),
+        description,
+        amount: parseFloat(amount),
+        branchId: branchId,
+        date: new Date(),
+      });
+  
+      const userName = await fetchUserData(response.data.user);
+  
+      const newTransaction = { ...response.data, userName };
+      setTransactions([newTransaction, ...transactions]);
+  
+      setDescription('');
+      setAmount('');
     } catch (error) {
-        console.error("Error adding transaction:", error.response ? error.response.data : error.message);
-        setError(error.message);
+      console.error("Error adding transaction:", error.response ? error.response.data : error.message);
+      setError(error.message);
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
-};
+  };
+  
 
 
 
@@ -74,25 +72,24 @@ const OutputStaff = () => {
     const fetchTransactions = async () => {
       setIsLoading(true);
       setError(null);
-
+  
       const today = new Date().toISOString().split('T')[0];
-
+  
       try {
         const response = await axios.get('http://localhost:5000/api/transactions/output_staff', {
           params: { date: today },
         });
-
+  
         const transactionsWithUserData = await Promise.all(
           response.data.transactions.map(async (transaction) => {
-            const { userName, branchName } = await fetchUserData(transaction.user, transaction.branch);
+            const userName = await fetchUserData(transaction.user);
             return {
               ...transaction,
               userName,
-              branchName,
             };
           })
         );
-
+  
         setTransactions(transactionsWithUserData);
       } catch (error) {
         console.error("Error fetching transactions:", error);
@@ -101,9 +98,10 @@ const OutputStaff = () => {
         setIsLoading(false);
       }
     };
-
+  
     fetchTransactions();
   }, []);
+  
 
   const goToAllTransactions = () => {
     navigate('/all-transactions');

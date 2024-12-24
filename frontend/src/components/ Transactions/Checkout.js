@@ -77,11 +77,33 @@ const Checkout = () => {
             alert('Branch ID is missing.');
             return;
         }
-
-
     
+        // Check if the remaining amount is not zero and if client details are missing
+        if (remaining !== 0 && (!clientName || !clientPhone)) {
+            alert("هناك باقي!! برجاء ادخال اسم ورقم العميل");
+            return;
+        }
+    
+        // Create a new client if the remaining amount is not zero and client info is provided
+        if (clientName && clientPhone) {
+            try {
+                // Send a request to the backend to create a new client
+                await axios.post('http://localhost:5000/api/clients/add', {
+                    name: clientName,
+                    phoneNumber: clientPhone,
+                    amountRequired: remaining,
+                });
+                console.log('تم إضافة العميل بنجاح');
+            } catch (error) {
+                console.error('Error adding client:', error.response ? error.response.data.message : error.message);
+                alert('حدث خطأ أثناء إضافة العميل');
+                return; // Stop the process if there was an error adding the client
+            }
+        }
+    
+        // Prepare order data
         const orderData = {
-            branchId: branchId,  // Make sure the property name matches your backend's expected key (branchIs)
+            branchId: branchId, 
             checkoutItems,
             discount: Number(discount) || 0,
             paid: Number(paid) || 0,
@@ -90,37 +112,27 @@ const Checkout = () => {
             clientPhone,
             date: new Date().toLocaleDateString(),
             time: currentTime,
-        };  
-
+        };
+    
         if (!paid) {
             alert("برجاء ادخال مبلغ الدفع!!");
-            return;
-        }
-        if (remaining !== 0 && (!clientName || !clientPhone)) {
-            alert("هناك باقي!! برجائ اخذ اسم ورقم العميل");
             return;
         }
     
         try {
             // Create the order and decrease product quantities in one go
-            const response = await axios.post('http://localhost:5000/api/orders', orderData , {
-
+            const response = await axios.post('http://localhost:5000/api/orders', orderData, {
                 headers: {
                     'Content-Type': 'application/json',
                 }
             });
-
-            
     
-                    // Assuming `branchId` is available in your component or context
-                const branchId = localStorage.getItem('branchId');
-
-            // If order creation is successful, update quantities
+            // Update quantities for the products in the order
             for (const item of checkoutItems) {
                 try {
                     const response = await axios.put(`http://localhost:5000/api/products/${item.barcode}/decrease`, {
-                        quantity: 1, // Specify quantity to decrease
-                        branchId: branchId, // Ensure branchId is included in the request body
+                        quantity: 1, 
+                        branchId: branchId,
                     });
                     console.log('Quantity updated successfully:', response.data);
                 } catch (error) {
@@ -139,13 +151,11 @@ const Checkout = () => {
             setClientPhone('');
     
             window.close(); // Close the window after submitting
-    
         } catch (error) {
             console.error('Error:', error.response ? error.response.data.message : error.message);
         }
-
-
     };
+    
     
 
     const handlePrint = () => {

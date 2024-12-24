@@ -9,10 +9,12 @@ const Navbar = ({ isAdmin }) => {
     const burgerRef = useRef(null);
     const navigate = useNavigate();
 
+    // Toggle the burger menu
     const toggleBurger = () => {
         setBurgerOpen(!burgerOpen);
     };
 
+    // Close the burger menu when clicking outside
     const closeBurger = (e) => {
         if (burgerRef.current && !burgerRef.current.contains(e.target)) {
             setBurgerOpen(false);
@@ -21,11 +23,11 @@ const Navbar = ({ isAdmin }) => {
 
     useEffect(() => {
         if (burgerOpen) {
-            // Add 'menu-open' class to body when the burger menu is open
+            // Add 'menu-open' class to body to handle the open state
             document.body.classList.add('menu-open');
             window.addEventListener('click', closeBurger);
         } else {
-            // Remove 'menu-open' class from body when the burger menu is closed
+            // Remove 'menu-open' class to restore normal behavior
             document.body.classList.remove('menu-open');
             window.removeEventListener('click', closeBurger);
         }
@@ -35,26 +37,21 @@ const Navbar = ({ isAdmin }) => {
         };
     }, [burgerOpen]);
 
+    // Logout function to clear user data and redirect to login
     const handleLogout = () => {
-        // Clear user session data from localStorage
-        localStorage.removeItem('token');
-        localStorage.removeItem('role');
-        localStorage.removeItem('branchId');
-        localStorage.removeItem('branchName');
-        localStorage.removeItem('userId'); // Remove any other relevant data
-        
-        // Optionally, you could also clear all localStorage data
-        // localStorage.clear();
-    
-        // Redirect the user to the login page
-        navigate('/login');
+        localStorage.clear(); // Clear all local storage data
+        navigate('/login'); // Redirect to login page
     };
 
     return (
         <nav className={`navbar ${burgerOpen ? 'navbar-hidden' : ''}`}>
             {/* Logo on the right */}
             <div className="logo">
-                <img src={`${process.env.PUBLIC_URL}/TarekLogo.png`} alt="Store Logo" className="logo-img" />
+                <img 
+                    src={`${process.env.PUBLIC_URL}/TarekLogo.png`} 
+                    alt="Store Logo" 
+                    className="logo-img" 
+                />
             </div>
 
             {/* Burger Icon */}
@@ -64,20 +61,19 @@ const Navbar = ({ isAdmin }) => {
 
             {/* Links in Arabic inside the burger menu */}
             <ul className={`nav-links ${burgerOpen ? 'open' : ''}`}>
-                {/* Close button appears only when the burger menu is open */}
                 {burgerOpen && (
                     <div className="close-button" onClick={() => setBurgerOpen(false)}>
                         <FontAwesomeIcon icon={faTimes} size="2x" className="close-icon" />
                     </div>
                 )}
 
-                {/* Home button always visible */}
                 <li className="nav-item home-button">
                     <Link to="/dashboard" className="nav-link">
                         <FontAwesomeIcon icon={faHome} size="2x" className="home-icon" />
                     </Link>
                 </li>
 
+                {/* Admin-only links */}
                 {isAdmin && (
                     <>
                         <li className="nav-item">
@@ -91,6 +87,8 @@ const Navbar = ({ isAdmin }) => {
                         </li>
                     </>
                 )}
+
+                {/* Common links */}
                 <li className="nav-item">
                     <Link to="/suppliers" className="nav-link">الموردين</Link>
                 </li>

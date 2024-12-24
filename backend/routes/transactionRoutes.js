@@ -828,7 +828,11 @@ router.get('/returns', async (req, res) => {
 
 // Create a transaction with a specific type (e.g., "output_staff")
 router.post('/output_staff', async (req, res) => {
-    const { user, description, amount, branch, date } = req.body;
+    const { user, description, amount, branchId, date } = req.body;
+
+    if (!branchId) {
+        return res.status(400).json({ error: 'Branch ID is required' });
+    }
 
     try {
         // التحقق من وجود المستخدم
@@ -842,16 +846,13 @@ router.post('/output_staff', async (req, res) => {
             return res.status(400).json({ error: 'لا يوجد راتب كافٍ لهذه العملية' });
         }
 
-        // طرح المبلغ من الراتب
-        existingUser.salary -= amount;
-        await existingUser.save();
 
         // إنشاء المعاملة
         const transaction = new Transaction({
             user,
             description,
             amount,
-            branch,
+            branchId,
             date,
             type: 'output_staff', // تعيين نوع العملية
         });
@@ -861,6 +862,11 @@ router.post('/output_staff', async (req, res) => {
 
         // إرجاع الاستجابة مع المعاملة المحفوظة
         res.status(201).json(savedTransaction);
+
+        // طرح المبلغ من الراتب
+        existingUser.salary -= amount;
+        await existingUser.save();
+        
     } catch (error) {
         console.error('Error during transaction:', error);
         res.status(500).json({ error: 'حدث خطأ أثناء معالجة الطلب' });

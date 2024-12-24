@@ -10,8 +10,8 @@ const clientSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    notes: {
-        type: String,
+    amountRequired: {
+        type: Number,
         required: false,
     }
 }, {

@@ -7,7 +7,7 @@ const Clients = () => {
     const [client, setClient] = useState({
         name: '',
         phoneNumber: '',
-        notes: '',
+        amountRequired: 0,
     });
     const [clients, setClients] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -25,7 +25,7 @@ const Clients = () => {
         try {
             const response = await axios.post('http://localhost:5000/api/clients/add', client);
             setMessage(response.data.message);
-            setClient({ name: '', phoneNumber: '', notes: '' }); // Clear form
+            setClient({ name: '', phoneNumber: '', amountRequired: 0 }); // Clear form
             fetchClients(); // Refresh client list
         } catch (error) {
             setMessage('خطأ في اضافة العميل');
@@ -104,14 +104,16 @@ const Clients = () => {
                             />
                         </div>
                         <div className="clients-form-group">
-                            <label htmlFor="notes">تعليقات:</label>
-                            <textarea
-                                id="notes"
-                                name="notes"
-                                value={client.notes}
+                            <label htmlFor="notes">المبلغ المطلوب:</label>
+                            <input
+                                type="text"
+                                id="amountRequired"
+                                name="amountRequired"
+                                value={client.amountRequired}
                                 onChange={handleChange}
-                                className="clients-form-textarea"
-                            ></textarea>
+                                className="clients-form-input"
+                                required
+                            />
                         </div>
                         <button type="submit" className="clients-form-button">
                             اضافة عميل
@@ -129,7 +131,7 @@ const Clients = () => {
                                 <tr>
                                     <th>الاسم</th>
                                     <th>رقم الموبايل</th>
-                                    <th>تعليقات</th>
+                                    <th>المبلغ المطلوب</th>
                                     {isAdmin && <th>حذف</th>} {/* Show delete button only for admins */}
                                 </tr>
                             </thead>
@@ -138,7 +140,7 @@ const Clients = () => {
                                     <tr key={client._id}>
                                         <td>{client.name}</td>
                                         <td>{client.phoneNumber}</td>
-                                        <td>{client.notes || 'N/A'}</td>
+                                        <td>{client.amountRequired || 0}</td>
                                         {isAdmin && (
                                             <td>
                                                 <button
