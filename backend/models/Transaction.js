@@ -36,6 +36,11 @@ const transactionSchema = new mongoose.Schema({
         ref: 'Supplier', // Reference to a Branch model (you'll need to create this if you haven't already)
         required: false, // Make this field required
     },
+    client: { // New field to associate the order with a specific branch
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Client', // Reference to a Branch model (you'll need to create this if you haven't already)
+        required: false, // Make this field required
+    },
 }, {
     timestamps: true, // Automatically manage createdAt and updatedAt fields
 });

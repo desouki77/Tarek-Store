@@ -4,7 +4,7 @@ const Client = require('../models/Client');
 
 const router = express.Router();
 
-// Add a new client
+// Add or update client based on phoneNumber
 router.post('/add', async (req, res) => {
     try {
         const { name, phoneNumber, amountRequired } = req.body;
@@ -12,14 +12,24 @@ router.post('/add', async (req, res) => {
         // تحويل المبلغ المتبقي إلى قيمة موجبة إذا كان سالبًا
         const validAmountRequired = Math.abs(amountRequired);
 
-        const newClient = new Client({ name, phoneNumber, amountRequired: validAmountRequired });
-        await newClient.save();
-        res.status(201).json({ message: 'تم اضافة العميل بنجاح' });
+        // البحث عن العميل الحالي باستخدام رقم الهاتف
+        let client = await Client.findOne({ phoneNumber });
+
+        if (client) {
+            return res.status(400).json({ message: 'رقم الموبايل موجود بالفعل' });
+        } else {
+            // إذا لم يكن العميل موجودًا، أضف عميل جديد
+            client = new Client({ name, phoneNumber, amountRequired: validAmountRequired });
+            await client.save();
+            return res.status(201).json({ message: 'تم إضافة العميل بنجاح' });
+        }
     } catch (error) {
-        console.error('خطأ في اضافة العميل', error);
-        res.status(500).json({ error: 'خطأ في اضافة العميل' });
+        console.error('خطأ في إضافة أو تحديث العميل', error);
+        res.status(500).json({ error: 'خطأ في إضافة أو تحديث العميل' });
     }
 });
+
+
 
 
 // Get a paginated list of clients
@@ -55,6 +65,29 @@ router.delete('/:id', async (req, res) => {
     } catch (error) {
         console.error('خطأ في مسح العميل', error);
         res.status(500).json({ error: 'خطأ في مسح العميل' });
+    }
+});
+
+// مسار البحث عن عميل باستخدام رقم الهاتف
+router.get('/:phone', async (req, res) => {
+    const { phone } = req.params;
+
+    try {
+        // البحث عن العميل في قاعدة البيانات
+        const client = await Client.findOne({ phoneNumber: phone });
+
+        if (!client) {
+            return res.status(404).json({ message: 'العميل غير موجود' });
+        }
+
+        // إذا تم العثور على العميل، أعد بياناته
+        res.json({
+            name: client.name,
+            phoneNumber: client.phoneNumber,
+        });
+    } catch (error) {
+        console.error('Error fetching client:', error);
+        res.status(500).json({ message: 'حدث خطأ أثناء جلب بيانات العميل' });
     }
 });
 

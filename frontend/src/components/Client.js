@@ -25,13 +25,16 @@ const Clients = () => {
         try {
             const response = await axios.post('http://localhost:5000/api/clients/add', client);
             setMessage(response.data.message);
-            setClient({ name: '', phoneNumber: '', amountRequired: 0 }); // Clear form
-            fetchClients(); // Refresh client list
+            if (response.data.message === 'تم إضافة العميل بنجاح') {
+                setClient({ name: '', phoneNumber: '', amountRequired: 0 }); // Clear form
+                fetchClients(); // Refresh client list
+            }
         } catch (error) {
-            setMessage('خطأ في اضافة العميل');
+            setMessage(error.response?.data?.message || 'خطأ في اضافة العميل');
             console.error(error);
         }
     };
+    
 
     const fetchClients = async (page = 1) => {
         try {

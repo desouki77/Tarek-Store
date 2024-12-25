@@ -156,6 +156,26 @@ const Checkout = () => {
         }
     };
     
+    const handlePhoneChange = async (phone) => {
+        setClientPhone(phone);
+    
+        if (!phone) {
+            setClientName('');
+            return;
+        }
+    
+        try {
+            const response = await axios.get(`http://localhost:5000/api/clients/${phone}`);
+            if (response.data) {
+                setClientName(response.data.name);
+                // تحديث المبلغ المطلوب بناءً على البيانات المسترجعة من الجهة الخلفية
+                setPaid(response.data.amountRequired); 
+            }
+        } catch (error) {
+            setClientName('');
+            console.error("Error fetching client data:", error.response?.data?.message || error.message);
+        }
+    };
     
 
     const handlePrint = () => {
@@ -236,7 +256,7 @@ const Checkout = () => {
                 <input
                     type="text"
                     value={clientPhone}
-                    onChange={(e) => setClientPhone(e.target.value)}
+                    onChange={(e) => handlePhoneChange(e.target.value)}
                     placeholder="رقم هاتف العميل"
                 />
                 <button onClick={handlePrint}>طباعة الإيصال</button>

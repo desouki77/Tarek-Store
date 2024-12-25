@@ -4,6 +4,8 @@ const Transaction = require('../models/Transaction');
 const User = require('../models/User');
 const validateBranchId = require('../middlewares/validateBranch');
 const Supplier = require('../models/Supplier'); // تأكد من استيراد نموذج المورد
+const Client = require('../models/Client'); // تأكد من استيراد نموذج المورد
+
 
 // Create a transaction with a specific type (e.g., "input")
 router.post('/input', validateBranchId, async (req, res) => {
@@ -598,40 +600,136 @@ router.get('/supplier_payment', validateBranchId, async (req, res) => {
 });
 
 // Create a transaction with a specific type (e.g., "customer_payment")
-router.post('/customer_payment', async (req, res) => {
-    const transaction = new Transaction({
-        ...req.body,
-        type: 'customer_payment', // Ensure type is set to "recharge" for RechargeTransaction component
-    });
+router.post('/customer_payment', validateBranchId, async (req, res) => {
+
+    const { branchId, description, amount, user, type, date, client } = req.body;
+
+    if (!branchId) {
+        return res.status(400).json({ message: 'branchId is required' });
+    }
 
     try {
+        let clientId = null;
+
+        if (client) {
+            const existingClient = await Client.findOne({ name: client });
+            if (!existingClient) {
+                return res.status(400).json({ message: 'Client not found' });
+            }
+            existingClient.amountRequired = Math.max(0, existingClient.amountRequired - amount);
+            await existingClient.save();
+            clientId = existingClient._id;
+        }
+
+        const transaction = new Transaction({
+            branchId,
+            description,
+            amount,
+            user,
+            type,
+            date,
+            client: clientId
+        });
+
         const savedTransaction = await transaction.save();
+        console.log("Saved Transaction:", savedTransaction);
         res.status(201).json(savedTransaction);
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        console.error('Error saving transaction:', error);
+        res.status(500).json({ message: 'Internal server error', error: error.message });
     }
 });
 
-router.get('/customer_payment', async (req, res) => {
-    const { startDate, endDate } = req.query;
+router.get('/daycustomer_payment', validateBranchId, async (req, res) => {
+    const { branchId, startDate, endDate, page = 1, limit = 10 } = req.query;
+
+    if (!branchId) {
+        return res.status(400).json({ message: 'branchId is required' });
+    }
 
     try {
-        // Set the date range based on the provided startDate and endDate, or use today's date range by default
         const startOfDay = startDate ? new Date(startDate) : new Date();
         const endOfDay = endDate ? new Date(endDate) : new Date();
 
-        // Default to the start and end of the current day if no date filters are provided
         if (!startDate) startOfDay.setHours(0, 0, 0, 0);
         if (!endDate) endOfDay.setHours(23, 59, 59, 999);
 
         const query = {
             type: 'customer_payment',
+            branchId: branchId,
             date: { $gte: startOfDay, $lte: endOfDay },
         };
 
-        // Return all transactions for the given date range
-        const transactions = await Transaction.find(query).sort({ date: -1 });
-        res.json({ transactions });
+        const skip = (page - 1) * limit;
+
+        // العثور على المعاملات مع تضمين بيانات المورد
+        const transactions = await Transaction.find(query)
+            .populate('client', 'name')  // جلب اسم المورد فقط
+            .sort({ date: -1 })
+            .skip(skip)
+            .limit(parseInt(limit));
+
+        const totalTransactions = await Transaction.countDocuments(query);
+        const totalPages = Math.ceil(totalTransactions / limit);
+
+        res.json({
+            transactions,
+            totalTransactions,
+            totalPages,
+            currentPage: parseInt(page),
+        });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to retrieve transactions: " + error.message });
+    }
+});
+
+router.get('/customer_payment', validateBranchId, async (req, res) => {
+    const { branchId, startDate, endDate, page = 1, limit = 10 } = req.query;
+
+    if (!branchId) {
+        return res.status(400).json({ message: 'branchId is required' });
+    }
+
+    try {
+        const query = {
+            type: 'customer_payment',
+            branchId: branchId,
+        };
+        
+        if (startDate || endDate) {
+            const startOfDay = startDate ? new Date(startDate) : new Date();
+            const endOfDay = endDate ? new Date(endDate) : new Date();
+        
+            if (!startDate) startOfDay.setHours(0, 0, 0, 0);
+            if (!endDate) endOfDay.setHours(23, 59, 59, 999);
+        
+            query.date = { $gte: startOfDay, $lte: endOfDay };
+        }
+
+        const skip = (page - 1) * limit; // Calculate how many documents to skip
+
+        // Find transactions with pagination and populate client data
+        const transactions = await Transaction.find(query)
+            .sort({ date: -1 })
+            .skip(skip)
+            .limit(parseInt(limit)) // Limit the number of documents
+            .populate('client', 'name'); // Populate client field and return only the 'name' field
+
+        const totalTransactions = await Transaction.countDocuments(query); // Total count for pagination
+        const totalPages = Math.ceil(totalTransactions / limit);
+
+        // Include client information in the response
+        const transactionsWithClient = transactions.map(transaction => ({
+            ...transaction.toObject(),
+            clinetName: transaction.client ? transaction.client.name : 'غير معروف',
+        }));
+
+        res.json({
+            transactions: transactionsWithClient,
+            totalTransactions,
+            totalPages,
+            currentPage: parseInt(page),
+        });
     } catch (error) {
         res.status(500).json({ error: "Failed to retrieve transactions: " + error.message });
     }
@@ -786,46 +884,6 @@ router.get('/purchasing', validateBranchId, async (req, res) => {
     }
 });
 
-// Create a transaction with a specific type (e.g., "returns")
-router.post('/returns', async (req, res) => {
-    const transaction = new Transaction({
-        ...req.body,
-        type: 'returns', // Ensure type is set to "recharge" for RechargeTransaction component
-    });
-
-    try {
-        const savedTransaction = await transaction.save();
-        res.status(201).json(savedTransaction);
-    } catch (error) {
-        res.status(400).json({ error: error.message });
-    }
-});
-
-router.get('/returns', async (req, res) => {
-    const { startDate, endDate } = req.query;
-
-    try {
-        // Set the date range based on the provided startDate and endDate, or use today's date range by default
-        const startOfDay = startDate ? new Date(startDate) : new Date();
-        const endOfDay = endDate ? new Date(endDate) : new Date();
-
-        // Default to the start and end of the current day if no date filters are provided
-        if (!startDate) startOfDay.setHours(0, 0, 0, 0);
-        if (!endDate) endOfDay.setHours(23, 59, 59, 999);
-
-        const query = {
-            type: 'returns',
-            date: { $gte: startOfDay, $lte: endOfDay },
-        };
-
-        // Return all transactions for the given date range
-        const transactions = await Transaction.find(query).sort({ date: -1 });
-        res.json({ transactions });
-    } catch (error) {
-        res.status(500).json({ error: "Failed to retrieve transactions: " + error.message });
-    }
-});
-
 // Create a transaction with a specific type (e.g., "output_staff")
 router.post('/output_staff', async (req, res) => {
     const { user, description, amount, branchId, date } = req.body;
@@ -927,6 +985,46 @@ router.get('/warranty', async (req, res) => {
 
         const query = {
             type: 'warranty',
+            date: { $gte: startOfDay, $lte: endOfDay },
+        };
+
+        // Return all transactions for the given date range
+        const transactions = await Transaction.find(query).sort({ date: -1 });
+        res.json({ transactions });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to retrieve transactions: " + error.message });
+    }
+});
+
+// Create a transaction with a specific type (e.g., "returns")
+router.post('/returns', async (req, res) => {
+    const transaction = new Transaction({
+        ...req.body,
+        type: 'returns', // Ensure type is set to "recharge" for RechargeTransaction component
+    });
+
+    try {
+        const savedTransaction = await transaction.save();
+        res.status(201).json(savedTransaction);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+router.get('/returns', async (req, res) => {
+    const { startDate, endDate } = req.query;
+
+    try {
+        // Set the date range based on the provided startDate and endDate, or use today's date range by default
+        const startOfDay = startDate ? new Date(startDate) : new Date();
+        const endOfDay = endDate ? new Date(endDate) : new Date();
+
+        // Default to the start and end of the current day if no date filters are provided
+        if (!startDate) startOfDay.setHours(0, 0, 0, 0);
+        if (!endDate) endOfDay.setHours(23, 59, 59, 999);
+
+        const query = {
+            type: 'returns',
             date: { $gte: startOfDay, $lte: endOfDay },
         };
 
