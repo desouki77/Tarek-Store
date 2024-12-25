@@ -16,6 +16,7 @@ const AllTransactions = () => {
     const transactionType = localStorage.getItem('transactionType'); // Dynamically fetch the type
     const isAdmin = role === 'admin';
     const limit = 10; // Limit for transactions per page
+    
 
     const fetchUserData = async (userId) => {
         try {
@@ -118,19 +119,38 @@ const AllTransactions = () => {
                         <table className="alltransaction-table">
                             <thead>
                                 <tr>
+                                {(transactionType === 'returns' || transactionType === 'warranty') && (
+                                        <th>اسم المنتج</th>
+                                    )} {/* إضافة عمود المورد إذا كانت المعاملة شراء أو دفع للمورد */}
                                     <th>الوصف</th>
                                     <th>المبلغ</th>
                                     {(transactionType === 'purchasing' || transactionType === 'supplier_payment') && (
                                         <th>اسم المورد</th>
                                     )} {/* إضافة عمود المورد إذا كانت المعاملة شراء أو دفع للمورد */}
+                                    
                                     <th>التاريخ</th>
                                     <th>الوقت</th>
                                     <th>المستخدم</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {transactions.map((transaction) => (
+
+                            {transactions.map((transaction) => {
+                                    const products = Array.isArray(transaction.products) ? transaction.products : [transaction.products];
+                                    return (
                                     <tr key={transaction._id}>
+
+                                       {(transactionType === 'returns' || transactionType === 'warranty') && (
+      <td>
+      {products.length > 0
+          ? products.map((product) => product?.name || 'اسم غير موجود').join(', ')
+          : 'لا يوجد منتج'}
+  </td>
+)}
+
+
+
+
                                         <td>{transaction.description}</td>
                                         <td>{transaction.amount}</td>
                                         {(transactionType === 'purchasing' || transactionType === 'supplier_payment') && (
@@ -140,7 +160,9 @@ const AllTransactions = () => {
                                         <td>{new Date(transaction.date).toLocaleTimeString()}</td>
                                         <td>{transaction.userName}</td>
                                     </tr>
-                                ))}
+                                    );
+                                })}
+                                
                             </tbody>
                         </table>
                     </div>

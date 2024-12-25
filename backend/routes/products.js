@@ -188,5 +188,27 @@ router.put('/id/:id', async (req, res) => {
   }
 });
 
+// في ملف الـ routes الخاص بالمنتجات (مثال: products.js)
+router.put('/:productId/increment', async (req, res) => {
+  const { productId } = req.params;
+  const { quantity } = req.body; // الكمية التي سيتم زيادتها
+
+  try {
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ message: 'المنتج غير موجود' });
+    }
+
+    // زيادة الكمية بمقدار `quantity`
+    product.quantity += quantity;
+    await product.save();
+
+    res.status(200).json(product);
+  } catch (error) {
+    res.status(500).json({ message: 'هناك خطأ في زيادة الكمية' });
+  }
+});
+
+
 
 module.exports = router;

@@ -75,7 +75,8 @@ const SellingTransaction = () => {
                 });
     
                 if (response.data) {
-                    const productData = response.data;
+                    const productData = response.data; 
+
     
                     if (productData.quantity > 0) {
                         // Check if quantity is available
