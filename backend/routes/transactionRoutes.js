@@ -1077,40 +1077,120 @@ router.get('/returns', validateBranchId, async (req, res) => {
 });
 
 // Create a transaction with a specific type (e.g., "warranty")
-router.post('/warranty', async (req, res) => {
+router.post('/warranty', validateBranchId, async (req, res) => {
+    const { branchId, description, amount, user, date, products } = req.body;
+
+    if (!branchId) {
+        return res.status(400).json({ message: 'branchId is required' });
+    }
+
     const transaction = new Transaction({
-        ...req.body,
-        type: 'warranty', // Ensure type is set to "recharge" for RechargeTransaction component
+        branchId,
+        description,
+        amount,
+        user,
+        type: 'warranty',
+        date,
+        products, // تمرير المنتجات هنا
     });
 
     try {
         const savedTransaction = await transaction.save();
         res.status(201).json(savedTransaction);
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        console.error('Error saving transaction:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 });
 
-router.get('/warranty', async (req, res) => {
-    const { startDate, endDate } = req.query;
+
+
+router.get('/daywarranty', validateBranchId, async (req, res) => {
+    const { branchId, startDate, endDate, page = 1, limit = 10 } = req.query;
+
+    if (!branchId) {
+        return res.status(400).json({ message: 'branchId is required' });
+    }
 
     try {
-        // Set the date range based on the provided startDate and endDate, or use today's date range by default
         const startOfDay = startDate ? new Date(startDate) : new Date();
         const endOfDay = endDate ? new Date(endDate) : new Date();
 
-        // Default to the start and end of the current day if no date filters are provided
         if (!startDate) startOfDay.setHours(0, 0, 0, 0);
         if (!endDate) endOfDay.setHours(23, 59, 59, 999);
 
         const query = {
             type: 'warranty',
+            branchId: branchId,
             date: { $gte: startOfDay, $lte: endOfDay },
         };
 
-        // Return all transactions for the given date range
-        const transactions = await Transaction.find(query).sort({ date: -1 });
-        res.json({ transactions });
+        const skip = (page - 1) * limit; // Calculate how many documents to skip
+
+        // Find transactions with pagination
+        const transactions = await Transaction.find(query)
+            .populate('products', 'name') // جلب أسماء المنتجات فقط
+            .sort({ date: -1 })
+            .skip(skip)
+            .limit(parseInt(limit)); // Limit the number of documents
+
+        const totalTransactions = await Transaction.countDocuments(query); // Total count for pagination
+        const totalPages = Math.ceil(totalTransactions / limit);
+
+        res.json({
+            transactions,
+            totalTransactions,
+            totalPages,
+            currentPage: parseInt(page),
+        });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to retrieve transactions: " + error.message });
+    }
+});
+
+
+router.get('/warranty', validateBranchId, async (req, res) => {
+    const { branchId, startDate, endDate, page = 1, limit = 10 } = req.query;
+
+    if (!branchId) {
+        return res.status(400).json({ message: 'branchId is required' });
+    }
+
+    try {
+        const query = {
+            type: 'warranty',
+            branchId: branchId,
+        };
+        
+        if (startDate || endDate) {
+            const startOfDay = startDate ? new Date(startDate) : new Date();
+            const endOfDay = endDate ? new Date(endDate) : new Date();
+        
+            if (!startDate) startOfDay.setHours(0, 0, 0, 0);
+            if (!endDate) endOfDay.setHours(23, 59, 59, 999);
+        
+            query.date = { $gte: startOfDay, $lte: endOfDay };
+        }
+        
+
+        const skip = (page - 1) * limit; // Calculate how many documents to skip
+
+        // Find transactions with pagination
+        const transactions = await Transaction.find(query)
+        .populate('products', 'name') // جلب أسماء المنتجات فقط
+        .sort({ date: -1 })
+            .skip(skip)
+            .limit(parseInt(limit)); // Limit the number of documents
+
+        const totalTransactions = await Transaction.countDocuments(query); // Total count for pagination
+        const totalPages = Math.ceil(totalTransactions / limit);
+
+        res.json({
+            transactions,
+            totalTransactions,
+            totalPages,
+            currentPage: parseInt(page),
+        });
     } catch (error) {
         res.status(500).json({ error: "Failed to retrieve transactions: " + error.message });
     }

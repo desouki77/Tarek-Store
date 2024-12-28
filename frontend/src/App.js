@@ -27,6 +27,7 @@ import Sales from './components/Sales';
 import Suppliers from './components/Suppliers';
 import Client from './components/Client';
 import OutputStaff from './components/ Transactions/OutputStaff';
+import WarrantyTransactions from './components/ Transactions/WarrantyTransactions';
 
 function App() {
   const [loading, setLoading] = useState(false); // Track loading state
@@ -70,7 +71,7 @@ function App() {
             <Route path="/transactions/purchasing" element={<PurchasingTransaction />} />
             <Route path="/transactions/returns" element={<ReturnsTransaction />} />
             <Route path='/transactions/output_staff' element={<OutputStaff />}/>
-
+            <Route path="/transactions/warranty" element={<WarrantyTransactions />} />
             <Route path="inventory" element={<Inventory />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/order-receipt/:orderId" element={<OrderReceipt />} />

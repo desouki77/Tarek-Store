@@ -209,6 +209,33 @@ router.put('/:productId/increment', async (req, res) => {
   }
 });
 
+// في ملف الـ routes الخاص بالمنتجات (مثال: products.js)
+router.put('/:productId/decrement', async (req, res) => {
+  const { productId } = req.params;
+  const { quantity } = req.body; // الكمية التي سيتم إنقاصها
+
+  try {
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ message: 'المنتج غير موجود' });
+    }
+
+    // التأكد من أن الكمية الجديدة لا تكون أقل من الصفر
+    if (product.quantity < quantity) {
+      return res.status(400).json({ message: 'الكمية غير كافية' });
+    }
+
+    // إنقاص الكمية بمقدار `quantity`
+    product.quantity -= quantity;
+    await product.save();
+
+    res.status(200).json(product);
+  } catch (error) {
+    res.status(500).json({ message: 'هناك خطأ في إنقاص الكمية' });
+  }
+});
+
+
 
 
 module.exports = router;
