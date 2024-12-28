@@ -114,11 +114,19 @@ const SellingTransaction = () => {
     const totalAmount = products.reduce((total, product) => total + product.price, 0);
 
     const handleCheckout = async () => {
-        if (!products || products.length === 0) {
-            alert("برجاء اضافة منتج");
+        // Check if the bank is open
+        const isBankOpen = localStorage.getItem('bankOpen') === 'true';
+    
+        if (!isBankOpen) {
+            alert('الدرج مغلق يرجي الرجوع الي الصفحة الرئيسية لفتح الدرج اولا');
             return;
         }
-
+    
+        if (!products || products.length === 0) {
+            alert('برجاء اضافة منتج');
+            return;
+        }
+    
         try {
             setProducts([]);
             sessionStorage.setItem('checkoutItems', JSON.stringify(products));
@@ -130,6 +138,7 @@ const SellingTransaction = () => {
             console.error('Error during checkout:', error);
         }
     };
+    
 
     const removeProduct = (index) => {
         setProducts((prevProducts) => prevProducts.filter((_, i) => i !== index));

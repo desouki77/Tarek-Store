@@ -123,7 +123,7 @@ const AllTransactions = () => {
                                         <th>اسم المنتج</th>
                                     )} {/* إضافة عمود المورد إذا كانت المعاملة شراء أو دفع للمورد */}
                                     <th>الوصف</th>
-                                    <th>المبلغ</th>
+                                    {transactionType !== 'warranty' && <th>المبلغ</th>}
                                     {(transactionType === 'purchasing' || transactionType === 'supplier_payment') && (
                                         <th>اسم المورد</th>
                                     )} {/* إضافة عمود المورد إذا كانت المعاملة شراء أو دفع للمورد */}
@@ -152,7 +152,7 @@ const AllTransactions = () => {
 
 
                                         <td>{transaction.description}</td>
-                                        <td>{transaction.amount}</td>
+                                        {transactionType !== 'warranty' && <td>{transaction.amount}</td>}
                                         {(transactionType === 'purchasing' || transactionType === 'supplier_payment') && (
                                             <td>{transaction.supplierName}</td>
                                         )} {/* عرض المورد إذا كانت المعاملة شراء أو دفع للمورد */}

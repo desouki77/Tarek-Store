@@ -6,7 +6,6 @@ import "../../styles/Transactions.css";
 
 const WarrantyTransactions = () => {
   const [description, setDescription] = useState('');
-  const [amount, setAmount] = useState('');
   const [transactions, setTransactions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -175,7 +174,6 @@ const WarrantyTransactions = () => {
         user: userId,
         type,
         description,
-        amount: parseFloat(amount),
         date: new Date(),
         products: productId,  // إرسال الـ ObjectId فقط
       });
@@ -196,7 +194,6 @@ const WarrantyTransactions = () => {
       
       // تنظيف البيانات بعد المعاملة
       setDescription('');
-      setAmount('');
       setProducts([]); // إزالة المنتجات بعد إرسال المعاملة
   
       // إعادة تحميل المعاملات في حالة أن المنتجات الجديدة تظهر في الجدول
@@ -285,14 +282,7 @@ const removeProduct = (index) => {
             required
             className="input-transaction-input"
           />
-          <input
-            type="number"
-            placeholder="المبلغ"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            required
-            className="input-transaction-input"
-          />
+       
           <button type="submit" className="input-transaction-button">
             اضافة
           </button>
@@ -313,7 +303,6 @@ const removeProduct = (index) => {
                 <tr>
                   <th>المنتج</th>
                   <th>الوصف</th>
-                  <th>المبلغ</th>
                   <th>التاريخ</th>
                   <th>الوقت</th>
                   <th>المستخدم</th>
@@ -332,7 +321,6 @@ const removeProduct = (index) => {
 
       </td>
       <td>{transaction.description}</td>
-      <td>{transaction.amount}</td>
       <td>{new Date(transaction.date).toLocaleDateString()}</td>
       <td>{new Date(transaction.date).toLocaleTimeString()}</td>
       <td>{transaction.userName}</td>

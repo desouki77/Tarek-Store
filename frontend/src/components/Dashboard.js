@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from './Navbar';
 import axios from 'axios';
 import '../styles/Dashboard.css';
-import Loader from './Loader'
+import Loader from './Loader';
 
 function Dashboard() {
     const role = localStorage.getItem('role'); // Get role from localStorage
@@ -23,13 +23,27 @@ function Dashboard() {
     const [bankAmount, setBankAmount] = useState(null); // Track the current bank amount
     const branchId = localStorage.getItem("branchId"); // Fetch branchId from localStorage
 
+    const fetchBankData = async (bankId) => {
+        try {
+            const response = await axios.get(`http://localhost:5000/api/bank/${bankId}`);
+            const bankData = response.data;
+
+            setBankAmount(bankData.bankAmount);
+            localStorage.setItem('bankAmount', bankData.bankAmount);
+
+            console.log("Fetched updated bank data:", bankData);
+        } catch (error) {
+            console.error("Error fetching bank data:", error);
+        }
+    };
+
     useEffect(() => {
         const userId = localStorage.getItem("userId");
         const branchId = localStorage.getItem("branchId");
 
-           // Restore bank state from localStorage
-           const storedBankOpen = localStorage.getItem('bankOpen') === 'true';
-           const storedBankAmount = localStorage.getItem('bankAmount');
+        // Restore bank state from localStorage
+        const storedBankOpen = localStorage.getItem('bankOpen') === 'true';
+        const storedBankAmount = localStorage.getItem('bankAmount');
 
         setBankOpen(storedBankOpen);
         setBankAmount(storedBankOpen ? storedBankAmount : null);
@@ -53,7 +67,12 @@ function Dashboard() {
             }
         };
 
+        const bankId = localStorage.getItem('bankID');
+
         fetchUserData();
+        if (bankId) {
+            fetchBankData(bankId);
+        }
     }, [branchId]);
 
     // Handler to navigate to specific transaction pages
@@ -71,19 +90,24 @@ function Dashboard() {
         return <div>{error}</div>; // Display error message
     }
 
-
     const handleOpenBank = async () => {
         try {
             const response = await axios.post('http://localhost:5000/api/bank', {
-                bankAmount: "0",
+                bankAmount: "0", // Initial value
                 branch: branchId,
             });
-            setBankOpen(true);
-            setBankAmount(response.data.bankAmount);
+
+            const bankId = response.data._id;
+            localStorage.setItem('bankID', bankId);
             localStorage.setItem('bankOpen', true);
             localStorage.setItem('bankAmount', response.data.bankAmount);
+
+            setBankOpen(true);
+
+            // Fetch updated bank data
+            await fetchBankData(bankId);
         } catch (error) {
-            console.error("Error opening bank:", error);
+            console.error("Error opening bank or fetching data:", error);
         }
     };
 
@@ -91,6 +115,7 @@ function Dashboard() {
         try {
             setBankOpen(false);
             setBankAmount(null);
+            localStorage.removeItem('bankID');
             localStorage.removeItem('bankOpen');
             localStorage.removeItem('bankAmount');
         } catch (error) {
@@ -98,54 +123,49 @@ function Dashboard() {
         }
     };
 
-    return ( 
+    return (
         <>
-          <Navbar isAdmin={isAdmin} /> 
-          <div className="dashboard-container">
+            <Navbar isAdmin={isAdmin} />
+            <div className="dashboard-container">
                 {/* Welcome Data */}
                 <div className='welcome'>
-                  <p>{welcomeData.storeName}</p>
-                  <p>{welcomeData.branchName}</p>
-                  <p>{welcomeData.salesName}</p>
-                  <div className="bank-controls">
-                    {!bankOpen ? (
-                        <button className="open-bank" onClick={handleOpenBank}>
-                            فتح الدرج
-                        </button>
-                    ) : (
-                        <>
-                            <p>الدرج الان: {bankAmount}</p>
-                            <button className="close-bank" onClick={handleCloseBank}>
-                                تسليم الدرج
+                    <p>{welcomeData.storeName}</p>
+                    <p>{welcomeData.branchName}</p>
+                    <p>{welcomeData.salesName}</p>
+                    <div className="bank-controls">
+                        {!bankOpen ? (
+                            <button className="open-bank" onClick={handleOpenBank}>
+                                فتح الدرج
                             </button>
-                        </>
-                    )}
+                        ) : (
+                            <>
+                                <p>الدرج الان: {bankAmount}</p>
+                                <button className="close-bank" onClick={handleCloseBank}>
+                                    تسليم الدرج
+                                </button>
+                            </>
+                        )}
+                    </div>
                 </div>
-              </div>
-              {/* Transaction Buttons */}
-              <div className='transaction-container'>
-                  <div className="transaction-buttons">
-                      <button className="transaction" onClick={() => handleTransactionClick('selling')}>بيع</button>
-                      <button className="transaction" onClick={() => handleTransactionClick('input')}>مدخلات</button>
-                      <button className="transaction" onClick={() => handleTransactionClick('output')}>مخرجات</button>
-                      <button className="transaction" onClick={() => handleTransactionClick('recharge')}>شحن</button>
-                      <button className="transaction" onClick={() => handleTransactionClick('maintenance')}>صيانة</button>
-                      <button className="transaction" onClick={() => handleTransactionClick('supplier_payment')}>سداد موردين</button>
-                      <button className="transaction" onClick={() => handleTransactionClick('customer_payment')}>سداد عملاء</button>
-                      <button className="transaction" onClick={() => handleTransactionClick('purchasing')}>مشتروات</button>
-                      <button className="transaction" onClick={() => handleTransactionClick('returns')}>مرتجعات</button>
-                      <button className="transaction" onClick={() => handleTransactionClick('warranty')} >الضمان</button>
-                      <button className="transaction" onClick={() => handleTransactionClick('output_staff')} >مسحوبات موظفين </button>
+                {/* Transaction Buttons */}
+                <div className='transaction-container'>
+                    <div className="transaction-buttons">
+                        <button className="transaction" onClick={() => handleTransactionClick('selling')}>بيع</button>
+                        <button className="transaction" onClick={() => handleTransactionClick('input')}>مدخلات</button>
+                        <button className="transaction" onClick={() => handleTransactionClick('output')}>مخرجات</button>
+                        <button className="transaction" onClick={() => handleTransactionClick('recharge')}>شحن</button>
+                        <button className="transaction" onClick={() => handleTransactionClick('maintenance')}>صيانة</button>
+                        <button className="transaction" onClick={() => handleTransactionClick('supplier_payment')}>سداد موردين</button>
+                        <button className="transaction" onClick={() => handleTransactionClick('customer_payment')}>سداد عملاء</button>
+                        <button className="transaction" onClick={() => handleTransactionClick('purchasing')}>مشتروات</button>
+                        <button className="transaction" onClick={() => handleTransactionClick('returns')}>مرتجعات</button>
+                        <button className="transaction" onClick={() => handleTransactionClick('warranty')} >الضمان</button>
+                        <button className="transaction" onClick={() => handleTransactionClick('output_staff')} >مسحوبات موظفين</button>
+                        <button className="transaction" onClick={() => handleTransactionClick('bank')} >الدرج</button>
 
-
-
-
-
-                  </div>
-              </div>
-
-
-          </div>
+                    </div>
+                </div>
+            </div>
         </>
     );
 }

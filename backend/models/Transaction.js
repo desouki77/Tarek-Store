@@ -24,7 +24,7 @@ const transactionSchema = new mongoose.Schema({
     },
     amount: {
         type: Number,
-        required: true,
+        required: false,
         min: 0, // Ensure the amount is not negative
     },
     date: {

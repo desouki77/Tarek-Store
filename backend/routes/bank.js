@@ -36,18 +36,22 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// PUT: Update a bank by ID
 router.put('/:id', async (req, res) => {
-    const { bankAmount, branch } = req.body;
+    const { bankAmount } = req.body;
 
     try {
-        const newBank = { bankAmount, branch };
-        const bank = await Bank.findByIdAndUpdate(req.params.id, newBank, { new: true });
+        const bank = await Bank.findByIdAndUpdate(
+            req.params.id,
+            { $set: { bankAmount } }, // تحديث فقط bankAmount
+            { new: true } // إرجاع القيمة المحدثة
+        );
+
         if (!bank) return res.status(404).json({ message: 'Bank not found' });
         res.json(bank);
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
 });
+
 
 module.exports = router;

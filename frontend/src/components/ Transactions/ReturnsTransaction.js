@@ -158,6 +158,14 @@ const ReturnsTransaction = () => {
       console.error("User ID or branch ID is not set in localStorage");
       return;
     }
+
+    // Check if the bank is open
+    const isBankOpen = localStorage.getItem('bankOpen') === 'true';
+    
+    if (!isBankOpen) {
+        alert('الدرج مغلق يرجي الرجوع الي الصفحة الرئيسية لفتح الدرج اولا');
+        return;
+    }
   
     if (products.length === 0) {
       setError("يرجى إضافة منتجات قبل إرسال المعاملة.");
@@ -166,6 +174,24 @@ const ReturnsTransaction = () => {
   
     setIsLoading(true);
     setError(null);
+
+    const BankId = localStorage.getItem('bankID');
+    if (!BankId) {
+        throw new Error('Bank ID not found in localStorage');
+    }
+
+    // جلب المبلغ الحالي من البنك
+    const bankResponse = await axios.get(`http://localhost:5000/api/bank/${BankId}`);
+    if (!bankResponse.data || bankResponse.data.bankAmount === undefined) {
+        throw new Error('Invalid bank data received');
+    }
+    const currentBankAmount = parseFloat(bankResponse.data.bankAmount || 0);
+
+    if (currentBankAmount < Number(amount)) {
+      setError('لا يوجد رصيد كافي في الدرج');
+      setIsLoading(false);
+      return;
+  }
   
     try {
       // إرسال معرّفات المنتجات فقط (ObjectId)
@@ -207,6 +233,21 @@ const ReturnsTransaction = () => {
     } finally {
       setIsLoading(false);
     }
+
+    try {
+      // حساب المبلغ المحدث
+      const updatedBankAmount = currentBankAmount - Number(amount);
+  
+      // إرسال البيانات المحدثة إلى الخادم
+      const updateResponse = await axios.put(`http://localhost:5000/api/bank/${BankId}`, {
+          bankAmount: updatedBankAmount,
+      });
+  
+      console.log('Bank amount updated successfully:', updateResponse.data);
+  } catch (error) {
+      console.error('Error updating bank amount:', error.response?.data || error.message);
+  }
+  
   };
   
 
