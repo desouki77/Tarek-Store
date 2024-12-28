@@ -14,16 +14,25 @@ function Dashboard() {
         storeName: "Tarek Phones",
         branchName: "Default Branch",
         salesName: "Default Sales",
-        date: new Date().toLocaleDateString(),
     });
 
-    const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
     const [loading, setLoading] = useState(true); // Add loading state
     const [error, setError] = useState(null); // Add error state
+
+    const [bankOpen, setBankOpen] = useState(false); // Track if the bank is open
+    const [bankAmount, setBankAmount] = useState(null); // Track the current bank amount
+    const branchId = localStorage.getItem("branchId"); // Fetch branchId from localStorage
 
     useEffect(() => {
         const userId = localStorage.getItem("userId");
         const branchId = localStorage.getItem("branchId");
+
+           // Restore bank state from localStorage
+           const storedBankOpen = localStorage.getItem('bankOpen') === 'true';
+           const storedBankAmount = localStorage.getItem('bankAmount');
+
+        setBankOpen(storedBankOpen);
+        setBankAmount(storedBankOpen ? storedBankAmount : null);
 
         const fetchUserData = async () => {
             try {
@@ -45,14 +54,7 @@ function Dashboard() {
         };
 
         fetchUserData();
-
-        const timerId = setInterval(() => {
-            setCurrentTime(new Date().toLocaleTimeString());
-        }, 1000);
-
-        // Clear the interval on component unmount
-        return () => clearInterval(timerId);
-    }, []);
+    }, [branchId]);
 
     // Handler to navigate to specific transaction pages
     const handleTransactionClick = (transactionType) => {
@@ -69,6 +71,33 @@ function Dashboard() {
         return <div>{error}</div>; // Display error message
     }
 
+
+    const handleOpenBank = async () => {
+        try {
+            const response = await axios.post('http://localhost:5000/api/bank', {
+                bankAmount: "0",
+                branch: branchId,
+            });
+            setBankOpen(true);
+            setBankAmount(response.data.bankAmount);
+            localStorage.setItem('bankOpen', true);
+            localStorage.setItem('bankAmount', response.data.bankAmount);
+        } catch (error) {
+            console.error("Error opening bank:", error);
+        }
+    };
+
+    const handleCloseBank = async () => {
+        try {
+            setBankOpen(false);
+            setBankAmount(null);
+            localStorage.removeItem('bankOpen');
+            localStorage.removeItem('bankAmount');
+        } catch (error) {
+            console.error("Error closing bank:", error);
+        }
+    };
+
     return ( 
         <>
           <Navbar isAdmin={isAdmin} /> 
@@ -78,8 +107,20 @@ function Dashboard() {
                   <p>{welcomeData.storeName}</p>
                   <p>{welcomeData.branchName}</p>
                   <p>{welcomeData.salesName}</p>
-                  <p>Date: {welcomeData.date}</p>
-                  <p>Time: {currentTime}</p>
+                  <div className="bank-controls">
+                    {!bankOpen ? (
+                        <button className="open-bank" onClick={handleOpenBank}>
+                            فتح الدرج
+                        </button>
+                    ) : (
+                        <>
+                            <p>الدرج الان: {bankAmount}</p>
+                            <button className="close-bank" onClick={handleCloseBank}>
+                                تسليم الدرج
+                            </button>
+                        </>
+                    )}
+                </div>
               </div>
               {/* Transaction Buttons */}
               <div className='transaction-container'>

@@ -7,6 +7,13 @@ const transactionRoutes = require('./routes/transactionRoutes');
 const products = require('./routes/products');
 const order = require('./routes/order');
 const branch = require('./routes/branch'); // Adjust the path
+const bank = require('./routes/bank');
+const suppliersRoutes = require('./routes/suppliers');
+const ClientsRoutes = require('./routes/clients');
+const bankRoutes = require('./routes/bank');
+
+
+
 
 
 
@@ -47,12 +54,14 @@ app.use('/api' , order);
 app.use('/api/branches', branch);
 
 // Suppliers Routes
-const suppliersRoutes = require('./routes/suppliers');
 app.use('/api/suppliers', suppliersRoutes);
 
 // Client Routes
-const ClientsRoutes = require('./routes/clients');
 app.use('/api/clients', ClientsRoutes);
+
+// Bank Routes
+app.use('/api/bank', bankRoutes);
+
 
 
 

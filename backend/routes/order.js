@@ -26,6 +26,7 @@ router.post('/orders', validateBranchId, async (req, res) => {
 
         await newOrder.save();
         res.status(201).json({ message: 'Order saved successfully!' });
+        
     } catch (error) {
         console.error('Failed to save order:', error);
         res.status(500).json({ message: 'Failed to save order', error });
