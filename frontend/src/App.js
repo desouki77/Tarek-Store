@@ -28,6 +28,9 @@ import Suppliers from './components/Suppliers';
 import Client from './components/Client';
 import OutputStaff from './components/ Transactions/OutputStaff';
 import WarrantyTransactions from './components/ Transactions/WarrantyTransactions';
+import Reports from './components/Reports';
+import SalesReport from './components/SalesReport';
+import AllSalesReports from './components/AllSalesReports';
 
 function App() {
   const [loading, setLoading] = useState(false); // Track loading state
@@ -82,6 +85,11 @@ function App() {
             <Route path='sales' element={<Sales />} />
             <Route path='suppliers' element={<Suppliers />} />
             <Route path='customers' element={<Client />}/>
+
+            <Route path="reports" element={<Reports/>} />
+            <Route path="/reports/salesReport" element={<SalesReport />} />
+            <Route path="/all-sales-reports" element={<AllSalesReports/>} />
+
           </Routes>
         </div>
       )}

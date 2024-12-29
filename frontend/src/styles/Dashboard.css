@@ -42,13 +42,15 @@
     justify-content: center;
     align-items: center;
     cursor: pointer; /* Pointer cursor on hover */
-    transition: background-color 0.3s; /* Transition effect */
+    transition: background-color 0.3s ease, transform 0.2s ease;
     background-color:forestgreen ;
+    
 }
 
 
 .transaction:hover {
     background-color: darkslategray;
+    transform: scale(1.05);
 }
 
 

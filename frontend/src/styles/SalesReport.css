@@ -1,0 +1,75 @@
+/* General Container */
+.sales-report-container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+/* Filters Section */
+.filters {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.filters label {
+    font-size: 1rem;
+    color: #333;
+    padding-top: 9px;
+}
+
+.filters input,
+.filters select {
+    padding: 8px;
+    font-size: 1rem;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    width: 150px;
+}
+
+/* Report Summary */
+.report-summary {
+    margin-top: 20px;
+    font-size: 1.2rem;
+    color: #333;
+}
+
+.report-item {
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+/* Loading or Error Message */
+.loading,
+.error-message {
+    font-size: 1.2rem;
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+.view-all-reports-btn{
+    background-color: #007bff;
+    margin-top: 20px;
+}
+
+.view-all-reports-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .filters {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .report-summary {
+        font-size: 1rem;
+    }
+}
