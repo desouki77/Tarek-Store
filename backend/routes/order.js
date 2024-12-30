@@ -214,7 +214,6 @@ router.get('/sales-report', async (req, res) => {
 router.get('/top-selling-products', async (req, res) => {
     try {
         const { branchId, page = 1, limit = 10 } = req.query;  // جلب المعاملات من الاستعلام
-        console.log("Received query params:", { branchId, page, limit });  // سجل المعاملات
 
         // حساب التخطي (skip) بناءً على الصفحة وعدد العناصر
         const skip = (page - 1) * limit;
@@ -226,7 +225,6 @@ router.get('/top-selling-products', async (req, res) => {
             limit
         });
 
-        console.log("Top selling products result:", result);  // سجل النتيجة النهائية
 
         // إرجاع النتيجة
         res.status(200).json(result);

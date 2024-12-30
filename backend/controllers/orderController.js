@@ -33,14 +33,12 @@ async function getTopSellingProducts({ branchId, skip = 0, limit = 10 }) {
             { $limit: limitNumber }  // تحديد الحد الأقصى للنتائج
         ]);
 
-        console.log("Orders from aggregation:", orders);  // سجل العمليات
 
         // جلب تفاصيل المنتجات بناءً على الباركود
         const productDetails = await Product.find({
             barcode: { $in: orders.map(order => order._id) }  // البحث عن المنتجات باستخدام الباركود
         });
 
-        console.log("Product details:", productDetails);  // سجل المنتجات
 
         // دمج تفاصيل المنتجات مع البيانات المسترجعة
         const result = orders.map(order => {

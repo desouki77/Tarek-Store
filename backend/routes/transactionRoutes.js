@@ -1225,7 +1225,6 @@ router.get('/generate-revenue-report', async (req, res) => {
         // Combine both revenues
         const combinedRevenue = [...transactionRevenue, ...orderRevenue];
 
-        console.log('Revenue Report:', combinedRevenue);
 
         res.status(200).json({
             message: 'Revenue report generated successfully',

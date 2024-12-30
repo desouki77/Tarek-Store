@@ -7,7 +7,6 @@ const Supplier = require('../models/Supplier');
 
 // Route to get a product by barcode 
 router.get('/:barcode' , async (req, res) => {
-  console.log(`Barcode requested: ${req.params.barcode}`);
   try {
     const product = await Product.findOne({ 
       barcode: req.params.barcode, 
