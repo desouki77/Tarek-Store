@@ -25,7 +25,7 @@ const Suppliers = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:5000/api/suppliers/add', supplier);
+            const response = await axios.post('https://tarek-store-backend.onrender.com/api/suppliers/add', supplier);
             setMessage(response.data.message);
             setSupplier({ name: '', phoneNumber: '', company: '', notes: '', moneyOwed: 0 });
             fetchSuppliers();
@@ -37,7 +37,7 @@ const Suppliers = () => {
 
     const fetchSuppliers = async (page = 1) => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/suppliers?page=${page}&limit=7`);
+            const response = await axios.get(`https://tarek-store-backend.onrender.com/api/suppliers?page=${page}&limit=7`);
             setSuppliers(response.data.suppliers);
             setCurrentPage(response.data.currentPage);
             setTotalPages(response.data.totalPages);
@@ -58,7 +58,7 @@ const Suppliers = () => {
         const confirmDelete = window.confirm('هل أنت متأكد أنك تريد حذف هذا المورد'); // Confirmation in Arabic
         if (confirmDelete){
         try {
-            const response = await axios.delete(`http://localhost:5000/api/suppliers/${id}`);
+            const response = await axios.delete(`https://tarek-store-backend.onrender.com/api/suppliers/${id}`);
             setMessage(response.data.message);
             fetchSuppliers(currentPage);
         } catch (error) {
@@ -85,7 +85,7 @@ const Suppliers = () => {
       const handleEditSubmit = async (e) => {
         e.preventDefault();
         try {
-          await axios.put(`http://localhost:5000/api/suppliers/id/${editingSuppliertId}`, editFormData);
+          await axios.put(`https://tarek-store-backend.onrender.com/api/suppliers/id/${editingSuppliertId}`, editFormData);
           // Update the products state with the edited product
           setSuppliers(suppliers.map(editSupplier => (editSupplier._id === editingSuppliertId ? { ...editSupplier, ...editFormData } : editSupplier)));
           setEditingSupplierId(null); // Reset the editing state

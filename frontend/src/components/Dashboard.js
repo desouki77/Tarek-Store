@@ -25,7 +25,7 @@
 
         const fetchBankData = async (bankId) => {
             try {
-                const response = await axios.get(`http://localhost:5000/api/bank/${bankId}`);
+                const response = await axios.get(`https://tarek-store-backend.onrender.com/api/bank/${bankId}`);
                 const bankData = response.data;
 
                 setBankAmount(bankData.bankAmount);
@@ -51,8 +51,8 @@
             const fetchUserData = async () => {
                 try {
                     // Fetch user data
-                    const userResponse = await axios.get(`http://localhost:5000/api/users/${userId}`);
-                    const branchResponse = await axios.get(`http://localhost:5000/api/branches/${branchId}`);
+                    const userResponse = await axios.get(`https://tarek-store-backend.onrender.com/api/users/${userId}`);
+                    const branchResponse = await axios.get(`https://tarek-store-backend.onrender.com/api/branches/${branchId}`);
 
                     setWelcomeData(prevData => ({
                         ...prevData,
@@ -92,7 +92,7 @@
 
         const handleOpenBank = async () => {
             try {
-                const response = await axios.post('http://localhost:5000/api/bank', {
+                const response = await axios.post('https://tarek-store-backend.onrender.com/api/bank', {
                     bankAmount: "0", // Initial value
                     branch: branchId,
                 });

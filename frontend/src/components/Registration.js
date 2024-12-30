@@ -21,7 +21,7 @@ const Registration = () => {
 
     try {
       // Send registration data to the backend using Axios
-      const response = await axios.post('http://localhost:5000/api/users/register', {
+      const response = await axios.post('https://tarek-store-backend.onrender.com/api/users/register', {
         username,
         password,
         phone,

@@ -16,7 +16,7 @@ const Login = () => {
   useEffect(() => {
     const fetchBranches = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/branches');
+        const response = await axios.get('https://tarek-store-backend.onrender.com/api/branches');
         setBranches(response.data);
       } catch (error) {
         console.error('Error fetching branches:', error);
@@ -47,7 +47,7 @@ const Login = () => {
         return;
       }
 
-      const response = await axios.post('http://localhost:5000/api/users/login', {
+      const response = await axios.post('https://tarek-store-backend.onrender.com/api/users/login', {
         username,
         password,
         branchId,

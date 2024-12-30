@@ -103,7 +103,7 @@ const Inventory = () => {
     };
   
     try {
-      const response = await axios.post('http://localhost:5000/api/products/add', productWithCategory);
+      const response = await axios.post('https://tarek-store-backend.onrender.com/api/products/add', productWithCategory);
       setAddedProduct(response.data.product);
   
       // إعادة تعيين الحقول
@@ -141,7 +141,7 @@ const Inventory = () => {
    useEffect(() => {
     const fetchSuppliers = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/suppliers');
+        const response = await axios.get('https://tarek-store-backend.onrender.com/api/suppliers');
         setSuppliers(response.data.suppliers);
       } catch (error) {
         console.error('Error fetching suppliers:', error);

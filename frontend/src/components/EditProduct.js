@@ -29,7 +29,7 @@ const EditProduct = () => {
             }
 
             try {
-                const response = await axios.get(`http://localhost:5000/api/products/${barcode}`, {
+                const response = await axios.get(`https://tarek-store-backend.onrender.com/api/products/${barcode}`, {
                     params: { branchId: branchId },
                 });
                 if (response.status === 200) {
@@ -66,7 +66,7 @@ const EditProduct = () => {
 
         try {
             setLoading(true);
-            await axios.put(`http://localhost:5000/api/products/${barcode}`, productWithBranchId);
+            await axios.put(`https://tarek-store-backend.onrender.com/api/products/${barcode}`, productWithBranchId);
             alert('Product updated successfully.');
             navigate('/all-products'); // Redirect to the products page after successful update
         } catch (error) {

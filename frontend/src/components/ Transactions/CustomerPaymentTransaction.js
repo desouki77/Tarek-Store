@@ -31,7 +31,7 @@ const CustomerPaymentTransaction = () => {
   useEffect(() => {
     const fetchClient = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/clients');
+        const response = await axios.get('https://tarek-store-backend.onrender.com/api/clients');
         if (response.data.clients && Array.isArray(response.data.clients)) {
           setClients(response.data.clients); // استخدم فقط الـ suppliers من الاستجابة
         } else {
@@ -47,7 +47,7 @@ const CustomerPaymentTransaction = () => {
 
   const fetchUserData = useCallback(async (userId) => {
     try {
-      const userResponse = await axios.get(`http://localhost:5000/api/users/${userId}`);
+      const userResponse = await axios.get(`https://tarek-store-backend.onrender.com/api/users/${userId}`);
       return { userName: userResponse.data.username };
     } catch (error) {
       console.error("Error fetching user", error);
@@ -71,7 +71,7 @@ const CustomerPaymentTransaction = () => {
       }
 
       try {
-        const response = await axios.get('http://localhost:5000/api/transactions/daycustomer_payment', {
+        const response = await axios.get('https://tarek-store-backend.onrender.com/api/transactions/daycustomer_payment', {
           params: { branchId, startDate, endDate, page, limit: 5 },
         });
 
@@ -131,7 +131,7 @@ const CustomerPaymentTransaction = () => {
     setError(null);
 
     try {
-        const response = await axios.post('http://localhost:5000/api/transactions/customer_payment', {
+        const response = await axios.post('https://tarek-store-backend.onrender.com/api/transactions/customer_payment', {
             branchId,
             user: userId,
             type,
@@ -160,7 +160,7 @@ const CustomerPaymentTransaction = () => {
       }
   
       // جلب المبلغ الحالي من البنك
-      const bankResponse = await axios.get(`http://localhost:5000/api/bank/${BankId}`);
+      const bankResponse = await axios.get(`https://tarek-store-backend.onrender.com/api/bank/${BankId}`);
       if (!bankResponse.data || bankResponse.data.bankAmount === undefined) {
           throw new Error('Invalid bank data received');
       }
@@ -170,7 +170,7 @@ const CustomerPaymentTransaction = () => {
       const updatedBankAmount = currentBankAmount + Number(amount);
   
       // إرسال البيانات المحدثة إلى الخادم
-      const updateResponse = await axios.put(`http://localhost:5000/api/bank/${BankId}`, {
+      const updateResponse = await axios.put(`https://tarek-store-backend.onrender.com/api/bank/${BankId}`, {
           bankAmount: updatedBankAmount,
       });
   

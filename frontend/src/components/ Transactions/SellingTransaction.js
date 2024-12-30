@@ -37,7 +37,7 @@ const SellingTransaction = () => {
             const endDate = new Date(today.setHours(23, 59, 59, 999)).toISOString(); // End of today
 
             try {
-                const response = await axios.get('http://localhost:5000/api/day_orders', {
+                const response = await axios.get('https://tarek-store-backend.onrender.com/api/day_orders', {
                     params: { branchId, startDate, endDate, limit, page:currentPage },
                 });
                 setOrders(response.data.orders);
@@ -70,7 +70,7 @@ const SellingTransaction = () => {
             }
     
             try {
-                const response = await axios.get(`http://localhost:5000/api/products/${scannedBarcode}`, {
+                const response = await axios.get(`https://tarek-store-backend.onrender.com/api/products/${scannedBarcode}`, {
                     params: { branchId },
                 });
     

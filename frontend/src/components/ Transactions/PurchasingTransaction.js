@@ -37,7 +37,7 @@ const PurchasingTransaction = () => {
   useEffect(() => {
     const fetchSuppliers = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/suppliers');
+        const response = await axios.get('https://tarek-store-backend.onrender.com/api/suppliers');
         if (response.data.suppliers && Array.isArray(response.data.suppliers)) {
           setSuppliers(response.data.suppliers); // استخدم فقط الـ suppliers من الاستجابة
         } else {
@@ -53,7 +53,7 @@ const PurchasingTransaction = () => {
 
   const fetchUserData = useCallback(async (userId) => {
     try {
-      const userResponse = await axios.get(`http://localhost:5000/api/users/${userId}`);
+      const userResponse = await axios.get(`https://tarek-store-backend.onrender.com/api/users/${userId}`);
       return { userName: userResponse.data.username };
     } catch (error) {
       console.error("Error fetching user", error);
@@ -77,7 +77,7 @@ const PurchasingTransaction = () => {
       }
 
       try {
-        const response = await axios.get('http://localhost:5000/api/transactions/daypurchasing', {
+        const response = await axios.get('https://tarek-store-backend.onrender.com/api/transactions/daypurchasing', {
           params: { branchId, startDate, endDate, page, limit: 5 },
         });
 
@@ -147,7 +147,7 @@ const PurchasingTransaction = () => {
     }
 
     // جلب المبلغ الحالي من البنك
-    const bankResponse = await axios.get(`http://localhost:5000/api/bank/${BankId}`);
+    const bankResponse = await axios.get(`https://tarek-store-backend.onrender.com/api/bank/${BankId}`);
     if (!bankResponse.data || bankResponse.data.bankAmount === undefined) {
         throw new Error('Invalid bank data received');
     }
@@ -162,7 +162,7 @@ const PurchasingTransaction = () => {
     try {
       const finalSupplier = selectedSupplier === 'new' ? supplier : { name: selectedSupplier };
 
-      const response = await axios.post('http://localhost:5000/api/transactions/purchasing', {
+      const response = await axios.post('https://tarek-store-backend.onrender.com/api/transactions/purchasing', {
         branchId,
         user: userId,
         type,
@@ -190,7 +190,7 @@ const PurchasingTransaction = () => {
       const updatedBankAmount = currentBankAmount - Number(amount);
   
       // إرسال البيانات المحدثة إلى الخادم
-      const updateResponse = await axios.put(`http://localhost:5000/api/bank/${BankId}`, {
+      const updateResponse = await axios.put(`https://tarek-store-backend.onrender.com/api/bank/${BankId}`, {
           bankAmount: updatedBankAmount,
       });
   

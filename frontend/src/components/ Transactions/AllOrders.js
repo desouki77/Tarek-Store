@@ -20,7 +20,7 @@ const AllOrders = () => {
             setLoading(true);
             try {
                 const branchId = localStorage.getItem('branchId');
-                let url = `http://localhost:5000/api/orders?branchId=${branchId}&page=${currentPage}&limit=20`;
+                let url = `https://tarek-store-backend.onrender.com/api/orders?branchId=${branchId}&page=${currentPage}&limit=20`;
 
                 // Add date filters if provided
                 if (startDate && endDate) {

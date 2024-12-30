@@ -30,8 +30,8 @@ const OrderReceipt = () => {
 
         const fetchUserData = async () => {
             try {
-                const userResponse = await axios.get(`http://localhost:5000/api/users/${userId}`);
-                const branchResponse = await axios.get(`http://localhost:5000/api/branches/${branchId}`);
+                const userResponse = await axios.get(`https://tarek-store-backend.onrender.com/api/users/${userId}`);
+                const branchResponse = await axios.get(`https://tarek-store-backend.onrender.com/api/branches/${branchId}`);
                 
                 setWelcomeData(prevData => ({
                     ...prevData,
@@ -52,7 +52,7 @@ const OrderReceipt = () => {
             if (!orderId) return;
 
             try {
-                const response = await axios.get(`http://localhost:5000/api/orders/${orderId}?branchId=${branchId}`);
+                const response = await axios.get(`https://tarek-store-backend.onrender.com/api/orders/${orderId}?branchId=${branchId}`);
                 console.log('Order data:', response.data); // Log order data
                 setOrderData(response.data);
             } catch (error) {

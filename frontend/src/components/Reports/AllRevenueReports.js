@@ -16,7 +16,7 @@ function AllRevenueReports() {
     useEffect(() => {
         const fetchAllReports = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/revenue-reports', {
+                const response = await axios.get('https://tarek-store-backend.onrender.com/api/revenue-reports', {
                     params: { page: currentPage, limit: reportsPerPage },
                 });
                 setReports(response.data.reports || []);

@@ -23,7 +23,7 @@ const Clients = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:5000/api/clients/add', client);
+            const response = await axios.post('https://tarek-store-backend.onrender.com/api/clients/add', client);
             setMessage(response.data.message);
             if (response.data.message === 'تم إضافة العميل بنجاح') {
                 setClient({ name: '', phoneNumber: '', amountRequired: 0 }); // Clear form
@@ -38,7 +38,7 @@ const Clients = () => {
 
     const fetchClients = async (page = 1) => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/clients?page=${page}&limit=7`);
+            const response = await axios.get(`https://tarek-store-backend.onrender.com/api/clients?page=${page}&limit=7`);
             setClients(response.data.clients);
             setCurrentPage(response.data.currentPage);
             setTotalPages(response.data.totalPages);
@@ -55,7 +55,7 @@ const Clients = () => {
         const confirmDelete = window.confirm('هل أنت متأكد أنك تريد حذف هذا العميل'); // Confirmation in Arabic
         if (confirmDelete) {
         try {
-            const response = await axios.delete(`http://localhost:5000/api/clients/${id}`);
+            const response = await axios.delete(`https://tarek-store-backend.onrender.com/api/clients/${id}`);
             setMessage(response.data.message);
             fetchClients(currentPage); 
         } catch (error) {

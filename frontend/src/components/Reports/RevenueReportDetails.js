@@ -43,7 +43,7 @@ function RevenueReportDetails() {
     useEffect(() => {
         const fetchReportDetails = async () => {
             try {
-                const response = await axios.get(`http://localhost:5000/api/revenue-reports/${reportId}`);
+                const response = await axios.get(`https://tarek-store-backend.onrender.com/api/revenue-reports/${reportId}`);
                 setReport(response.data);
             } catch (err) {
                 setError('Error fetching report details');

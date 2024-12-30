@@ -15,7 +15,7 @@ function AllSalesReports() {
     useEffect(() => {
         const fetchBranches = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/branches'); // API لجلب الفروع
+                const response = await axios.get('https://tarek-store-backend.onrender.com/api/branches'); // API لجلب الفروع
                 setBranches(response.data); // تخزين الفروع في الحالة
             } catch (err) {
                 setError('Error fetching branches');
@@ -28,7 +28,7 @@ function AllSalesReports() {
     useEffect(() => {
         const fetchReports = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/get-all-reports', {
+                const response = await axios.get('https://tarek-store-backend.onrender.com/api/get-all-reports', {
                     params: {
                         page: currentPage,
                         limit: 6, // يمكنك تغيير العدد حسب الحاجة

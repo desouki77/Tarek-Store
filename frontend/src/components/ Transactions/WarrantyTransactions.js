@@ -32,7 +32,7 @@ const WarrantyTransactions = () => {
 
   const fetchUserData = useCallback(async (userId) => {
     try {
-      const userResponse = await axios.get(`http://localhost:5000/api/users/${userId}`);
+      const userResponse = await axios.get(`https://tarek-store-backend.onrender.com/api/users/${userId}`);
       return { userName: userResponse.data.username };
     } catch (error) {
       console.error("Error fetching user", error);
@@ -59,7 +59,7 @@ const WarrantyTransactions = () => {
 
         try {
             // استرجاع المنتج باستخدام الباركود فقط
-            const response = await axios.get(`http://localhost:5000/api/products/${scannedBarcode}`, {
+            const response = await axios.get(`https://tarek-store-backend.onrender.com/api/products/${scannedBarcode}`, {
                 params: { branchId },
             });
 
@@ -109,7 +109,7 @@ const WarrantyTransactions = () => {
       }
 
       try {
-        const response = await axios.get('http://localhost:5000/api/transactions/daywarranty', {
+        const response = await axios.get('https://tarek-store-backend.onrender.com/api/transactions/daywarranty', {
           params: { branchId, startDate, endDate, page, limit: 5 },
         });
 
@@ -169,7 +169,7 @@ const WarrantyTransactions = () => {
     try {
       // إرسال معرّفات المنتجات فقط (ObjectId)
       const productId = products.map((product) => product._id);  // استخراج الـ ObjectId فقط
-      const response = await axios.post('http://localhost:5000/api/transactions/warranty', {
+      const response = await axios.post('https://tarek-store-backend.onrender.com/api/transactions/warranty', {
         branchId,
         user: userId,
         type,
@@ -180,7 +180,7 @@ const WarrantyTransactions = () => {
 
      // Decrement the quantity for each product
   for (const product of products) {
-    await axios.put(`http://localhost:5000/api/products/${product._id}/decrement`, {
+    await axios.put(`https://tarek-store-backend.onrender.com/api/products/${product._id}/decrement`, {
       branchId,
       quantity: 1, // Decrease quantity by 1
     });

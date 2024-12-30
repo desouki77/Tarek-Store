@@ -20,7 +20,7 @@ const OutputStaff = () => {
 
   const fetchUserData = async (userId) => {
     try {
-      const userResponse = await axios.get(`http://localhost:5000/api/users/${userId}`);
+      const userResponse = await axios.get(`https://tarek-store-backend.onrender.com/api/users/${userId}`);
       return userResponse.data.username;
     } catch (error) {
       console.error("Error fetching user data:", error);
@@ -54,7 +54,7 @@ const OutputStaff = () => {
     }
 
     // جلب المبلغ الحالي من البنك
-    const bankResponse = await axios.get(`http://localhost:5000/api/bank/${BankId}`);
+    const bankResponse = await axios.get(`https://tarek-store-backend.onrender.com/api/bank/${BankId}`);
     if (!bankResponse.data || bankResponse.data.bankAmount === undefined) {
         throw new Error('Invalid bank data received');
     }
@@ -67,7 +67,7 @@ const OutputStaff = () => {
   }
   
     try {
-      const response = await axios.post('http://localhost:5000/api/transactions/output_staff', {
+      const response = await axios.post('https://tarek-store-backend.onrender.com/api/transactions/output_staff', {
         user: userId,
         type: localStorage.getItem('transactionType'),
         description,
@@ -95,7 +95,7 @@ const OutputStaff = () => {
       const updatedBankAmount = currentBankAmount - Number(amount);
   
       // إرسال البيانات المحدثة إلى الخادم
-      const updateResponse = await axios.put(`http://localhost:5000/api/bank/${BankId}`, {
+      const updateResponse = await axios.put(`https://tarek-store-backend.onrender.com/api/bank/${BankId}`, {
           bankAmount: updatedBankAmount,
       });
   
@@ -118,7 +118,7 @@ const OutputStaff = () => {
       const today = new Date().toISOString().split('T')[0];
   
       try {
-        const response = await axios.get('http://localhost:5000/api/transactions/output_staff', {
+        const response = await axios.get('https://tarek-store-backend.onrender.com/api/transactions/output_staff', {
           params: { date: today },
         });
   

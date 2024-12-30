@@ -16,7 +16,7 @@ const TopSellingProducts = () => {
   useEffect(() => {
     const fetchBranches = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/branches');
+        const response = await axios.get('https://tarek-store-backend.onrender.com/api/branches');
         setBranches(response.data);
       } catch (error) {
         setError('Failed to fetch branches');
@@ -29,7 +29,7 @@ const TopSellingProducts = () => {
   useEffect(() => {
     const fetchTopSellingProducts = async () => {
       try {
-        let url = `http://localhost:5000/api/top-selling-products?page=${currentPage}&limit=10`;
+        let url = `https://tarek-store-backend.onrender.com/api/top-selling-products?page=${currentPage}&limit=10`;
         if (branchId) url += `&branchId=${branchId}`;
 
         console.log("Fetching top selling products from:", url);

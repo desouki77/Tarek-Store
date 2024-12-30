@@ -23,7 +23,7 @@ const Sales = () => {
         setError(null);
 
         try {
-            const response = await axios.get('http://localhost:5000/api/users', {
+            const response = await axios.get('https://tarek-store-backend.onrender.com/api/users', {
                 params: { page, limit },
             });
 
@@ -45,7 +45,7 @@ const Sales = () => {
         const confirmDelete = window.confirm('هل أنت متأكد أنك تريد حذف هذا الموظف؟'); // Confirmation in Arabic
         if(confirmDelete) {
         try {
-            const response = await axios.delete(`http://localhost:5000/api/users/${id}`);
+            const response = await axios.delete(`https://tarek-store-backend.onrender.com/api/users/${id}`);
             if (response.status === 200) {
                 const updatedSalesData = salesData.filter(sale => sale._id !== id);
                 setSalesData(updatedSalesData);

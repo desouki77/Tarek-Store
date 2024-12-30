@@ -18,7 +18,7 @@ function SalesReport() {
     useEffect(() => {
         const fetchBranches = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/branches'); // API لجلب الفروع
+                const response = await axios.get('https://tarek-store-backend.onrender.com/api/branches'); // API لجلب الفروع
                 setBranches(response.data); // تخزين الفروع في الحالة
             } catch (err) {
                 setError('Error fetching branches');
@@ -30,7 +30,7 @@ function SalesReport() {
     // استخدام useCallback لتحسين الأداء
     const fetchSalesReport = useCallback(async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/sales-report', {
+            const response = await axios.get('https://tarek-store-backend.onrender.com/api/sales-report', {
                 params: { branchId, startDate, endDate },
             });
             setReportData(response.data);
@@ -75,7 +75,7 @@ function SalesReport() {
     
         try {
             // إذا لم يتم تحديد فرع، نرسل null بدلًا من قيمة فارغة
-            await axios.post('http://localhost:5000/api/save-sales-report', {
+            await axios.post('https://tarek-store-backend.onrender.com/api/save-sales-report', {
                 reportName,
                 totalSales: reportData.totalSales,
                 totalItemsSold: reportData.totalItemsSold,

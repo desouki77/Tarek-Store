@@ -66,7 +66,7 @@ const AllProducts = () => {
       try {
    
         // إرسال التصنيف مع البحث
-        const response = await axios.get('http://localhost:5000/api/products', {
+        const response = await axios.get('https://tarek-store-backend.onrender.com/api/products', {
           params: {
             mainCategory, // إرسال mainCategory
             subCategory,  // إرسال subCategory
@@ -104,7 +104,7 @@ const AllProducts = () => {
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:5000/api/products/id/${editingProductId}`, editFormData);
+      await axios.put(`https://tarek-store-backend.onrender.com/api/products/id/${editingProductId}`, editFormData);
       // Update the products state with the edited product
       setProducts(products.map(product => (product._id === editingProductId ? { ...product, ...editFormData } : product)));
       setEditingProductId(null); // Reset the editing state
@@ -118,7 +118,7 @@ const AllProducts = () => {
     const confirmDelete = window.confirm('هل أنت متأكد أنك تريد حذف هذا المنتج؟'); // Confirmation in Arabic
     if (confirmDelete) {
       try {
-        await axios.delete(`http://localhost:5000/api/products/${barcode}`);
+        await axios.delete(`https://tarek-store-backend.onrender.com/api/products/${barcode}`);
 
         // Remove the deleted product from the state
         setProducts(products.filter(product => product.barcode !== barcode));

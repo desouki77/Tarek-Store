@@ -47,7 +47,7 @@ function RevenueReport() {
     useEffect(() => {
         const fetchBranches = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/branches');
+                const response = await axios.get('https://tarek-store-backend.onrender.com/api/branches');
                 setBranches(response.data || []);
             } catch (err) {
                 setError('Error fetching branches');
@@ -60,7 +60,7 @@ function RevenueReport() {
         if (!startDate || !endDate) return; 
         const fetchRevenueReport = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/transactions/generate-revenue-report', {
+                const response = await axios.get('https://tarek-store-backend.onrender.com/api/transactions/generate-revenue-report', {
                     params: { startDate, endDate, branchId: selectedBranch },
                 });
                 setReportData(response.data.report || []);
@@ -100,7 +100,7 @@ function RevenueReport() {
         };
         
         try {
-            await axios.post('http://localhost:5000/api/save-revenue-report', report);
+            await axios.post('https://tarek-store-backend.onrender.com/api/save-revenue-report', report);
             alert('تم حفظ التقرير بنجاح');
         } catch (err) {
             alert('حدث خطأ أثناء حفظ التقرير');

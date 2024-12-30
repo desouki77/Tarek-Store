@@ -15,7 +15,7 @@ const BankList = () => {
   const isAdmin = role === 'admin';
 
   useEffect(() => {
-    const url = `http://localhost:5000/api/bank?startDate=${startDate}&endDate=${endDate}&page=${currentPage}&limit=10`;
+    const url = `https://tarek-store-backend.onrender.com/api/bank?startDate=${startDate}&endDate=${endDate}&page=${currentPage}&limit=10`;
 
     axios
       .get(url)

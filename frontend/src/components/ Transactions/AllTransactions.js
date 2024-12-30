@@ -20,7 +20,7 @@ const AllTransactions = () => {
 
     const fetchUserData = async (userId) => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/users/${userId}`);
+            const response = await axios.get(`https://tarek-store-backend.onrender.com/api/users/${userId}`);
             return response.data.username;
         } catch (error) {
             console.error("Error fetching user data:", error);
@@ -42,7 +42,7 @@ const AllTransactions = () => {
     
         setLoading(true); // Start loading
         try {
-            let url = `http://localhost:5000/api/transactions/${transactionType}?branchId=${branchId}&page=${page}&limit=${limit}`;
+            let url = `https://tarek-store-backend.onrender.com/api/transactions/${transactionType}?branchId=${branchId}&page=${page}&limit=${limit}`;
             if (startDate) url += `&startDate=${startDate}`;
             if (endDate) url += `&endDate=${endDate}`;
     
