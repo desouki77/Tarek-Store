@@ -166,16 +166,15 @@ router.get('/orders/:orderId', validateBranchId, async (req, res) => {
 });
 
 
-router.get('/sales-report', validateBranchId, async (req, res) => {
+router.get('/sales-report', async (req, res) => {
     try {
         const { branchId, startDate, endDate } = req.query;
 
-        if (!branchId) {
-            return res.status(400).json({ message: 'branchId is required' });
-        }
+        let filter = {};
 
-        // Construct the filter object
-        let filter = { branchId };
+        if (branchId) {
+            filter.branchId = branchId;
+        }
 
         if (startDate && endDate) {
             filter.createdAt = {
@@ -187,24 +186,17 @@ router.get('/sales-report', validateBranchId, async (req, res) => {
         // Fetch orders based on the filter
         const orders = await Order.find(filter);
 
-        // Debugging: Log orders to check checkoutItems
-        console.log('Orders fetched:', orders);
-
-        // Calculate total sales, discounts, order count, and total items in checkoutItems
         const totalSales = orders.reduce((sum, order) => sum + order.paid, 0);
         const totalDiscounts = orders.reduce((sum, order) => sum + (order.discount || 0), 0);
-
-        // Calculate total items in checkoutItems
         const totalItemsSold = orders.reduce((total, order) => {
             if (Array.isArray(order.checkoutItems)) {
-                return total + order.checkoutItems.length; // Count the items in checkoutItems
+                return total + order.checkoutItems.length;
             }
             return total;
         }, 0);
 
         const orderCount = orders.length;
 
-        // Respond with the calculated values
         res.json({
             totalSales,
             totalItemsSold,
@@ -216,6 +208,7 @@ router.get('/sales-report', validateBranchId, async (req, res) => {
         res.status(500).json({ message: 'Server error', error });
     }
 });
+
 
 
 

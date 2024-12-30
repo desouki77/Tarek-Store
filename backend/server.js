@@ -12,7 +12,7 @@ const suppliersRoutes = require('./routes/suppliers');
 const ClientsRoutes = require('./routes/clients');
 const bankRoutes = require('./routes/bank');
 const salesReport = require('./routes/salesReport');
-
+const revenueReport = require('./routes/revenueReport');
 
 
 
@@ -65,6 +65,9 @@ app.use('/api/bank', bankRoutes);
 
 // Sales Report Routes
 app.use('/api', salesReport);
+
+// Revenue Report Routes
+app.use('/api', revenueReport);
 
 
 

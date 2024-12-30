@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import Navbar from './Navbar';
-import '../styles/AllSalesReports.css'; // Importing the CSS file
+import Navbar from '../Navbar';
+import '../../styles/AllSalesReports.css'; // Importing the CSS file
 
 function AllSalesReports() {
     const [reports, setReports] = useState([]);
@@ -45,6 +45,7 @@ function AllSalesReports() {
 
     // دالة للحصول على اسم الفرع بناءً على branchId
     const getBranchName = (branchId) => {
+        if (!branchId) return 'جميع الفروع'; // إذا كان الفرع غير معرف أو فارغ نعرض "جميع الفروع"
         const branch = branches.find((b) => b._id === branchId);
         return branch ? branch.name : 'غير معروف';
     };

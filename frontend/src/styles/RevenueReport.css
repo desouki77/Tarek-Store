@@ -1,0 +1,123 @@
+/* General styles */
+.revenue-reports-container {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    max-width: 1200px;
+    margin: auto;
+}
+
+.revenue-reports-container h1 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 30px;
+}
+
+.revenue-reports-container label {
+    font-size: 16px;
+    margin-right: 10px;
+}
+
+.revenue-reports-container select,
+.revenue-reports-container input {
+    padding: 8px;
+    font-size: 16px;
+    width: 100%;
+    margin: 10px 0;
+    max-width: 300px;
+    margin-right: 10px;
+    box-sizing: border-box;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+.revenue-reports-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.revenue-reports-table th,
+.revenue-reports-table td {
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+.revenue-reports-table th {
+    background-color: #343a40;
+    color: #fff;
+}
+
+.revenue-reports-table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.revenue-reports-green-text {
+    color: green;
+}
+
+.revenue-reports-red-text {
+    color: red;
+}
+
+.revenue-reports-total-profit {
+    font-size: 20px;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.revenue-reports-button {
+    background-color: #3498db;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+    width: 100%;
+    max-width: 200px;
+    margin: auto;
+    display: block;
+    margin-top: 20px;
+}
+
+.revenue-reports-button:hover {
+    background-color: #2980b9;
+}
+
+.revenue-reports-error-message {
+    color: red;
+    text-align: center;
+    margin: 20px 0;
+}
+
+/* Responsive styles */
+@media screen and (min-width: 768px) {
+    .revenue-reports-container {
+        padding: 30px;
+    }
+
+    .revenue-reports-container select,
+    .revenue-reports-container input {
+        max-width: 200px;
+    }
+
+    .revenue-reports-table {
+        font-size: 18px;
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .revenue-reports-container {
+        padding: 15px;
+    }
+
+    .revenue-reports-table th,
+    .revenue-reports-table td {
+        padding: 8px;
+    }
+
+    .revenue-reports-button {
+        width: 100%;
+    }
+}

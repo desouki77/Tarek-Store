@@ -28,9 +28,12 @@ import Suppliers from './components/Suppliers';
 import Client from './components/Client';
 import OutputStaff from './components/ Transactions/OutputStaff';
 import WarrantyTransactions from './components/ Transactions/WarrantyTransactions';
-import Reports from './components/Reports';
-import SalesReport from './components/SalesReport';
-import AllSalesReports from './components/AllSalesReports';
+import Reports from './components/Reports/Reports';
+import SalesReport from './components/Reports/SalesReport';
+import AllSalesReports from './components/Reports/AllSalesReports';
+import RevenueReport from './components/Reports/RevenueReport';
+import AllRevenueReports from './components/Reports/AllRevenueReports';
+import RevenueReportDetails from './components/Reports/RevenueReportDetails';
 
 function App() {
   const [loading, setLoading] = useState(false); // Track loading state
@@ -89,6 +92,14 @@ function App() {
             <Route path="reports" element={<Reports/>} />
             <Route path="/reports/salesReport" element={<SalesReport />} />
             <Route path="/all-sales-reports" element={<AllSalesReports/>} />
+
+            <Route path="/reports/revenueReport" element={<RevenueReport/>} />
+            <Route path="/all-revenue-reports" element={<AllRevenueReports />} />
+
+            <Route path="/revenue-report/:reportId" element={<RevenueReportDetails />} />
+
+
+
 
           </Routes>
         </div>

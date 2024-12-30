@@ -1,7 +1,7 @@
 import React from 'react';
-import Navbar from './Navbar';
+import Navbar from '../Navbar';
 import { useNavigate } from 'react-router-dom';
-import '../styles/Reports.css'; 
+import '../../styles/Reports.css'; 
 
 function Reports() {
     const role = localStorage.getItem('role'); // Get role from localStorage

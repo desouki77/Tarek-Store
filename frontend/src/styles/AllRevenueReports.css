@@ -1,0 +1,129 @@
+/* General Container */
+.all-revenue-reports-container {
+    margin: 20px;
+    font-family: Arial, sans-serif;
+    direction: rtl;
+}
+
+/* Title */
+.all-revenue-reports-title {
+    font-size: 24px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Error Message */
+.all-revenue-reports-error-message {
+    color: red;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Table Styles */
+.all-revenue-reports-table-header{
+    overflow: auto;
+}
+.all-revenue-reports-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.all-revenue-reports-table th, .all-revenue-reports-table td {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+.all-revenue-reports-table th {
+    background-color: #343a40;
+}
+
+/* Button Styles */
+.all-revenue-reports-view-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.all-revenue-reports-view-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Pagination Styles */
+.all-revenue-reports-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.all-revenue-reports-pagination-btn {
+    padding: 4px 8px;  /* Smaller padding for more compact buttons */
+    margin: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #007BFF;
+    cursor: pointer;
+    font-size: 12px;  /* Smaller font size */
+    color: #fff;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    width: auto; /* Allow button width to adjust based on content */
+    min-width: 40px;  /* Minimum width to ensure buttons are not too narrow */
+}
+
+.all-revenue-reports-pagination-btn:hover {
+    background-color: darkslategray;
+    color: #fff;
+}
+
+.all-revenue-reports-pagination-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .all-revenue-reports-table th, .all-revenue-reports-table td {
+        font-size: 14px;
+        padding: 8px;
+    }
+
+    .all-revenue-reports-pagination-btn {
+        padding: 8px 16px;
+    }
+
+    .all-revenue-reports-title {
+        font-size: 20px;
+    }
+
+    .all-revenue-reports-pagination {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .all-revenue-reports-table th, .all-revenue-reports-table td {
+        font-size: 12px;
+        padding: 6px;
+    }
+
+    .all-revenue-reports-view-btn {
+        font-size: 12px;
+        padding: 4px 8px;
+    }
+
+    .all-revenue-reports-pagination-btn {
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+}

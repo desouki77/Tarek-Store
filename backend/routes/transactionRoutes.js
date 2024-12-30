@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const express = require('express');
 const router = express.Router();
 const Transaction = require('../models/Transaction');
@@ -5,6 +6,9 @@ const User = require('../models/User');
 const validateBranchId = require('../middlewares/validateBranch');
 const Supplier = require('../models/Supplier'); // تأكد من استيراد نموذج المورد
 const Client = require('../models/Client'); // تأكد من استيراد نموذج المورد
+const Order = require('../models/Order'); // تأكد من مسار الموديل الصحيح
+
+
 
 
 // Create a transaction with a specific type (e.g., "input")
@@ -1149,51 +1153,90 @@ router.get('/daywarranty', validateBranchId, async (req, res) => {
 });
 
 
-router.get('/warranty', validateBranchId, async (req, res) => {
-    const { branchId, startDate, endDate, page = 1, limit = 10 } = req.query;
 
-    if (!branchId) {
-        return res.status(400).json({ message: 'branchId is required' });
-    }
+router.get('/generate-revenue-report', async (req, res) => {
+    const { startDate, endDate, branchId } = req.query;
 
     try {
-        const query = {
-            type: 'warranty',
-            branchId: branchId,
-        };
-        
-        if (startDate || endDate) {
-            const startOfDay = startDate ? new Date(startDate) : new Date();
-            const endOfDay = endDate ? new Date(endDate) : new Date();
-        
-            if (!startDate) startOfDay.setHours(0, 0, 0, 0);
-            if (!endDate) endOfDay.setHours(23, 59, 59, 999);
-        
-            query.date = { $gte: startOfDay, $lte: endOfDay };
+        console.log('Start Date:', startDate);
+        console.log('End Date:', endDate);
+        console.log('Branch ID:', branchId);
+
+        if (!startDate || !endDate) {
+            return res.status(400).json({ message: 'Start Date and End Date are required' });
         }
-        
 
-        const skip = (page - 1) * limit; // Calculate how many documents to skip
+        const matchCondition = {
+            type: { $in: ['input', 'output', 'recharge', 'maintenance', 'supplier_payment', 'customer_payment', 'purchasing', 'returns', 'output_staff'] },
+            createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) },
+        };
 
-        // Find transactions with pagination
-        const transactions = await Transaction.find(query)
-        .populate('products', 'name') // جلب أسماء المنتجات فقط
-        .sort({ date: -1 })
-            .skip(skip)
-            .limit(parseInt(limit)); // Limit the number of documents
+        if (branchId) {
+            if (!mongoose.Types.ObjectId.isValid(branchId)) {
+                return res.status(400).json({ message: 'Invalid Branch ID' });
+            }
+            matchCondition.branchId = new mongoose.Types.ObjectId(branchId);
+        }
 
-        const totalTransactions = await Transaction.countDocuments(query); // Total count for pagination
-        const totalPages = Math.ceil(totalTransactions / limit);
+        // Fetch revenue from transactions
+        const transactionRevenue = await Transaction.aggregate([
+            { $match: matchCondition },
+            {
+                $group: {
+                    _id: "$type",
+                    totalRevenue: { $sum: "$amount" },
+                },
+            },
+            {
+                $project: {
+                    _id: 0,
+                    type: "$_id",
+                    totalRevenue: 1,
+                },
+            },
+        ]);
 
-        res.json({
-            transactions,
-            totalTransactions,
-            totalPages,
-            currentPage: parseInt(page),
+        // Fetch revenue from orders
+        const orderMatchCondition = {
+            createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) },
+        };
+
+        if (branchId) {
+            orderMatchCondition.branchId = new mongoose.Types.ObjectId(branchId);
+        }
+
+        const orderRevenue = await Order.aggregate([
+            { $match: orderMatchCondition },
+            {
+                $group: {
+                    _id: null, // All orders are grouped together
+                    totalRevenue: { $sum: "$paid" }, // Use the "paid" field for revenue
+                },
+            },
+            {
+                $project: {
+                    _id: 0,
+                    type: { $literal: "sales" }, // Add a custom type for sales
+                    totalRevenue: 1,
+                },
+            },
+        ]);
+
+        // Combine both revenues
+        const combinedRevenue = [...transactionRevenue, ...orderRevenue];
+
+        console.log('Revenue Report:', combinedRevenue);
+
+        res.status(200).json({
+            message: 'Revenue report generated successfully',
+            report: combinedRevenue,
         });
-    } catch (error) {
-        res.status(500).json({ error: "Failed to retrieve transactions: " + error.message });
+    } catch (err) {
+        console.error('Error generating revenue report:', err);
+        res.status(500).json({ message: 'Error generating revenue report' });
     }
 });
+
+
 
 module.exports = router;

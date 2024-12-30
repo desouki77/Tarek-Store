@@ -1,0 +1,103 @@
+.revenue-reports-details {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+.revenue-reports-details h1 {
+    font-size: 24px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.revenue-reports-details h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.revenue-reports-details p {
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.revenue-reports-details table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.revenue-reports-details table th, .revenue-reports-details table td {
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+.revenue-reports-details table th {
+    background-color: #343a40;
+    color: white;
+}
+
+.revenue-reports-details td.revenue-reports-details-green-text {
+    color: green !important;
+}
+
+.revenue-reports-details td.revenue-reports-details-red-text {
+    color: red !important;
+}
+
+
+.revenue-reports-details .revenue-reports-total-profit {
+    margin-top: 20px;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.revenue-reports-details .error-message {
+    color: red;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 20px;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .revenue-reports-details h1 {
+        font-size: 20px;
+    }
+
+    .revenue-reports-details h2 {
+        font-size: 18px;
+    }
+
+    .revenue-reports-details p {
+        font-size: 14px;
+    }
+
+    .revenue-reports-details table th, .revenue-reports-details table td {
+        padding: 8px;
+    }
+
+    .revenue-reports-details .revenue-reports-total-profit {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .revenue-reports-details h1 {
+        font-size: 18px;
+    }
+
+    .revenue-reports-details h2 {
+        font-size: 16px;
+    }
+
+    .revenue-reports-details table th, .revenue-reports-details table td {
+        padding: 6px;
+    }
+
+    .revenue-reports-details .revenue-reports-total-profit {
+        font-size: 14px;
+    }
+}

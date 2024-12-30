@@ -43,7 +43,7 @@
     align-items: center;
     cursor: pointer; /* Pointer cursor on hover */
     transition: background-color 0.3s ease, transform 0.2s ease;
-    background-color:forestgreen ;
+    background-color:darkcyan ;
     
 }
 
@@ -52,6 +52,46 @@
     background-color: darkslategray;
     transform: scale(1.05);
 }
+
+
+.bank-amount-container {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* مسافة بين الأيقونة والنص */
+    cursor: pointer; /* لتوضيح أنه يمكن التفاعل */
+    margin-top: -40px; /* لتعديل المسافة بين الأيقونة والنص */
+}
+
+.bank-amount {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.bank-amount-container:hover .bank-amount {
+    opacity: 1;
+    visibility: visible;
+}
+
+.bank-icon {
+    font-size: 1.5rem; /* حجم الأيقونة */
+    color: #555; /* لون الأيقونة */
+    transition: color 0.3s ease;
+}
+
+.bank-amount-container:hover .bank-icon {
+    color: #000; /* لون مختلف عند الوقوف بالفأرة */
+}
+
+.close-bank{
+    background-color: #d9534f;
+}
+
+.close-bank:hover{
+    background-color: #c82333;
+}
+
+
 
 
 

@@ -6,13 +6,14 @@ router.post('/save-sales-report', async (req, res) => {
     const { reportName, totalSales, totalItemsSold, totalDiscounts, orderCount, branchId, startDate, endDate } = req.body;
 
     try {
+        // تحقق من branchId إذا كان null أو فارغًا
         const newReport = new SalesReport({
             reportName,
             totalSales,
             totalItemsSold,
             totalDiscounts,
             orderCount,
-            branchId,
+            branchId: branchId || null, // إذا كان null أو فارغًا يتم تخزين null
             startDate,
             endDate,
             createdAt: new Date(),
@@ -29,13 +30,14 @@ router.post('/save-sales-report', async (req, res) => {
 
 // API لاسترجاع جميع التقارير المحفوظة مع التصفية حسب الصفحة
 router.get('/get-all-reports', async (req, res) => {
-    const page = parseInt(req.query.page) || 1;  // الصفحة الافتراضية هي 1
-    const limit = parseInt(req.query.limit) || 10;  // الحد الافتراضي للنتائج في الصفحة هو 10
-    const skip = (page - 1) * limit;  // حساب عدد النتائج التي يجب تخطيها
+    const page = parseInt(req.query.page) || 1; // الصفحة الافتراضية هي 1
+    const limit = parseInt(req.query.limit) || 10; // الحد الافتراضي للنتائج في الصفحة هو 10
+    const skip = (page - 1) * limit; // حساب عدد النتائج التي يجب تخطيها
 
     try {
         const totalReports = await SalesReport.countDocuments(); // حساب العدد الإجمالي للتقارير
         const reports = await SalesReport.find()
+            .sort({ createdAt: -1 }) // ترتيب النتائج حسب الأحدث (الأحدث أولاً)
             .skip(skip)
             .limit(limit); // جلب التقارير باستخدام التصفية
 
