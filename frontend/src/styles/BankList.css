@@ -1,0 +1,125 @@
+.bank-list-container {
+    padding: 20px;
+    margin: 0 auto;
+    max-width: 1200px;
+}
+
+.bank-list-title {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+.bank-list-date-inputs {
+    display: flex;
+    justify-content: center; /* تأكيد أن المدخلات ستكون في المنتصف */
+    gap: 20px; /* إضافة مسافة بين المدخلات */
+    margin-bottom: 20px;
+}
+
+.bank-list-date-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.bank-list-input {
+    padding: 8px;
+    margin-top: 5px;
+    font-size: 1rem;
+    width: 150px; /* تعيين عرض ثابت للحقلين */
+}
+
+.bank-list-label {
+    font-size: 1.2rem;
+}
+
+.bank-list-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.bank-list-table th,
+.bank-list-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+
+.bank-list-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.bank-list-pagination-btn {
+    padding: 4px 8px;  /* Smaller padding for more compact buttons */
+    margin: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #007BFF;
+    cursor: pointer;
+    font-size: 12px;  /* Smaller font size */
+    color: #fff;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    width: auto; /* Allow button width to adjust based on content */
+    min-width: 40px;  /* Minimum width to ensure buttons are not too narrow */
+}
+
+.bank-list-pagination-btn:hover {
+    background-color: darkslategray;
+    color: #fff;
+}
+
+.bank-list-pagination-btn:disabled {
+    background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.bank-list-page-info {
+    font-size: 1rem;
+    margin: 0 15px;
+}
+
+/* Media Queries for responsiveness */
+@media (max-width: 768px) {
+    .bank-list-date-inputs {
+        flex-direction: column;
+    }
+
+    .bank-list-input {
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .bank-list-pagination {
+        flex-direction: column;
+    }
+
+    .bank-list-pagination-btn {
+        width: 100%;
+        margin-top: 5px;
+    }
+
+    .bank-list-table th, .bank-list-table td {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .bank-list-title {
+        font-size: 1.5rem;
+    }
+
+    .bank-list-date-inputs {
+        padding: 10px;
+    }
+
+    .bank-list-pagination-btn {
+        font-size: 0.9rem;
+    }
+}

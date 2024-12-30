@@ -15,15 +15,41 @@ router.post('/', async (req, res) => {
     }
 });
 
-// GET: Fetch all banks
+// GET: Fetch all banks with pagination and date filter
 router.get('/', async (req, res) => {
+    const { startDate, endDate, page = 1, limit = 10 } = req.query; // الحصول على التاريخ والنطاق والصفحة والعدد المحدد من الاستعلام
+
     try {
-        const banks = await Bank.find();
-        res.json(banks);
+        // إنشاء فلتر للتاريخ
+        let filter = {};
+        
+        if (startDate && endDate) {
+            filter.createdAt = { $gte: new Date(startDate), $lte: new Date(endDate) };
+        }
+
+        // تحويل page و limit إلى أرقام صحيحة
+        const pageNumber = parseInt(page, 10);
+        const limitNumber = parseInt(limit, 10);
+
+        // حساب عدد العناصر التي سيتم تخزينها
+        const totalBanks = await Bank.countDocuments(filter);
+        const totalPages = Math.ceil(totalBanks / limitNumber);
+
+        // الحصول على العناصر باستخدام التصفية والترتيب مع الـ pagination
+        const banks = await Bank.find(filter)
+            .populate('branch', 'name')
+            .sort({ createdAt: -1 }) // ترتيب حسب createdAt من الأحدث إلى الأقدم
+            .skip((pageNumber - 1) * limitNumber) // تحديد عدد العناصر التي يجب تخطيها بناءً على الصفحة
+            .limit(limitNumber); // تحديد الحد الأقصى للعناصر في كل صفحة
+
+        res.json({ banks, totalPages, currentPage: pageNumber }); // إرسال البيانات مع عدد الصفحات والصفحة الحالية
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
+
+
+
 
 // GET: Fetch a bank by ID
 router.get('/:id', async (req, res) => {
