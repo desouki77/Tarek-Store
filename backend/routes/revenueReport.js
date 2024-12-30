@@ -48,9 +48,10 @@ router.get('/revenue-reports', async (req, res) => {
         const totalReports = await RevenueReport.countDocuments();
         const totalPages = Math.ceil(totalReports / limit);  // حساب عدد الصفحات
 
-        // استرجاع التقارير حسب الترقيم
+        // استرجاع التقارير حسب الترقيم وترتيبها من الأحدث إلى الأقدم
         const reports = await RevenueReport.find()
             .populate('branchId')
+            .sort({ createdAt: -1 })  // ترتيب التقارير من الأحدث إلى الأقدم
             .skip((page - 1) * limit)  // تحديد السجل الذي نبدأ منه
             .limit(parseInt(limit));   // تحديد عدد العناصر في الصفحة
 
@@ -63,6 +64,7 @@ router.get('/revenue-reports', async (req, res) => {
         res.status(500).json({ message: 'Error fetching reports' });
     }
 });
+
 
 
 

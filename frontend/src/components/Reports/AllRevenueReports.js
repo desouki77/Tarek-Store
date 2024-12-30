@@ -9,8 +9,7 @@ function AllRevenueReports() {
     const [error, setError] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    // eslint-disable-next-line
-    const [reportsPerPage, setReportsPerPage] = useState(5);
+    const reportsPerPage = 5; // استخدم فقط القيمة الثابتة هنا
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -19,12 +18,18 @@ function AllRevenueReports() {
                 const response = await axios.get('https://tarek-store-backend.onrender.com/api/revenue-reports', {
                     params: { page: currentPage, limit: reportsPerPage },
                 });
-                setReports(response.data.reports || []);
+
+                // Sort reports by createdAt (newest to oldest)
+                const sortedReports = response.data.reports.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+                // Update reports by adding the new report to the beginning
+                setReports(sortedReports || []);
                 setTotalPages(response.data.totalPages || 1);
             } catch (err) {
                 setError('Error fetching revenue reports');
             }
         };
+
         fetchAllReports();
     }, [currentPage, reportsPerPage]);
 
