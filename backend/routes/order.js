@@ -209,6 +209,53 @@ router.get('/sales-report', async (req, res) => {
     }
 });
 
+router.get('/best-selling-products', async (req, res) => {
+    try {
+        const { branchId, startDate, endDate } = req.query;
+
+        let filter = {};
+
+        if (branchId) {
+            filter.branchId = branchId; // فلتر بالـ branchId
+        }
+
+        if (startDate && endDate) {
+            filter.createdAt = {
+                $gte: new Date(new Date(startDate).toISOString()), // بداية اليوم
+                $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999)).toISOString() // نهاية اليوم
+            };
+        }
+
+        // اجمع جميع الـ checkoutItems من الأوردرات
+        const result = await Order.aggregate([
+            { $match: filter }, // فلتر حسب branchId و التواريخ
+            { $unwind: '$checkoutItems' }, // فك التكديس للـ checkoutItems
+            {
+                $group: {
+                    _id: '$checkoutItems.barcode', // تجميع حسب الباركود
+                    name: { $first: '$checkoutItems.product' }, // الحصول على اسم المنتج من حقل "product" داخل checkoutItems
+                    totalQuantity: { $sum: '$checkoutItems.quantity' }, // حساب الكمية المباعة لكل منتج
+                    totalSales: { $sum: { $multiply: ['$checkoutItems.quantity', '$checkoutItems.price'] } } // إجمالي المبيعات لهذا المنتج
+                }
+            },
+            { $sort: { totalQuantity: -1 } }, // ترتيب حسب الكمية المباعة تنازليًا
+            { $limit: 10 } // جلب أفضل 10 منتجات مبيعًا
+        ]);
+
+        if (result.length === 0) {
+            return res.status(404).json({ message: 'No best-selling products found for the specified period.' });
+        }
+
+        res.json(result);
+
+    } catch (error) {
+        console.error('Error fetching best-selling products:', error);
+        res.status(500).json({ message: 'Server error', error });
+    }
+});
+
+
+
 
 
 

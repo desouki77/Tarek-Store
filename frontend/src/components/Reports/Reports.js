@@ -32,9 +32,7 @@ function Reports() {
                     <button className="report" onClick={() => handleReportClick('stockReport')}>
                         تقرير عدد الاستوك
                     </button>
-                    <button className="report" onClick={() => handleReportClick('staffReport')}>
-                        تقرير الموظفين
-                    </button>
+                 
                 </div>
             </div>
         </>
