@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const Order = require('../models/Order'); // Assuming you have an Order model
 const validateBranchId = require('../middlewares/validateBranch');
+const { getTopSellingProducts } = require('../controllers/orderController'); // تأكد من المسار الصحيح
+
 
 // POST /orders - Create a new order, including branchId
 router.post('/orders', validateBranchId, async (req, res) => {
@@ -209,50 +211,32 @@ router.get('/sales-report', async (req, res) => {
     }
 });
 
-router.get('/best-selling-products', async (req, res) => {
+router.get('/top-selling-products', async (req, res) => {
     try {
-        const { branchId, startDate, endDate } = req.query;
+        const { branchId, page = 1, limit = 10 } = req.query;  // جلب المعاملات من الاستعلام
+        console.log("Received query params:", { branchId, page, limit });  // سجل المعاملات
 
-        let filter = {};
+        // حساب التخطي (skip) بناءً على الصفحة وعدد العناصر
+        const skip = (page - 1) * limit;
 
-        if (branchId) {
-            filter.branchId = branchId; // فلتر بالـ branchId
-        }
+        // جلب البيانات مع دعم pagination
+        const result = await getTopSellingProducts({
+            branchId,
+            skip,
+            limit
+        });
 
-        if (startDate && endDate) {
-            filter.createdAt = {
-                $gte: new Date(new Date(startDate).toISOString()), // بداية اليوم
-                $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999)).toISOString() // نهاية اليوم
-            };
-        }
+        console.log("Top selling products result:", result);  // سجل النتيجة النهائية
 
-        // اجمع جميع الـ checkoutItems من الأوردرات
-        const result = await Order.aggregate([
-            { $match: filter }, // فلتر حسب branchId و التواريخ
-            { $unwind: '$checkoutItems' }, // فك التكديس للـ checkoutItems
-            {
-                $group: {
-                    _id: '$checkoutItems.barcode', // تجميع حسب الباركود
-                    name: { $first: '$checkoutItems.product' }, // الحصول على اسم المنتج من حقل "product" داخل checkoutItems
-                    totalQuantity: { $sum: '$checkoutItems.quantity' }, // حساب الكمية المباعة لكل منتج
-                    totalSales: { $sum: { $multiply: ['$checkoutItems.quantity', '$checkoutItems.price'] } } // إجمالي المبيعات لهذا المنتج
-                }
-            },
-            { $sort: { totalQuantity: -1 } }, // ترتيب حسب الكمية المباعة تنازليًا
-            { $limit: 10 } // جلب أفضل 10 منتجات مبيعًا
-        ]);
-
-        if (result.length === 0) {
-            return res.status(404).json({ message: 'No best-selling products found for the specified period.' });
-        }
-
-        res.json(result);
-
+        // إرجاع النتيجة
+        res.status(200).json(result);
     } catch (error) {
-        console.error('Error fetching best-selling products:', error);
-        res.status(500).json({ message: 'Server error', error });
+        console.error("Error fetching top selling products:", error);
+        res.status(500).json({ message: "Error fetching top selling products", error });
     }
 });
+
+
 
 
 

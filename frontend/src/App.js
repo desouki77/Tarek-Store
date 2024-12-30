@@ -34,6 +34,7 @@ import AllSalesReports from './components/Reports/AllSalesReports';
 import RevenueReport from './components/Reports/RevenueReport';
 import AllRevenueReports from './components/Reports/AllRevenueReports';
 import RevenueReportDetails from './components/Reports/RevenueReportDetails';
+import TopSellingProducts from './components/Reports/TopSellingProducts';
 
 function App() {
   const [loading, setLoading] = useState(false); // Track loading state
@@ -97,6 +98,9 @@ function App() {
             <Route path="/all-revenue-reports" element={<AllRevenueReports />} />
 
             <Route path="/revenue-report/:reportId" element={<RevenueReportDetails />} />
+            <Route path="/reports/bestSellerReport" element={<TopSellingProducts />} />
+
+
 
 
 
