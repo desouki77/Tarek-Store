@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import '../../styles/Checkout.css'; // Ensure you import the CSS file
 import axios from 'axios';
 import Loader from '../Loader';
-
-
+import { useNavigate } from 'react-router-dom'; // استيراد useNavigate
 
 const Checkout = () => {
     const [checkoutItems, setCheckoutItems] = useState([]);
@@ -22,7 +21,7 @@ const Checkout = () => {
     });
 
     const [loading, setLoading] = useState(true);
-
+    const navigate = useNavigate(); // استخدام useNavigate للتوجيه
 
     useEffect(() => {
         
@@ -177,7 +176,8 @@ const Checkout = () => {
             setClientName('');
             setClientPhone('');
     
-            window.close(); // Close the window after submitting
+            // الانتقال إلى صفحة البيع بعد إتمام الدفع
+            navigate('/transactions/selling');
         } catch (error) {
             console.error('Error:', error.response ? error.response.data.message : error.message);
         }

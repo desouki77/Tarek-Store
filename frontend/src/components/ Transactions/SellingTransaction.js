@@ -118,26 +118,26 @@ const SellingTransaction = () => {
         const isBankOpen = localStorage.getItem('bankOpen') === 'true';
     
         if (!isBankOpen) {
-            alert('الدرج مغلق يرجي الرجوع الي الصفحة الرئيسية لفتح الدرج اولا');
+            alert('الدرج مغلق، يرجى الرجوع إلى الصفحة الرئيسية لفتح الدرج أولاً');
             return;
         }
     
         if (!products || products.length === 0) {
-            alert('برجاء اضافة منتج');
+            alert('برجاء إضافة منتج');
             return;
         }
     
         try {
-            setProducts([]);
-            sessionStorage.setItem('checkoutItems', JSON.stringify(products));
-            const checkoutWindow = window.open('/checkout', '_blank');
-            if (checkoutWindow) {
-                checkoutWindow.opener = null;
-            }
+            setProducts([]); // مسح المنتجات بعد الدفع
+            sessionStorage.setItem('checkoutItems', JSON.stringify(products)); // تخزين المنتجات في sessionStorage
+    
+            // استخدام navigate للانتقال إلى صفحة الدفع
+            navigate('/checkout');
         } catch (error) {
             console.error('Error during checkout:', error);
         }
     };
+    
     
 
     const removeProduct = (index) => {
