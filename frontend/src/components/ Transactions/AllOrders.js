@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom'; // استيراد useNavigate
 import Navbar from '../Navbar';
 import '../../styles/AllOrders.css';
 import Loader from '../Loader';
 
 const AllOrders = () => {
+    const navigate = useNavigate(); // تعريف navigate
+
     const role = localStorage.getItem('role');
     const isAdmin = role === 'admin';
 
@@ -43,7 +46,7 @@ const AllOrders = () => {
     if (loading) return <Loader />;
 
     const viewOrderDetails = (orderId) => {
-        window.location.href = `/order-receipt/${orderId}`;
+        navigate(`/order-receipt/${orderId}`);
     };
 
     const handlePageChange = (pageNumber) => {

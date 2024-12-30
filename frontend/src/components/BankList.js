@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Navbar from './Navbar';
 import '../styles/BankList.css';
+import Loader from './Loader';
 
 const BankList = () => {
   const [banks, setBanks] = useState([]);
@@ -31,7 +32,7 @@ const BankList = () => {
   }, [startDate, endDate, currentPage]);
 
   if (loading) {
-    return <div className="bank-list-loading">جاري تحميل البيانات...</div>;
+    return <Loader />;
   }
 
   if (error) {

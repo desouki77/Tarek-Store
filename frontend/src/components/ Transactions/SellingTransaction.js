@@ -278,12 +278,12 @@ const SellingTransaction = () => {
 
 
                 <div>
-                    <button
-                        onClick={() => (window.location.href = '/all-orders')}
-                        className="selling-transaction-all-orders-btn"
-                    >
-                        جميع الفواتير
-                    </button>
+                <button
+        onClick={() => navigate('/all-orders')} 
+        className="selling-transaction-all-orders-btn"
+    >
+        جميع الفواتير
+    </button>
                 </div>
             </div>
         </>
