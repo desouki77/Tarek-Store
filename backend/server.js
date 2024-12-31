@@ -1,20 +1,18 @@
-import express from 'express';
-import dotenv from 'dotenv';
-import cors from 'cors';
-import path from 'path';
-import connectDB from './config/db.js';
-import userRoutes from './routes/userRoutes.js';
-import transactionRoutes from './routes/transactionRoutes.js';
-import products from './routes/products.js';
-import order from './routes/order.js';
-import branch from './routes/branch.js';
-import bankRoutes from './routes/bank.js';
-import suppliersRoutes from './routes/suppliers.js';
-import ClientsRoutes from './routes/clients.js';
-import salesReport from './routes/salesReport.js';
-import revenueReport from './routes/revenueReport.js';
-
-
+const express = require('express');
+const dotenv = require('dotenv');
+const cors = require('cors');
+const path = require('path');
+const connectDB = require('./config/db');
+const userRoutes = require('./routes/userRoutes');
+const transactionRoutes = require('./routes/transactionRoutes');
+const products = require('./routes/products');
+const order = require('./routes/order');
+const branch = require('./routes/branch');
+const bankRoutes = require('./routes/bank');
+const suppliersRoutes = require('./routes/suppliers');
+const ClientsRoutes = require('./routes/clients');
+const salesReport = require('./routes/salesReport');
+const revenueReport = require('./routes/revenueReport');
 
 dotenv.config(); // Load environment variables from .env file
 
@@ -26,10 +24,6 @@ app.use(cors()); // Enable CORS for frontend requests
 
 // Connect Database
 connectDB();
-
-// Set up the __dirname equivalent in ES Modules
-const __dirname = path.dirname(new URL(import.meta.url).pathname);
-
 
 // Sample Route
 app.get('/', (req, res) => {
@@ -47,7 +41,6 @@ app.use('/api/clients', ClientsRoutes);
 app.use('/api/bank', bankRoutes);
 app.use('/api', salesReport);
 app.use('/api', revenueReport);
-
 
 // Serve static files from React app
 app.use(express.static(path.join(__dirname, '/frontend/build')));
