@@ -28,7 +28,7 @@ router.post('/register', async (req, res) => {
         await newUser.save();
 
         // Generate JWT
-        const token = jwt.sign({ id: newUser._id, username: newUser.username, role: newUser.role }, 'your_secret_key', { expiresIn: '1h' });
+        const token = jwt.sign({ id: newUser._id, username: newUser.username, role: newUser.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
         res.status(201).json({ message: 'تم تسجيل المستخدم بنجاح', token });
     } catch (error) {
@@ -73,20 +73,7 @@ router.post('/login', async (req, res) => {
             user: { id: user._id, username: user.username, role: user.role, branchId }, // Include branchId in response
         });
     } catch (error) {
-        console.error('Login error:', error); // Log the error
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
-
-
-// Fetch username by ID
-router.get('/:id', async (req, res) => {
-    try {
-        const user = await User.findById(req.params.id);
-        if (!user) return res.status(404).json({ message: 'User not found' });
-        res.json({ username: user.username });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ error: 'خطا في السيرفر' });
     }
 });
 
@@ -112,7 +99,7 @@ router.get('/', async (req, res) => {
 
         // Check if no sales users were found
         if (salesUsers.length === 0) {
-            return res.status(404).json({ message: 'No sales users found' });
+            return res.status(404).json({ message: 'لا يوجد موظفين مبيعات مسجلين' });
         }
 
         // Send the filtered users along with pagination info
@@ -122,10 +109,53 @@ router.get('/', async (req, res) => {
             currentPage: pageNumber,
         });
     } catch (error) {
-        res.status(500).json({ message: 'Failed to fetch sales users', error: error.message });
+        res.status(500).json({ message: 'خطا سيرفر في استرجاع الموظفين', error: error.message });
     }
 });
 
+// Update user's salary after deduction
+router.put('/:id/updateSalary', async (req, res) => {
+    const { id } = req.params;
+    const { deduction } = req.body;
+
+    if (isNaN(deduction) || deduction < 0) {
+        return res.status(400).json({ message: 'القيمة لا يجب ان تكون سالب' });
+    }    
+
+    try {
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ message: 'موظف غير موجود' });
+        }
+
+        // Convert salary to a number and apply the deduction
+        const currentSalary = parseFloat(user.salary) || 0;
+        const updatedSalary = currentSalary - deduction;
+
+        if (updatedSalary < 0) {
+            return res.status(400).json({ message: 'المرتب لا يجب ان يكون سالب' });
+        }
+
+        // Update the user's salary in the database
+        user.salary = updatedSalary.toString();
+        await user.save();
+
+        res.status(200).json({ message: 'تم تحديث المرتب', updatedSalary });
+    } catch (error) {
+        res.status(500).json({ message: 'خطا سيرفر في تحديث المرتب', error: error.message });
+    }
+});
+
+// Fetch username by ID
+router.get('/:id', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) return res.status(404).json({ message: 'موظف غير موجود' });
+        res.json({ username: user.username });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
 
 // backend/routes/userRoutes.js
 router.delete('/:id', async (req, res) => {
@@ -137,40 +167,14 @@ router.delete('/:id', async (req, res) => {
 
         // If no user is found, return a 404 status
         if (!deletedUser) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(404).json({ message: 'موظف غير موجود' });
         }
 
         // Return a success message
-        res.status(200).json({ message: 'User deleted successfully' });
+        res.status(200).json({ message: 'تم حذف الموظف بنجاح' });
     } catch (error) {
-        res.status(500).json({ message: 'Failed to delete user', error: error.message });
+        res.status(500).json({ message: 'خطا سيرفر في حذف الموظف', error: error.message });
     }
 });
-
-// Update user's salary after deduction
-router.put('/:id/updateSalary', async (req, res) => {
-    const { id } = req.params;
-    const { deduction } = req.body;
-
-    try {
-        const user = await User.findById(id);
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        // Convert salary to a number and apply the deduction
-        const currentSalary = parseFloat(user.salary) || 0;
-        const updatedSalary = currentSalary - deduction;
-
-        // Update the user's salary in the database
-        user.salary = updatedSalary.toString();
-        await user.save();
-
-        res.status(200).json({ message: 'Salary updated successfully', updatedSalary });
-    } catch (error) {
-        res.status(500).json({ message: 'Failed to update salary', error: error.message });
-    }
-});
-
 
 module.exports = router;

@@ -21,13 +21,21 @@ const Registration = () => {
 
     try {
       // Send registration data to the backend using Axios
-      const response = await axios.post('https://tarek-store-backend.onrender.com/api/users/register', {
-        username,
-        password,
-        phone,
-        role,
-        salary,
-      });
+      const response = await axios.post(
+        'https://tarek-store-backend.onrender.com/api/users/register',
+        {
+          username,
+          password,
+          phone,
+          role,
+          salary,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
       // Check if the response is successful
       if (response.status === 201) { // Assuming 201 is the status code for a successful registration
