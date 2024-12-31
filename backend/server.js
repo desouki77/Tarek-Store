@@ -1,12 +1,13 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const path = require('path'); // Import path module
 const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
 const products = require('./routes/products');
 const order = require('./routes/order');
-const branch = require('./routes/branch'); // Adjust the path
+const branch = require('./routes/branch');
 const bank = require('./routes/bank');
 const suppliersRoutes = require('./routes/suppliers');
 const ClientsRoutes = require('./routes/clients');
@@ -14,25 +15,16 @@ const bankRoutes = require('./routes/bank');
 const salesReport = require('./routes/salesReport');
 const revenueReport = require('./routes/revenueReport');
 
-
-
-
-
-
-
-dotenv.config();  // Load environment variables from .env file
+dotenv.config(); // Load environment variables from .env file
 
 const app = express();
 
-
-
 // Middleware
-app.use(express.json());  // To parse JSON requests
-app.use(cors());          // Enable CORS for frontend requests
+app.use(express.json()); // To parse JSON requests
+app.use(cors()); // Enable CORS for frontend requests
 
-// Connect Databas
+// Connect Database
 connectDB();
-
 
 // Sample Route
 app.get('/', (req, res) => {
@@ -41,34 +33,26 @@ app.get('/', (req, res) => {
 
 // Use Routes
 app.use('/api/users', userRoutes);
-
-// Tranactions Routes
 app.use('/api/transactions', transactionRoutes);
-
-// Products Routes
 app.use('/api/products', products);
-
-// Order Routes
-app.use('/api' , order);
-
-// Branches Routes
+app.use('/api', order);
 app.use('/api/branches', branch);
-
-// Suppliers Routes
 app.use('/api/suppliers', suppliersRoutes);
-
-// Client Routes
 app.use('/api/clients', ClientsRoutes);
-
-// Bank Routes
 app.use('/api/bank', bankRoutes);
-
-// Sales Report Routes
 app.use('/api', salesReport);
-
-// Revenue Report Routes
 app.use('/api', revenueReport);
 
 
+// Serve static files from React app
+const __dirname = path.resolve();
+app.use(express.static(path.join(__dirname, '/frontend/build')));
+
+// Handle React routing, return all requests to React app
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '/frontend/build', 'index.html'));
+});
+
+// Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
