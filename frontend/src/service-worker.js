@@ -1,3 +1,10 @@
+// service-worker.js
+import { precacheAndRoute } from 'workbox-precaching';
+
+// تأكد من أن __WB_MANIFEST يتم تضمينه بشكل صحيح
+precacheAndRoute(this.__WB_MANIFEST);
+
+
 const CACHE_NAME = "app-cache-v1";
 const urlsToCache = [
   "/",
