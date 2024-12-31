@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import path from 'path';
 import connectDB from './config/db.js';
 import userRoutes from './routes/userRoutes.js';
 import transactionRoutes from './routes/transactionRoutes.js';
@@ -14,6 +15,7 @@ import salesReport from './routes/salesReport.js';
 import revenueReport from './routes/revenueReport.js';
 
 
+
 dotenv.config(); // Load environment variables from .env file
 
 const app = express();
@@ -24,6 +26,10 @@ app.use(cors()); // Enable CORS for frontend requests
 
 // Connect Database
 connectDB();
+
+// Set up the __dirname equivalent in ES Modules
+const __dirname = path.dirname(new URL(import.meta.url).pathname);
+
 
 // Sample Route
 app.get('/', (req, res) => {
@@ -44,7 +50,6 @@ app.use('/api', revenueReport);
 
 
 // Serve static files from React app
-const __dirname = path.resolve();
 app.use(express.static(path.join(__dirname, '/frontend/build')));
 
 // Handle React routing, return all requests to React app
