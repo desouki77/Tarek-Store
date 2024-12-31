@@ -36,7 +36,7 @@ import AllRevenueReports from './components/Reports/AllRevenueReports';
 import RevenueReportDetails from './components/Reports/RevenueReportDetails';
 import TopSellingProducts from './components/Reports/TopSellingProducts';
 import BankList from './components/BankList';
-import StockReport from './components/Reports/ SrockReport';
+import StockReport from './components/Reports/SrockReport';
 
 function App() {
   const [loading, setLoading] = useState(false); // Track loading state
@@ -81,18 +81,18 @@ function App() {
             <Route path="/transactions/returns" element={<ReturnsTransaction />} />
             <Route path='/transactions/output_staff' element={<OutputStaff />}/>
             <Route path="/transactions/warranty" element={<WarrantyTransactions />} />
-            <Route path="inventory" element={<Inventory />} />
+            <Route path="/inventory" element={<Inventory />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/order-receipt/:orderId" element={<OrderReceipt />} />
             <Route path="/all-orders" element={<AllOrders />} />
             <Route path="/all-products" element={<AllProducts />} />
             <Route path="/edit-product/:barcode" element={<EditProduct />} />
-            <Route path="all-transactions" element={<AllTransactions />} />
-            <Route path='sales' element={<Sales />} />
-            <Route path='suppliers' element={<Suppliers />} />
-            <Route path='customers' element={<Client />}/>
+            <Route path="/all-transactions" element={<AllTransactions />} />
+            <Route path='/sales' element={<Sales />} />
+            <Route path='/suppliers' element={<Suppliers />} />
+            <Route path='/customers' element={<Client />}/>
 
-            <Route path="reports" element={<Reports/>} />
+            <Route path="/reports" element={<Reports/>} />
             <Route path="/reports/salesReport" element={<SalesReport />} />
             <Route path="/all-sales-reports" element={<AllSalesReports/>} />
 
