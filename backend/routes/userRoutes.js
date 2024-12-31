@@ -99,7 +99,7 @@ router.get('/', async (req, res) => {
 
         // Check if no sales users were found
         if (salesUsers.length === 0) {
-            return res.status(404).json({ message: 'لا يوجد موظفين مبيعات مسجلين' });
+            return res.status(404).json({ message: 'لا يوجد موظفين مسجلين' });
         }
 
         // Send the filtered users along with pagination info
