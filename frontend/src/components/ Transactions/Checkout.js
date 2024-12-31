@@ -63,8 +63,9 @@ const Checkout = () => {
     }, []);
 
     const totalAmount = checkoutItems.reduce((total, item) => total + item.price, 0);
-    const totalAfterDiscount = totalAmount - Number(discount); // Calculate total after discount
-    const remaining = Number(paid) - totalAfterDiscount; // Calculate remaining amount to be paid
+    const totalAfterDiscount = totalAmount - (Number(discount) || 0); // Calculate total after discount
+    const remaining = (Number(paid) || 0) - totalAfterDiscount; // Calculate remaining amount to be paid
+    
      
 
     const handleSubmit = async () => {
@@ -83,20 +84,28 @@ const Checkout = () => {
             return;
         }
     
-        // Create a new client if the remaining amount is not zero and client info is provided
-        if (clientName && clientPhone) {
+        if (remaining !== 0 && clientName && clientPhone) {
             try {
-                // Send a request to the backend to create a new client
-                await axios.post('https://tarek-store-backend.onrender.com/api/clients/add', {
-                    name: clientName,
-                    phoneNumber: clientPhone,
-                    amountRequired: remaining,
-                });
-                console.log('تم إضافة العميل بنجاح');
+                const existingClientResponse = await axios.get(`https://tarek-store-backend.onrender.com/api/clients/${clientPhone}`);
+        
+                if (existingClientResponse.data) {
+                    // إذا كان العميل موجودًا، قم بتحديث المبلغ المتبقي
+                    await axios.put('https://tarek-store-backend.onrender.com/api/clients/update-amount', {
+                        clientPhone,
+                        remainingAmount: remaining, // إضافة المبلغ المتبقي
+                    });
+                    console.log('تم تحديث المبلغ بنجاح');
+                } else {
+                    // إذا لم يكن العميل موجودًا، أضفه
+                    await axios.post('https://tarek-store-backend.onrender.com/api/clients/add', {
+                        name: clientName,
+                        phoneNumber: clientPhone,
+                        amountRequired: remaining,
+                    });
+                    console.log('تم إضافة العميل بنجاح');
+                }
             } catch (error) {
-                console.error('Error adding client:', error.response ? error.response.data.message : error.message);
-                alert('حدث خطأ أثناء إضافة العميل');
-                return; // Stop the process if there was an error adding the client
+                console.error('Error checking/adding client:', error.response?.data?.message || error.message);
             }
         }
     
@@ -184,25 +193,30 @@ const Checkout = () => {
     };
     
     const handlePhoneChange = async (phone) => {
-        setClientPhone(phone);
+        setClientPhone(phone); // تحديث رقم الهاتف المدخل
     
-        if (!phone) {
-            setClientName('');
+        // التحقق إذا كان الحقل فارغًا لتجنب الاستدعاءات غير الضرورية
+        if (!phone || phone.trim() === "") {
+            setClientName(''); // إعادة تعيين اسم العميل إذا كان الهاتف فارغًا
             return;
         }
     
         try {
+            // استدعاء API لجلب بيانات العميل
             const response = await axios.get(`https://tarek-store-backend.onrender.com/api/clients/${phone}`);
             if (response.data) {
-                setClientName(response.data.name);
-                // تحديث المبلغ المطلوب بناءً على البيانات المسترجعة من الجهة الخلفية
-                setPaid(response.data.amountRequired); 
+                setClientName(response.data.name || ""); // تحديث اسم العميل فقط
+            } else {
+                setClientName(''); // إعادة تعيين اسم العميل إذا لم يُعثر على بيانات
             }
         } catch (error) {
-            setClientName('');
+            setClientName(''); // إعادة تعيين اسم العميل في حالة حدوث خطأ
             console.error("Error fetching client data:", error.response?.data?.message || error.message);
         }
     };
+    
+    
+    
     
 
     const handlePrint = () => {

@@ -183,7 +183,7 @@ const Clients = () => {
                         </div>
                     </>
                 ) : (
-                    <p className="clients-no-data">لا توجد بيانات لعرضها</p>
+                    <p className="clients-no-data">لا يوجد عملاء </p>
                 )}
             </div>
         </>

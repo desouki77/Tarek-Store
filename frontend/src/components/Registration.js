@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios'; // Import Axios
+import axios from 'axios'; 
 import '../styles/Registration.css';
 import Loader from './Loader';
 
@@ -42,15 +42,19 @@ const Registration = () => {
         navigate('/login'); // Redirect to login page upon success
       }
     } catch (err) {
-      // Handle errors
-      setError(err);
+         // تحقق من وجود رسالة خطأ من الباك إند
+    const errorMessage =
+    err.response && err.response.data && err.response.data.error
+      ? err.response.data.error
+      : 'حدث خطأ غير متوقع';
+    setError(errorMessage);
     } finally {
     setIsLoading(false);
   }
   };
 
   if (loading) {
-    return <Loader />; // Display loading message
+    return <Loader />; 
 }
 
   return (
@@ -93,7 +97,7 @@ const Registration = () => {
           </div>
         <div className="registration-component-form-group">
           <label htmlFor="role">نوع الحساب</label>
-          <select id="role" value={role} onChange={(e) => setRole(e.target.value)}  className="registration-component-select">
+          <select id="role" value={role} onChange={(e) => setRole(e.target.value)}  className="registration-component-select" required>
             <option value="">Select Type </option>
             <option value="sales">موظف مبيعات</option>
             <option value="admin">مدير</option>

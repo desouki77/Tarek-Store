@@ -83,12 +83,41 @@ router.get('/:phone', async (req, res) => {
         // إذا تم العثور على العميل، أعد بياناته
         res.json({
             name: client.name,
-            phoneNumber: client.phoneNumber,
+            amountRequired: client.amountRequired, 
         });
     } catch (error) {
         console.error('Error fetching client:', error);
         res.status(500).json({ message: 'حدث خطأ أثناء جلب بيانات العميل' });
     }
 });
+
+router.put('/update-amount', async (req, res) => {
+    const { clientPhone, remainingAmount } = req.body;
+
+    if (!clientPhone || !remainingAmount) {
+        return res.status(400).json({ message: "الرجاء توفير رقم الهاتف والمبلغ المتبقي" });
+    }
+
+    try {
+        const client = await Client.findOne({ phoneNumber: clientPhone });
+
+        if (!client) {
+            return res.status(404).json({ message: "العميل غير موجود" });
+        }
+
+        // إضافة المبلغ المتبقي إلى المبلغ المطلوب
+        client.amountRequired += remainingAmount;
+
+        // حفظ التحديث في قاعدة البيانات
+        await client.save();
+
+        return res.status(200).json({ message: "تم تحديث المبلغ بنجاح", client });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "حدث خطأ أثناء التحديث" });
+    }
+});
+
+
 
 module.exports = router;

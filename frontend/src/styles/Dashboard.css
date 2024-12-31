@@ -8,8 +8,8 @@
     justify-content: space-evenly; /* Align items with space evenly */
     flex-wrap: wrap; /* Allow wrapping of items */
     padding-top: 5vh;
-    padding-bottom: 42px;
-    padding-top: 82px;
+    padding-bottom: 80px;
+    padding-top: 100px;
 }
 
 .welcome {
@@ -59,7 +59,7 @@
     align-items: center;
     gap: 10px; /* مسافة بين الأيقونة والنص */
     cursor: pointer; /* لتوضيح أنه يمكن التفاعل */
-    margin-top: -40px; /* لتعديل المسافة بين الأيقونة والنص */
+    margin-top: -20px; /* لتعديل المسافة بين الأيقونة والنص */
 }
 
 .bank-amount {
@@ -143,6 +143,13 @@
     .welcome {
         padding: 20px; /* Less padding for mobile screens */
         margin-top: 20px; /* Less margin for mobile screens */
+        width: 50%; /* Adjust width */
+    }
+    .open-bank{
+        width: 50%;
+    }
+    .close-bank{
+        width: 50%;
     }
 
     .transaction-buttons {
@@ -152,8 +159,8 @@
 
 
     .transaction{
-        width: 90px; /* Even smaller buttons */
-        height: 90px;
+        width: 160px; /* Even smaller buttons */
+        height: 160px;
         font-size: 16px; /* Smaller font size for very small screens */
     }
 

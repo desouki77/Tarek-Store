@@ -122,6 +122,28 @@ const PurchasingTransaction = () => {
     }
   };
 
+  const checkSupplierPhoneNumber = async (phoneNumber) => {
+    // إزالة المسافات أو الرموز غير الضرورية من الرقم
+    const cleanedPhoneNumber = phoneNumber.replace(/[^0-9]/g, '');
+  
+    // إذا كان الرقم فارغًا، نرجع false لأنه لا يمكن التحقق من رقم فارغ
+    if (!cleanedPhoneNumber) {
+      return false;
+    }
+  
+    try {
+      const response = await axios.get(`https://tarek-store-backend.onrender.com/api/suppliers?phoneNumber=${cleanedPhoneNumber}`);
+      if (response.data.suppliers.length > 0) {
+        return true; // المورد بهذا الرقم موجود بالفعل
+      }
+      return false; // المورد بهذا الرقم غير موجود
+    } catch (error) {
+      console.error('Error checking phone number:', error);
+      return false;
+    }
+  };
+  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -159,8 +181,19 @@ const PurchasingTransaction = () => {
       return;
   }
 
+ 
+
     try {
       const finalSupplier = selectedSupplier === 'new' ? supplier : { name: selectedSupplier };
+
+      if (selectedSupplier !== 'new') {
+        const phoneExists = await checkSupplierPhoneNumber(supplier.phoneNumber);
+        if (phoneExists) {
+          setError('المورد بهذا الرقم موجود بالفعل');
+          setIsLoading(false);
+          return;
+        }
+      }
 
       const response = await axios.post('https://tarek-store-backend.onrender.com/api/transactions/purchasing', {
         branchId,

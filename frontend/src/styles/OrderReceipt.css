@@ -96,7 +96,12 @@
     .order-receipt-container {
         margin: 130px;
         padding: 5px;
+        width: 50%;
+        margin-left: auto;
+        margin-right: auto;
     }
+
+   
 
     .order-receipt-header p {
         font-size: 12px;
