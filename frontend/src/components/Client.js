@@ -13,6 +13,8 @@ const Clients = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [message, setMessage] = useState('');
+    const [isLoading, setIsLoading] = useState(false); // Loading state
+    const [noClients, setNoClients] = useState(false); // No clients state
     const role = localStorage.getItem('role');
     const isAdmin = role === 'admin';
 
@@ -34,16 +36,19 @@ const Clients = () => {
             console.error(error);
         }
     };
-    
 
     const fetchClients = async (page = 1) => {
+        setIsLoading(true); // Start loading
         try {
             const response = await axios.get(`https://tarek-store-backend.onrender.com/api/clients?page=${page}&limit=7`);
             setClients(response.data.clients);
             setCurrentPage(response.data.currentPage);
             setTotalPages(response.data.totalPages);
+            setNoClients(response.data.clients.length === 0); // Check if no clients
         } catch (error) {
-            console.error('خطأ في استراجع العملاء', error);
+            console.error('خطأ في استرجاع العملاء', error);
+        } finally {
+            setIsLoading(false); // End loading
         }
     };
 
@@ -54,15 +59,15 @@ const Clients = () => {
     const handleDeleteClients = async (id) => {
         const confirmDelete = window.confirm('هل أنت متأكد أنك تريد حذف هذا العميل'); // Confirmation in Arabic
         if (confirmDelete) {
-        try {
-            const response = await axios.delete(`https://tarek-store-backend.onrender.com/api/clients/${id}`);
-            setMessage(response.data.message);
-            fetchClients(currentPage); 
-        } catch (error) {
-            setMessage('خطأ في مسح العميل');
-            console.error(error);
+            try {
+                const response = await axios.delete(`https://tarek-store-backend.onrender.com/api/clients/${id}`);
+                setMessage(response.data.message);
+                fetchClients(currentPage); 
+            } catch (error) {
+                setMessage('خطأ في مسح العميل');
+                console.error(error);
+            }
         }
-    }
     };
 
     const handlePageChange = (direction) => {
@@ -107,7 +112,7 @@ const Clients = () => {
                             />
                         </div>
                         <div className="clients-form-group">
-                            <label htmlFor="notes">المبلغ المطلوب:</label>
+                            <label htmlFor="amountRequired">المبلغ المطلوب:</label>
                             <input
                                 type="text"
                                 id="amountRequired"
@@ -125,44 +130,47 @@ const Clients = () => {
                 </div>
 
                 {/* Client Table */}
-                {clients.length > 0 ? (
+                {isLoading ? (
+                    <p>جاري تحميل العملاء...</p>
+                ) : noClients ? (
+                    <p>لا يوجد عملاء لعرضهم</p>
+                ) : (
                     <>
-                    <div className="clients-table-container">
-                        <h2 className="clients-table-title">جميع العملاء</h2>
-                        <table className="clients-table">
-                            <thead>
-                                <tr>
-                                    <th>الاسم</th>
-                                    <th>رقم الموبايل</th>
-                                    <th>المبلغ المطلوب</th>
-                                    {isAdmin && <th>حذف</th>} {/* Show delete button only for admins */}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {clients.map((client) => (
-                                    <tr key={client._id}>
-                                        <td>{client.name}</td>
-                                        <td>{client.phoneNumber}</td>
-                                        <td>{client.amountRequired || 0}</td>
-                                        {isAdmin && (
-                                            <td>
-                                                <button
-                                                    onClick={() => handleDeleteClients(client._id)}
-                                                    className="clients-delete-button"
-                                                >
-                                                    حذف
-                                                </button>
-                                            </td>
-                                        )}
+                        <div className="clients-table-container">
+                            <h2 className="clients-table-title">جميع العملاء</h2>
+                            <table className="clients-table">
+                                <thead>
+                                    <tr>
+                                        <th>الاسم</th>
+                                        <th>رقم الموبايل</th>
+                                        <th>المبلغ المطلوب</th>
+                                        {isAdmin && <th>حذف</th>} {/* Show delete button only for admins */}
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {clients.map((client) => (
+                                        <tr key={client._id}>
+                                            <td>{client.name}</td>
+                                            <td>{client.phoneNumber}</td>
+                                            <td>{client.amountRequired || 0}</td>
+                                            {isAdmin && (
+                                                <td>
+                                                    <button
+                                                        onClick={() => handleDeleteClients(client._id)}
+                                                        className="clients-delete-button"
+                                                    >
+                                                        حذف
+                                                    </button>
+                                                </td>
+                                            )}
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
 
-                      
-                    </div>
-                      {/* Pagination */}
-                      <div className="clients-pagination">
+                        {/* Pagination */}
+                        <div className="clients-pagination">
                             <button
                                 onClick={() => handlePageChange(-1)}
                                 className="clients-pagination-button"
@@ -182,8 +190,6 @@ const Clients = () => {
                             </button>
                         </div>
                     </>
-                ) : (
-                    <p className="clients-no-data">لا يوجد عملاء </p>
                 )}
             </div>
         </>

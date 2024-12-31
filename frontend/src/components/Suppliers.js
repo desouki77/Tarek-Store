@@ -15,6 +15,8 @@ const Suppliers = () => {
     const [suppliers, setSuppliers] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
+    const [isLoading, setIsLoading] = useState(false);  // Track loading state
+    const [noSuppliers, setNoSuppliers] = useState(false);  // Track if no suppliers
     const role = localStorage.getItem('role');
     const isAdmin = role === 'admin';
 
@@ -36,13 +38,21 @@ const Suppliers = () => {
     };
 
     const fetchSuppliers = async (page = 1) => {
+        setIsLoading(true);  // Set loading to true before fetching
         try {
             const response = await axios.get(`https://tarek-store-backend.onrender.com/api/suppliers?page=${page}&limit=7`);
+            if (response.data.suppliers.length === 0) {
+                setNoSuppliers(true);  // Set noSuppliers to true if no data is returned
+            } else {
+                setNoSuppliers(false);
+            }
             setSuppliers(response.data.suppliers);
             setCurrentPage(response.data.currentPage);
             setTotalPages(response.data.totalPages);
         } catch (error) {
             console.error('خطأ في استرجاع الموردين', error);
+        } finally {
+            setIsLoading(false);  // Set loading to false after fetching
         }
     };
 
@@ -56,18 +66,16 @@ const Suppliers = () => {
 
     const handleDeleteSupplier = async (id) => {
         const confirmDelete = window.confirm('هل أنت متأكد أنك تريد حذف هذا المورد'); // Confirmation in Arabic
-        if (confirmDelete){
-        try {
-            const response = await axios.delete(`https://tarek-store-backend.onrender.com/api/suppliers/${id}`);
-            setMessage(response.data.message);
-            fetchSuppliers(currentPage);
-        } catch (error) {
-            setMessage('خطأ في مسح المورد');
-            console.error(error);
+        if (confirmDelete) {
+            try {
+                const response = await axios.delete(`https://tarek-store-backend.onrender.com/api/suppliers/${id}`);
+                setMessage(response.data.message);
+                fetchSuppliers(currentPage);
+            } catch (error) {
+                setMessage('خطأ في مسح المورد');
+                console.error(error);
+            }
         }
-
-       
-    }
     };
 
     useEffect(() => {
@@ -76,31 +84,29 @@ const Suppliers = () => {
 
     const [editingSuppliertId, setEditingSupplierId] = useState(null); // Track the supplier being edited
     const [editFormData, setEditFormData] = useState({}); // Store form data for editing
-        
+
     const handleEditClick = (editSupplier) => {
         setEditingSupplierId(editSupplier._id); // Set the ID of the supplier to be edited
         setEditFormData(editSupplier); // Pre-fill the form with the supplier data
-      };
+    };
 
-      const handleEditSubmit = async (e) => {
+    const handleEditSubmit = async (e) => {
         e.preventDefault();
         try {
-          await axios.put(`https://tarek-store-backend.onrender.com/api/suppliers/id/${editingSuppliertId}`, editFormData);
-          // Update the products state with the edited product
-          setSuppliers(suppliers.map(editSupplier => (editSupplier._id === editingSuppliertId ? { ...editSupplier, ...editFormData } : editSupplier)));
-          setEditingSupplierId(null); // Reset the editing state
+            await axios.put(`https://tarek-store-backend.onrender.com/api/suppliers/id/${editingSuppliertId}`, editFormData);
+            // Update the products state with the edited product
+            setSuppliers(suppliers.map(editSupplier => (editSupplier._id === editingSuppliertId ? { ...editSupplier, ...editFormData } : editSupplier)));
+            setEditingSupplierId(null); // Reset the editing state
         } catch (error) {
-          console.error('Error updating product:', error);
-          alert('فشل تحديث المنتج.'); // Alert in Arabic
+            console.error('Error updating product:', error);
+            alert('فشل تحديث المنتج.'); // Alert in Arabic
         }
-      };
+    };
 
     const handleEditChange = (e) => {
         const { name, value } = e.target;
         setEditFormData({ ...editFormData, [name]: value }); // Update form data on change
-      };
-
-
+    };
 
     return (
         <>
@@ -176,74 +182,72 @@ const Suppliers = () => {
                 </div>
 
                 {/* Suppliers Table */}
-                {suppliers.length > 0 ? (
+                {isLoading ? (
+                    <p className="suppliers-loading">جاري تحميل الموردين...</p>
+                ) : noSuppliers ? (
+                    <p className="suppliers-no-data">لا يوجد موردين لعرضهم</p>
+                ) : (
                     <>
-                    <div className="suppliers-table-container">
-                        <h2 className="suppliers-table-title">جميع الموردين</h2>
-                        <table className="suppliers-table">
-                            <thead>
-                                <tr>
-                                    <th>الاسم</th>
-                                    <th>رقم الموبايل</th>
-                                    <th>الشركة</th>
-                                    <th>التعليقات</th>
-                                    <th>المبلغ المستحق</th>
-                                    <th>عمليات</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {suppliers.map((sup, index) => (
-                                    <React.Fragment key={sup._id}>
-                                    <tr key={index}>
-                                        <td>{sup.name}</td>
-                                        <td>{sup.phoneNumber}</td>
-                                        <td>{sup.company || 'N/A'}</td>
-                                        <td>{sup.notes || 'N/A'}</td>
-                                        <td>{sup.moneyOwed || 0}</td>
-
-                                        
-                                            <td>
-                                            <button className="suppliers-edit-button" onClick={() => handleEditClick(sup)}>تعديل</button>
-
-                                                <button
-                                                    onClick={() => handleDeleteSupplier(sup._id)}
-                                                    className="suppliers-delete-button"
-                                                >
-                                                    حذف
-                                                </button>
-
-                                            </td>
+                        <div className="suppliers-table-container">
+                            <h2 className="suppliers-table-title">جميع الموردين</h2>
+                            <table className="suppliers-table">
+                                <thead>
+                                    <tr>
+                                        <th>الاسم</th>
+                                        <th>رقم الموبايل</th>
+                                        <th>الشركة</th>
+                                        <th>التعليقات</th>
+                                        <th>المبلغ المستحق</th>
+                                        <th>عمليات</th>
                                     </tr>
-                                    {editingSuppliertId === sup._id && (
-                                        <tr className="supplier-edit-form-row">
-                                          <td colSpan={10}>
-                                            <form onSubmit={handleEditSubmit} className="supplier-edit-form">
-                                              <div className="supplier-form-group">
-                                                <label>المبلغ المستحق:</label>
-                                                <input
-                                                  type="test"
-                                                  name="moneyOwed"
-                                                  value={editFormData.moneyOwed || ''}
-                                                  onChange={handleEditChange}
-                                                  required
-                                                  className="supplier-form-input"
-                                                />
-                                              </div>
-                                              <button type="submit" className="supplier-update-button">تحديث المورد</button>
-                                              <button type="button" onClick={() => setEditingSupplierId(null)} className="supplier-cancel-button">إلغاء</button>
-                                            </form>
-                                          </td>
-                                        </tr>
-                                      )}
-                                      </React.Fragment>
-                                ))}
-                            </tbody>
-                        </table>
-
-                       
-                    </div>
-                     {/* Pagination Controls */}
-                     <div className="suppliers-pagination">
+                                </thead>
+                                <tbody>
+                                    {suppliers.map((sup, index) => (
+                                        <React.Fragment key={sup._id}>
+                                            <tr key={index}>
+                                                <td>{sup.name}</td>
+                                                <td>{sup.phoneNumber}</td>
+                                                <td>{sup.company || 'N/A'}</td>
+                                                <td>{sup.notes || 'N/A'}</td>
+                                                <td>{sup.moneyOwed || 0}</td>
+                                                <td>
+                                                    <button className="suppliers-edit-button" onClick={() => handleEditClick(sup)}>تعديل</button>
+                                                    <button
+                                                        onClick={() => handleDeleteSupplier(sup._id)}
+                                                        className="suppliers-delete-button"
+                                                    >
+                                                        حذف
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            {editingSuppliertId === sup._id && (
+                                                <tr className="supplier-edit-form-row">
+                                                    <td colSpan={10}>
+                                                        <form onSubmit={handleEditSubmit} className="supplier-edit-form">
+                                                            <div className="supplier-form-group">
+                                                                <label>المبلغ المستحق:</label>
+                                                                <input
+                                                                    type="test"
+                                                                    name="moneyOwed"
+                                                                    value={editFormData.moneyOwed || ''}
+                                                                    onChange={handleEditChange}
+                                                                    required
+                                                                    className="supplier-form-input"
+                                                                />
+                                                            </div>
+                                                            <button type="submit" className="supplier-update-button">تحديث المورد</button>
+                                                            <button type="button" onClick={() => setEditingSupplierId(null)} className="supplier-cancel-button">إلغاء</button>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </React.Fragment>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        {/* Pagination Controls */}
+                        <div className="suppliers-pagination">
                             <button
                                 onClick={handlePreviousPage}
                                 disabled={currentPage === 1}
@@ -263,8 +267,6 @@ const Suppliers = () => {
                             </button>
                         </div>
                     </>
-                ) : (
-                    <p className="suppliers-no-data">لا يوجد موردين لعرضهم</p>
                 )}
             </div>
         </>

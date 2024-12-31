@@ -9,11 +9,16 @@ function AllRevenueReports() {
     const [error, setError] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [isLoading, setIsLoading] = useState(false); // حالة التحميل
+    const [noReports, setNoReports] = useState(false); // حالة عدم وجود تقارير
     const reportsPerPage = 5; // استخدم فقط القيمة الثابتة هنا
+    const role = localStorage.getItem('role'); // Get role from localStorage
+
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchAllReports = async () => {
+            setIsLoading(true); // بدء التحميل
             try {
                 const response = await axios.get('https://tarek-store-backend.onrender.com/api/revenue-reports', {
                     params: { page: currentPage, limit: reportsPerPage },
@@ -25,8 +30,11 @@ function AllRevenueReports() {
                 // Update reports by adding the new report to the beginning
                 setReports(sortedReports || []);
                 setTotalPages(response.data.totalPages || 1);
+                setNoReports(sortedReports.length === 0); // التحقق إذا لم توجد تقارير
             } catch (err) {
                 setError('Error fetching revenue reports');
+            } finally {
+                setIsLoading(false); // إنهاء التحميل
             }
         };
 
@@ -51,45 +59,45 @@ function AllRevenueReports() {
 
     return (
         <>
-            <Navbar />
+            <Navbar isAdmin={role === 'admin'} />
             <div className="all-revenue-reports-container">
                 <h1 className="all-revenue-reports-title">جميع تقارير الإيرادات</h1>
                 {error && <div className="all-revenue-reports-error-message">{error}</div>}
-                
-                <div className="all-revenue-reports-table-header">
-                <table className="all-revenue-reports-table">
-                    <thead>
-                        <tr>
-                            <th>عنوان التقرير</th>
-                            <th>من تاريخ</th>
-                            <th>إلى تاريخ</th>
-                            <th>الفرع</th>
-                            <th>الإجراءات</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {reports.length > 0 ? (
-                            reports.map((report, index) => (
-                                <tr key={index}>
-                                    <td>{report.reportTitle}</td>
-                                    <td>{new Date(report.startDate).toLocaleDateString()}</td>
-                                    <td>{new Date(report.endDate).toLocaleDateString()}</td>
-                                    <td>{report.branchId ? report.branchId.name : 'جميع الفروع'}</td>
-                                    <td>
-                                        <button onClick={() => handleViewReport(report._id)} className="all-revenue-reports-view-btn">
-                                            عرض التقرير
-                                        </button>
-                                    </td>
+
+                {isLoading ? (
+                    <p>جاري تحميل التقارير...</p> // عرض رسالة التحميل
+                ) : noReports ? (
+                    <p>لا توجد تقارير لعرضها</p> // عرض رسالة إذا لم توجد تقارير
+                ) : (
+                    <div className="all-revenue-reports-table-header">
+                        <table className="all-revenue-reports-table">
+                            <thead>
+                                <tr>
+                                    <th>عنوان التقرير</th>
+                                    <th>من تاريخ</th>
+                                    <th>إلى تاريخ</th>
+                                    <th>الفرع</th>
+                                    <th>الإجراءات</th>
                                 </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan="5">لا توجد تقارير لعرضها</td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-                </div>
+                            </thead>
+                            <tbody>
+                                {reports.map((report, index) => (
+                                    <tr key={index}>
+                                        <td>{report.reportTitle}</td>
+                                        <td>{new Date(report.startDate).toLocaleDateString()}</td>
+                                        <td>{new Date(report.endDate).toLocaleDateString()}</td>
+                                        <td>{report.branchId ? report.branchId.name : 'جميع الفروع'}</td>
+                                        <td>
+                                            <button onClick={() => handleViewReport(report._id)} className="all-revenue-reports-view-btn">
+                                                عرض التقرير
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
 
                 <div className="all-revenue-reports-pagination">
                     <button onClick={handlePreviousPage} disabled={currentPage === 1} className="all-revenue-reports-pagination-btn">

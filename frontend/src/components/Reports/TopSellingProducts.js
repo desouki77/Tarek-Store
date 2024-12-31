@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Navbar from '../Navbar';
 import '../../styles/TopSellingProducts.css';
+import Loader from '../Loader';
 
 const TopSellingProducts = () => {
   const [products, setProducts] = useState([]);
@@ -51,7 +52,7 @@ const TopSellingProducts = () => {
   }, [branchId, currentPage]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Loader />;
   }
 
   if (error) {

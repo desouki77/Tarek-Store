@@ -3,11 +3,14 @@ import axios from 'axios';
 import Navbar from '../Navbar';
 import { useParams } from 'react-router-dom';
 import '../../styles/RevenueReportDetails.css';
+import Loader from '../Loader';
 
 function RevenueReportDetails() {
     const { reportId } = useParams();  // الحصول على المعرف من الرابط
     const [report, setReport] = useState(null);
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(true);  // إضافة حالة التحميل
+
 
     const transactionTypeMap = {
         'sales': 'المبيعات',
@@ -45,12 +48,18 @@ function RevenueReportDetails() {
             try {
                 const response = await axios.get(`https://tarek-store-backend.onrender.com/api/revenue-reports/${reportId}`);
                 setReport(response.data);
+                setLoading(false)
             } catch (err) {
                 setError('Error fetching report details');
+                setLoading(false)
             }
         };
         fetchReportDetails();
     }, [reportId]);
+
+    if (loading) {
+        return  <Loader />;
+    }
 
     if (!report) {
         return <div className="revenue-reports-details">جاري تحميل التفاصيل...</div>;

@@ -64,7 +64,7 @@ const Checkout = () => {
 
     const totalAmount = checkoutItems.reduce((total, item) => total + item.price, 0);
     const totalAfterDiscount = totalAmount - (Number(discount) || 0); // Calculate total after discount
-    const remaining = (Number(paid) || 0) - totalAfterDiscount; // Calculate remaining amount to be paid
+    const remaining = Math.abs((Number(paid) || 0) - totalAfterDiscount); // استخدام Math.abs لجعل المبلغ المتبقي موجبًا
     
      
 
