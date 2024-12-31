@@ -1,0 +1,21 @@
+{
+    "short_name": "الطارق",
+    "name": "الطارق - متجر وصيانة موبايل",
+    "icons": [
+      {
+        "src": "/frontend/public/TarekLogo.png",
+        "sizes": "192x192",
+        "type": "image/png"
+      },
+      {
+        "src": "/frontend/public/TarekLogo.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ],
+    "start_url": "https://tarek-store.onrender.com",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#000000"
+  }
+  
