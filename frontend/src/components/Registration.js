@@ -43,7 +43,7 @@ const Registration = () => {
       }
     } catch (err) {
       // Handle errors
-      setError('فشل التسجيل. يرجى المحاولة مرة أخرى.');
+      setError(err);
     } finally {
     setIsLoading(false);
   }
