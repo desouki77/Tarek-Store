@@ -10,7 +10,6 @@ import branch from './routes/branch.js';
 import bankRoutes from './routes/bank.js';
 import suppliersRoutes from './routes/suppliers.js';
 import ClientsRoutes from './routes/clients.js';
-import bankRoutes from './routes/bank.js';
 import salesReport from './routes/salesReport.js';
 import revenueReport from './routes/revenueReport.js';
 
