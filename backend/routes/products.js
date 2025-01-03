@@ -23,6 +23,16 @@ router.post('/add', async (req, res) => {
   const { barcode, name, sn, description, color, price, quantity, mainCategory, subCategory, thirdCategory, condition, supplier, branchId } = req.body;
 
   try {
+
+    if (!mongoose.Types.ObjectId.isValid(branchId)) {
+      return res.status(400).json({ message: 'معرف الفرع غير صالح' });
+    }
+
+    if (!barcode || !name || !price || !quantity || !mainCategory || !branchId) {
+      return res.status(400).json({ message: 'الرجاء تعبئة جميع الحقول المطلوبة' });
+    }
+    
+    
     // Check if the product already exists in the same branch
     const existingProduct = await Product.findOne({ barcode, branchId });
     if (existingProduct) {
@@ -48,7 +58,14 @@ router.post('/add', async (req, res) => {
       branchId, // Associate product with branch
     });
 
-    await newProduct.save();
+    try {
+      await newProduct.save();
+    } catch (error) {
+      if (error.code === 11000) {
+        return res.status(400).json({ message: 'الباركود مستخدم من قبل.' });
+      }
+      throw error;
+    }    
 
     res.status(201).json({ message: 'تم اضافة المنتج بنجاح', product: newProduct });
   } catch (error) {

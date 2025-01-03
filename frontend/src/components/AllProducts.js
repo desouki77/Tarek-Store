@@ -14,6 +14,8 @@ const AllProducts = () => {
   const [currentPage, setCurrentPage] = useState(1); // Track current page
   const productsPerPage = 10; // Number of products per page
   const [totalProducts, setTotalProducts] = useState(0); // عدد المنتجات
+  const [loading, setLoading] = useState(true); // حالة التحميل
+
 
 
 
@@ -63,6 +65,7 @@ const AllProducts = () => {
 
   useEffect(() => {
     const fetchProducts = async () => {
+      setLoading(true); // بدء التحميل
       try {
    
         // إرسال التصنيف مع البحث
@@ -82,6 +85,8 @@ const AllProducts = () => {
         setTotalProducts(response.data.length); // تحديث عدد المنتجات
       } catch (error) {
         console.error('خطأ في استرجاع المنتجات', error);
+      }finally {
+        setLoading(false); // انتهاء التحميل
       }
     };
   
@@ -142,6 +147,9 @@ const AllProducts = () => {
   for (let i = 1; i <= Math.ceil(products.length / productsPerPage); i++) {
     pageNumbers.push(i);
   }
+
+  // Pagination: Calculate total pages
+const totalPages = Math.ceil(products.length / productsPerPage);
 
 
   return (
@@ -234,105 +242,119 @@ const AllProducts = () => {
           <h1>عدد المنتجات: {totalProducts}</h1>
         </div>
 
-        {currentProducts.length > 0 ? (
+        {loading ? (
+          <p className="allproduct-loading">جارٍ تحميل المنتجات...</p>
+        ) : currentProducts.length > 0 ? (
           <>
-           <div className="allproduct-table-container">
-          <table className="allproduct-table">
-            <thead>
-              <tr>
-                <th>باركود</th>
-                <th>اسم المنتج</th>
-                <th>رقم السريال</th>
-                <th>الوصف</th>
-                <th>اللون</th>
-                <th>التصنيف</th>
-                <th>المورد</th>
-                <th>الكمية</th>
-                <th>السعر</th>
-                <th>الإجراءات</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentProducts.map((item) => (
-                <React.Fragment key={item._id}>
-                  <tr className="allproduct-table-row">
-                    <td>{item.barcode}</td>
-                    <td>{item.name}</td>
-                    <td>{item.sn}</td>
-                    <td>{item.description}</td>
-                    <td>{item.color}</td>
-                    <td>
-                    {item.mainCategory} <br/>
-                    {item.subCategory} <br/>
-                    {item.thirdCategory} <br/>
-                    {item.condition}
-                    </td>
-                    <td>{item.supplier}</td>
-                    <td>{item.quantity}</td>
-                    <td>{item.price}</td>
-                    <td>
-                      <button className="allproduct-edit-btn" onClick={() => handleEditClick(item)}>تعديل</button>
-                      <button className="allproduct-delete-btn" onClick={() => handleDelete(item.barcode)}>حذف</button>
-                    </td>
+            <div className="allproduct-table-container">
+              <table className="allproduct-table">
+                <thead>
+                  <tr>
+                    <th>باركود</th>
+                    <th>اسم المنتج</th>
+                    <th>رقم السريال</th>
+                    <th>الوصف</th>
+                    <th>اللون</th>
+                    <th>التصنيف</th>
+                    <th>المورد</th>
+                    <th>الكمية</th>
+                    <th>السعر</th>
+                    <th>الإجراءات</th>
                   </tr>
-                  {editingProductId === item._id && (
-                    <tr className="allproduct-edit-form-row">
-                      <td colSpan={10}>
-                        <form onSubmit={handleEditSubmit} className="allproduct-edit-form">
-                          <div className="allproduct-form-group">
-                            <label>السعر:</label>
-                            <input
-                              type="number"
-                              name="price"
-                              value={editFormData.price || ''}
-                              onChange={handleEditChange}
-                              required
-                              className="allproduct-form-input"
-                            />
-                          </div>
-                          <div className="allproduct-form-group">
-                            <label>الكمية:</label>
-                            <input
-                              type="number"
-                              name="quantity"
-                              value={editFormData.quantity || ''}
-                              onChange={handleEditChange}
-                              required
-                              className="allproduct-form-input"
-                            />
-                          </div>
-                          <button type="submit" className="allproduct-update-btn">تحديث المنتج</button>
-                          <button type="button" onClick={() => setEditingProductId(null)} className="allproduct-cancel-btn">إلغاء</button>
-                        </form>
-                      </td>
-                    </tr>
-                  )}
-                </React.Fragment>
-              ))}
-            </tbody>
-          </table>
-          </div>
-          <div className="allproduct-pagination">
-        <button
-          onClick={() => paginate(currentPage - 1)}
-          className={`allproduct-pagination-btn ${currentPage === 1 ? 'disabled' : ''}`}
-          disabled={currentPage === 1}
-        >
-          السابق
-        </button>
-        
-        <span className="allproduct-pagination-info">
-          صفحة {currentPage} من {pageNumbers}
-        </span>
+                </thead>
+                <tbody>
+                  {currentProducts.map((item) => (
+                    <React.Fragment key={item._id}>
+                      <tr className="allproduct-table-row">
+                        <td>{item.barcode}</td>
+                        <td>{item.name}</td>
+                        <td>{item.sn}</td>
+                        <td>{item.description}</td>
+                        <td>{item.color}</td>
+                        <td>
+                          {item.mainCategory} <br />
+                          {item.subCategory} <br />
+                          {item.thirdCategory} <br />
+                          {item.condition}
+                        </td>
+                        <td>{item.supplier}</td>
+                        <td>{item.quantity}</td>
+                        <td>{item.price}</td>
+                        <td>
+                          <button className="allproduct-edit-btn" onClick={() => handleEditClick(item)}>
+                            تعديل
+                          </button>
+                          <button className="allproduct-delete-btn" onClick={() => handleDelete(item.barcode)}>
+                            حذف
+                          </button>
+                        </td>
+                      </tr>
+                      {editingProductId === item._id && (
+                        <tr className="allproduct-edit-form-row">
+                          <td colSpan={10}>
+                            <form onSubmit={handleEditSubmit} className="allproduct-edit-form">
+                              <div className="allproduct-form-group">
+                                <label>السعر:</label>
+                                <input
+                                  type="number"
+                                  name="price"
+                                  value={editFormData.price || ''}
+                                  onChange={handleEditChange}
+                                  required
+                                  className="allproduct-form-input"
+                                />
+                              </div>
+                              <div className="allproduct-form-group">
+                                <label>الكمية:</label>
+                                <input
+                                  type="number"
+                                  name="quantity"
+                                  value={editFormData.quantity || ''}
+                                  onChange={handleEditChange}
+                                  required
+                                  className="allproduct-form-input"
+                                />
+                              </div>
+                              <button type="submit" className="allproduct-update-btn">
+                                تحديث المنتج
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setEditingProductId(null)}
+                                className="allproduct-cancel-btn"
+                              >
+                                إلغاء
+                              </button>
+                            </form>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="allproduct-pagination">
+              <button
+                onClick={() => paginate(currentPage - 1)}
+                className={`allproduct-pagination-btn ${currentPage === 1 ? 'disabled' : ''}`}
+                disabled={currentPage === 1}
+              >
+                السابق
+              </button>
 
-        <button
-          onClick={() => paginate(currentPage + 1)}
-          className={`allproduct-pagination-btn ${currentPage === pageNumbers.length ? 'disabled' : ''}`}
-          disabled={currentPage === pageNumbers.length}
-        >
-          التالي
-        </button>
-      </div>
+              <span className="allproduct-pagination-info">
+                صفحة {currentPage} من {totalPages}
+              </span>
+
+              <button
+                onClick={() => paginate(currentPage + 1)}
+                className={`allproduct-pagination-btn ${currentPage === totalPages ? 'disabled' : ''}`}
+                disabled={currentPage === totalPages}
+              >
+                التالي
+              </button>
+            </div>
           </>
         ) : (
           <p className="allproduct-no-products">لا توجد منتجات تطابق معايير البحث</p>

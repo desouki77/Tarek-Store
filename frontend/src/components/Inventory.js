@@ -158,7 +158,7 @@ const Inventory = () => {
       <button className="inventory__all-products-btn" onClick={() => navigate('/all-products')}>
         عرض جميع المنتجات
       </button>
-     
+      {addedProduct && <p className="inventory__confirmation">تم إضافة المنتج: {addedProduct.name}</p>}     
       <section className="inventory__section">
         <h2 className="inventory__heading">إضافة منتج</h2>
         <form className="inventory__form" onSubmit={handleSubmit}>
@@ -309,7 +309,6 @@ const Inventory = () => {
             إضافة المنتج
           </button>
         </form>
-        {addedProduct && <p className="inventory__confirmation">تم إضافة المنتج: {addedProduct.name}</p>}
       </section>
     
     </>
