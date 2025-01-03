@@ -3,6 +3,7 @@ const express = require('express');
 const Product = require('../models/Product');
 const router = express.Router();
 const Supplier = require('../models/Supplier');
+const mongoose = require('mongoose');
 
 
 // Route to get a product by barcode 
