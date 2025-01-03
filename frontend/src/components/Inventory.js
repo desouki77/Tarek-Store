@@ -89,6 +89,20 @@ const Inventory = () => {
     setCondition('');
   };
 
+  useEffect(() => {
+    // قراءة حالة الرسالة من localStorage عند تحميل الصفحة
+    const savedMessage = localStorage.getItem('addedProductMessage');
+    if (savedMessage) {
+      setAddedProduct(savedMessage);
+
+      // إزالة الرسالة بعد 3 ثوانٍ
+      setTimeout(() => {
+        setAddedProduct(null);
+        localStorage.removeItem('addedProductMessage');
+      }, 3000);
+    }
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -105,6 +119,10 @@ const Inventory = () => {
     try {
       const response = await axios.post('https://tarek-store-backend.onrender.com/api/products/add', productWithCategory);
       setAddedProduct(response.data.product);
+      const addedProductName = response.data.product.name;
+      // حفظ الرسالة في localStorage
+      localStorage.setItem('addedProductMessage', `تم إضافة المنتج: ${addedProductName}`);
+
   
       // إعادة تعيين الحقول
       setProduct({
@@ -123,9 +141,8 @@ const Inventory = () => {
       setThirdCategory('');
       setCondition('');
   
-      setTimeout(() => {
-        setAddedProduct(null);
-      }, 3000);
+      window.location.reload();
+
     } catch (error) {
       if (error.response && error.response.status === 400) {
         alert('هذا المنتج موجود بالفعل. يرجى التحقق من رمز المنتج.');
@@ -158,7 +175,7 @@ const Inventory = () => {
       <button className="inventory__all-products-btn" onClick={() => navigate('/all-products')}>
         عرض جميع المنتجات
       </button>
-      {addedProduct && <p className="inventory__confirmation">تم إضافة المنتج: {addedProduct.name}</p>}     
+      {addedProduct && <p className="inventory__confirmation">{addedProduct}</p>}
       <section className="inventory__section">
         <h2 className="inventory__heading">إضافة منتج</h2>
         <form className="inventory__form" onSubmit={handleSubmit}>
