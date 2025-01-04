@@ -58,6 +58,9 @@ router.post('/add', async (req, res) => {
       supplier,
       branchId, // Associate product with branch
     });
+
+    // Save the product
+    await newProduct.save();
  
 
     res.status(201).json({ message: 'تم اضافة المنتج بنجاح', product: newProduct });
