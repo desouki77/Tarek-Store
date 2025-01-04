@@ -58,15 +58,7 @@ router.post('/add', async (req, res) => {
       supplier,
       branchId, // Associate product with branch
     });
-
-    try {
-      await newProduct.save();
-    } catch (error) {
-      if (error.code === 11000) {
-        return res.status(400).json({ message: 'الباركود مستخدم من قبل.' });
-      }
-      throw error;
-    }    
+ 
 
     res.status(201).json({ message: 'تم اضافة المنتج بنجاح', product: newProduct });
   } catch (error) {
