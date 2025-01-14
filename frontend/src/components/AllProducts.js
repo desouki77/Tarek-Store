@@ -258,7 +258,8 @@ const totalPages = Math.ceil(products.length / productsPerPage);
                     <th>التصنيف</th>
                     <th>المورد</th>
                     <th>الكمية</th>
-                    <th>السعر</th>
+                    <th>سعر الشراء</th>
+                    <th>سعر البيع</th>
                     <th>الإجراءات</th>
                   </tr>
                 </thead>
@@ -279,7 +280,8 @@ const totalPages = Math.ceil(products.length / productsPerPage);
                         </td>
                         <td>{item.supplier}</td>
                         <td>{item.quantity}</td>
-                        <td>{item.price}</td>
+                        <td>{item.purchasePrice}</td>
+                        <td>{item.sellingPrice}</td>
                         <td>
                           <button className="allproduct-edit-btn" onClick={() => handleEditClick(item)}>
                             تعديل
@@ -291,14 +293,25 @@ const totalPages = Math.ceil(products.length / productsPerPage);
                       </tr>
                       {editingProductId === item._id && (
                         <tr className="allproduct-edit-form-row">
-                          <td colSpan={10}>
+                          <td colSpan={11}>
                             <form onSubmit={handleEditSubmit} className="allproduct-edit-form">
-                              <div className="allproduct-form-group">
-                                <label>السعر:</label>
+                            <div className="allproduct-form-group">
+                                <label>سعر الشراء:</label>
                                 <input
                                   type="number"
                                   name="price"
-                                  value={editFormData.price || ''}
+                                  value={editFormData.purchasePrice || ''}
+                                  onChange={handleEditChange}
+                                  required
+                                  className="allproduct-form-input"
+                                />
+                              </div>
+                              <div className="allproduct-form-group">
+                                <label>سعر البيع:</label>
+                                <input
+                                  type="number"
+                                  name="price"
+                                  value={editFormData.sellingPrice || ''}
                                   onChange={handleEditChange}
                                   required
                                   className="allproduct-form-input"

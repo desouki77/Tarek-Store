@@ -13,7 +13,8 @@ const Inventory = () => {
     sn: '',
     description: '',
     color: '',
-    price: '',
+    purchasePrice: '',
+    sellingPrice: '',
     quantity: '',
     mainCategory: '',
     subCategory: '',
@@ -131,7 +132,8 @@ const Inventory = () => {
         sn: '',
         description: '',
         color: '',
-        price: '',
+        purchasePrice: '',
+        sellingPrice: '',
         quantity: '',
         supplier:'',
         // إزالة category لأننا أصبحنا نستخدم الحقول الجديدة
@@ -221,13 +223,21 @@ const Inventory = () => {
             onChange={handleChange}
             placeholder="اللون ( ان وجد )"
           />
+            <input
+            className="inventory__input"
+            type="number"
+            name="price"
+            value={product.purchasePrice}
+            onChange={handleChange}
+            placeholder="سعر الشراء ( ان وجد )"
+          />
           <input
             className="inventory__input"
             type="number"
             name="price"
-            value={product.price}
+            value={product.sellingPrice}
             onChange={handleChange}
-            placeholder="السعر ( اجباري )"
+            placeholder="السعر البيع ( اجباري )"
             required
           />
           <input

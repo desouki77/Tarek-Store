@@ -21,7 +21,7 @@ router.get('/:barcode' , async (req, res) => {
 });
 
 router.post('/add', async (req, res) => {
-  const { barcode, name, sn, description, color, price, quantity, mainCategory, subCategory, thirdCategory, condition, supplier, branchId } = req.body;
+  const { barcode, name, sn, description, color, purchasePrice,sellingPrice, quantity, mainCategory, subCategory, thirdCategory, condition, supplier, branchId } = req.body;
 
   try {
 
@@ -29,18 +29,15 @@ router.post('/add', async (req, res) => {
       return res.status(400).json({ message: 'معرف الفرع غير صالح' });
     }
 
-    if (!barcode || !name || !price || !quantity || !mainCategory || !branchId) {
+    if (!barcode || !name || !sellingPrice || !quantity || !mainCategory || !branchId) {
       return res.status(400).json({ message: 'الرجاء تعبئة جميع الحقول المطلوبة' });
     }
-    
     
     // Check if the product already exists in the same branch
     const existingProduct = await Product.findOne({ barcode, branchId });
     if (existingProduct) {
       return res.status(400).json({ message: 'هذا المنتج موجود بالفعل في هذا الفرع' });
     }
-
-   
 
     // Create the product
     const newProduct = new Product({
@@ -49,20 +46,20 @@ router.post('/add', async (req, res) => {
       sn,
       description,
       color,
-      price,
+      purchasePrice,
+      sellingPrice,
       quantity,
       mainCategory,
       subCategory,
       thirdCategory,
       condition,
       supplier,
-      branchId, // Associate product with branch
+      branchId, 
     });
 
     // Save the product
     await newProduct.save();
  
-
     res.status(201).json({ message: 'تم اضافة المنتج بنجاح', product: newProduct });
   } catch (error) {
     console.error('خطأ في اضافة المنتج', error);
@@ -104,10 +101,6 @@ router.get('/', async (req, res) => {
     res.status(500).send('حدث خطأ أثناء استرجاع المنتجات');
   }
 });
-
-
-
-
 
 
 // Backend route to decrease product quantity by barcode
@@ -246,8 +239,6 @@ router.put('/:productId/decrement', async (req, res) => {
     res.status(500).json({ message: 'هناك خطأ في إنقاص الكمية' });
   }
 });
-
-
 
 
 module.exports = router;
