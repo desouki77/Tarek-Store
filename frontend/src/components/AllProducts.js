@@ -299,7 +299,7 @@ const totalPages = Math.ceil(products.length / productsPerPage);
                                 <label>سعر الشراء:</label>
                                 <input
                                   type="number"
-                                  name="price"
+                                  name="purchasePrice"
                                   value={editFormData.purchasePrice || ''}
                                   onChange={handleEditChange}
                                   required
@@ -310,7 +310,7 @@ const totalPages = Math.ceil(products.length / productsPerPage);
                                 <label>سعر البيع:</label>
                                 <input
                                   type="number"
-                                  name="price"
+                                  name="sellingPrice"
                                   value={editFormData.sellingPrice || ''}
                                   onChange={handleEditChange}
                                   required

@@ -226,7 +226,7 @@ const Inventory = () => {
             <input
             className="inventory__input"
             type="number"
-            name="price"
+            name="purchasePrice"
             value={product.purchasePrice}
             onChange={handleChange}
             placeholder="سعر الشراء ( ان وجد )"
@@ -234,7 +234,7 @@ const Inventory = () => {
           <input
             className="inventory__input"
             type="number"
-            name="price"
+            name="sellingPrice"
             value={product.sellingPrice}
             onChange={handleChange}
             placeholder="السعر البيع ( اجباري )"
