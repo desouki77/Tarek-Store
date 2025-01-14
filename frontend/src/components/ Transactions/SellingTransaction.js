@@ -10,85 +10,86 @@ const SellingTransaction = () => {
     const branchId = localStorage.getItem('branchId');
 
     const navigate = useNavigate();
-    const barcodeInputRef = useRef(null); // Ref for the barcode input field
+    const barcodeInputRef = useRef(null);
     const [products, setProducts] = useState([]);
     const [orderData, setOrderData] = useState({
         barcode: '',
         itemName: '',
         itemDescription: '',
-        price: 0,
+        purchasePrice: 0,
     });
     const [errorMessage, setErrorMessage] = useState('');
-    const [orders, setOrders] = useState([]); // To store the fetched orders of the day
-
+    const [orders, setOrders] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
+    const [loading, setLoading] = useState(true);
+
     const limit = 5;
 
-    // Fetch today's orders when the component mounts
     useEffect(() => {
         if (barcodeInputRef.current) {
-            barcodeInputRef.current.focus(); // Automatically focus on the barcode input
+            barcodeInputRef.current.focus();
         }
 
         const fetchOrders = async () => {
+            setLoading(true);
             const today = new Date();
-            const startDate = new Date(today.setHours(0, 0, 0, 0)).toISOString(); // Start of today
-            const endDate = new Date(today.setHours(23, 59, 59, 999)).toISOString(); // End of today
+            const startDate = new Date(today.setHours(0, 0, 0, 0)).toISOString();
+            const endDate = new Date(today.setHours(23, 59, 59, 999)).toISOString();
 
             try {
                 const response = await axios.get('https://tarek-store-backend.onrender.com/api/day_orders', {
-                    params: { branchId, startDate, endDate, limit, page:currentPage },
+                    params: { branchId, startDate, endDate, limit, page: currentPage },
                 });
                 setOrders(response.data.orders);
                 setTotalPages(response.data.totalPages);
                 setCurrentPage(response.data.currentPage);
             } catch (error) {
                 console.error('Error fetching orders:', error);
+            } finally {
+                setLoading(false);
             }
         };
 
         fetchOrders();
-    }, [branchId,currentPage]);
+    }, [branchId, currentPage]);
 
     const handleInputChange = (e) => {
         setOrderData((prevData) => ({
             ...prevData,
             barcode: e.target.value,
         }));
-        setErrorMessage(''); // Clear error while typing
+        setErrorMessage('');
     };
 
-    
     const handleBarcodeInput = async (e) => {
         if (e.key === 'Enter') {
             const scannedBarcode = orderData.barcode.trim();
-    
+
             if (!/^\d*$/.test(scannedBarcode)) {
                 setErrorMessage('الباركود يجب أن يكون رقمًا');
                 return;
             }
-    
+
             try {
                 const response = await axios.get(`https://tarek-store-backend.onrender.com/api/products/${scannedBarcode}`, {
                     params: { branchId },
                 });
-    
-                if (response.data) {
-                    const productData = response.data; 
 
-    
+                if (response.data) {
+                    const productData = response.data;
+
                     if (productData.quantity > 0) {
-                        // Check if quantity is available
                         const product = {
                             barcode: scannedBarcode,
                             name: productData.name,
                             description: productData.description || '',
-                            price: productData.price,
+                            purchasePrice: productData.purchasePrice,
+                            sellingPrice: productData.sellingPrice,
                         };
-    
+
                         setProducts((prevProducts) => [...prevProducts, product]);
-                        setOrderData({ barcode: '', itemName: '', itemDescription: '', price: 0 });
+                        setOrderData({ barcode: '', itemName: '', itemDescription: '', sellingPrice: 0 });
                         setErrorMessage('');
                     } else {
                         setErrorMessage('لا توجد كمية كافية لهذا المنتج في المخزن');
@@ -104,41 +105,31 @@ const SellingTransaction = () => {
                 }
             } finally {
                 if (barcodeInputRef.current) {
-                    barcodeInputRef.current.focus(); // Refocus for the next action
+                    barcodeInputRef.current.focus();
                 }
             }
         }
     };
-    
 
-    const totalAmount = products.reduce((total, product) => total + product.price, 0);
+    const totalAmount = products.reduce((total, product) => total + product.sellingPrice, 0);
 
-    const handleCheckout = async () => {
-        // Check if the bank is open
+    const handleCheckout = () => {
         const isBankOpen = localStorage.getItem('bankOpen') === 'true';
-    
+
         if (!isBankOpen) {
             alert('الدرج مغلق، يرجى الرجوع إلى الصفحة الرئيسية لفتح الدرج أولاً');
             return;
         }
-    
+
         if (!products || products.length === 0) {
             alert('برجاء إضافة منتج');
             return;
         }
-    
-        try {
-            setProducts([]); // مسح المنتجات بعد الدفع
-            sessionStorage.setItem('checkoutItems', JSON.stringify(products)); // تخزين المنتجات في sessionStorage
-    
-            // استخدام navigate للانتقال إلى صفحة الدفع
-            navigate('/checkout');
-        } catch (error) {
-            console.error('Error during checkout:', error);
-        }
+
+        sessionStorage.setItem('checkoutItems', JSON.stringify(products));
+        setProducts([]);
+        navigate('/checkout');
     };
-    
-    
 
     const removeProduct = (index) => {
         setProducts((prevProducts) => prevProducts.filter((_, i) => i !== index));
@@ -173,35 +164,35 @@ const SellingTransaction = () => {
                 {products.length > 0 && (
                     <>
                         <div className="selling-transaction-products-container">
-                        <table className="selling-transaction-product-table">
-                            <thead>
-                                <tr>
-                                    <th>باركود</th>
-                                    <th>اسم المنتج</th>
-                                    <th>وصف</th>
-                                    <th>السعر</th>
-                                    <th>عمليات</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {products.map((product, index) => (
-                                    <tr key={index}>
-                                        <td>{product.barcode}</td>
-                                        <td>{product.name}</td>
-                                        <td>{product.description}</td>
-                                        <td>{product.price} EGP</td>
-                                        <td>
-                                            <button
-                                                onClick={() => removeProduct(index)}
-                                                className="selling-transaction-remove-btn"
-                                            >
-                                                مسح
-                                            </button>
-                                        </td>
+                            <table className="selling-transaction-product-table">
+                                <thead>
+                                    <tr>
+                                        <th>باركود</th>
+                                        <th>اسم المنتج</th>
+                                        <th>سعر الشراء</th>
+                                        <th>سعر البيع</th>
+                                        <th>عمليات</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {products.map((product, index) => (
+                                        <tr key={index}>
+                                            <td>{product.barcode}</td>
+                                            <td>{product.name}</td>
+                                            <td>{product.purchasePrice} EGP</td>
+                                            <td>{product.sellingPrice} EGP</td>
+                                            <td>
+                                                <button
+                                                    onClick={() => removeProduct(index)}
+                                                    className="selling-transaction-remove-btn"
+                                                >
+                                                    مسح
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
 
                         <div className="selling-transaction-total-amount">اجمالي المبلغ: {totalAmount} EGP</div>
@@ -211,80 +202,73 @@ const SellingTransaction = () => {
                     </>
                 )}
 
-             
-
-                {/* Display Orders of the Day */}
                 <h2>الفواتير اليومية</h2>
-                {orders.length > 0 ? (
+                {loading ? (
+                    <p>جاري تحميل فواتير اليوم...</p>
+                ) : orders.length > 0 ? (
                     <>
-                    <div className="selling-transaction-orders-container">
-                    <table className="selling-transaction-orders-table">
-                        <thead>
-                            <tr>
-                                <th>رقم الفاتورة</th>
-                                <th>المبلغ الكلي</th>
-                                <th>التاريخ والوقت</th>
-                                <th>إيصال</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {orders.map((order) => (
-                                <tr key={order._id}>
-                                    <td>{order._id}</td>
-                                    <td>{order.paid} EGP</td>
-                                    <td>{new Date(order.createdAt).toLocaleString()}</td>
-                                    <td>
-                                        <button
-                                            onClick={() => viewOrderDetails(order._id)}
-                                            className="selling-transaction-receipt-btn"
-                                        >
-                                            عرض الإيصال
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                    </div>
-                    
-                    <div className="selling-transaction-pagination-container">
-                        <button
-                        onClick={() => handlePageChange(currentPage - 1)}
-                        className="selling-transaction-pagination-btn"
-                        disabled={currentPage === 1}
-                        >
-                        السابق
-                        </button>
+                        <div className="selling-transaction-orders-container">
+                            <table className="selling-transaction-orders-table">
+                                <thead>
+                                    <tr>
+                                        <th>رقم الفاتورة</th>
+                                        <th>المبلغ الكلي</th>
+                                        <th>التاريخ والوقت</th>
+                                        <th>إيصال</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {orders.map((order) => (
+                                        <tr key={order._id}>
+                                            <td>{order._id}</td>
+                                            <td>{order.paid} EGP</td>
+                                            <td>{new Date(order.createdAt).toLocaleString()}</td>
+                                            <td>
+                                                <button
+                                                    onClick={() => viewOrderDetails(order._id)}
+                                                    className="selling-transaction-receipt-btn"
+                                                >
+                                                    عرض الإيصال
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
 
-                        <span className="selling-transaction-pagination-info">
-                        صفحة {currentPage} من {totalPages}
-                        </span>
+                        <div className="selling-transaction-pagination-container">
+                            <button
+                                onClick={() => handlePageChange(currentPage - 1)}
+                                className="selling-transaction-pagination-btn"
+                                disabled={currentPage === 1}
+                            >
+                                السابق
+                            </button>
 
-                        <button
-                        onClick={() => handlePageChange(currentPage + 1)}
-                        disabled={currentPage === totalPages}
-                        className="selling-transaction-pagination-btn"
-                        >
-                        التالي
-                        </button>
-                    </div>
-                    
+                            <span className="selling-transaction-pagination-info">
+                                صفحة {currentPage} من {totalPages}
+                            </span>
+
+                            <button
+                                onClick={() => handlePageChange(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                                className="selling-transaction-pagination-btn"
+                            >
+                                التالي
+                            </button>
+                        </div>
                     </>
                 ) : (
-                    <p>لا توجد فواتير اليوم</p> // No orders for the day
-                    
+                    <p>لا توجد فواتير اليوم</p>
                 )}
 
-
-
-                <div>
                 <button
-        onClick={() => navigate('/all-orders')} 
-        className="selling-transaction-all-orders-btn"
-    >
-        جميع الفواتير
-    </button>
-                </div>
+                    onClick={() => navigate('/all-orders')}
+                    className="selling-transaction-all-orders-btn"
+                >
+                    جميع الفواتير
+                </button>
             </div>
         </>
     );

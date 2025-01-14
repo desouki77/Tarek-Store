@@ -79,6 +79,14 @@ button:hover {
     display: none; /* Hide elements with print-only class in normal view */
 }
 
+/* Normal visibility */
+.HTH {
+    display: table-cell;
+}
+
+
+
+
 /* Show elements with the print-only class only during printing */
 @media print {
     .print-only {
@@ -92,6 +100,9 @@ button:hover {
 
     h1 {
         display: none; /* Optionally hide the heading during print */
+    }
+    .HTH {
+        display: none;
     }
 }
 

@@ -9,7 +9,7 @@ const OrderSchema = new mongoose.Schema({
     checkoutItems: [{
         barcode: String,
         name: String,
-        price: Number,
+        sellingPrice: Number,
         quantity: { // Add quantity to track how many of each item is being ordered
             type: Number,
             required: false,

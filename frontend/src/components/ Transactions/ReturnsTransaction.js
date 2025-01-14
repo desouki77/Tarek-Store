@@ -288,7 +288,6 @@ const removeProduct = (index) => {
                                 <tr>
                                     <th>باركود</th>
                                     <th>اسم المنتج</th>
-                                    <th>وصف</th>
                                     <th>السعر</th>
                                     <th>عمليات</th>
                                 </tr>
@@ -298,8 +297,7 @@ const removeProduct = (index) => {
                                     <tr key={index}>
                                         <td>{product.barcode}</td>
                                         <td>{product.name}</td>
-                                        <td>{product.description}</td>
-                                        <td>{product.price} EGP</td>
+                                        <td>{product.sellingPrice} EGP</td>
                                         <td>
                                             <button
                                                 onClick={() => removeProduct(index)}

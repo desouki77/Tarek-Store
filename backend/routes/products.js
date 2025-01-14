@@ -21,7 +21,7 @@ router.get('/:barcode' , async (req, res) => {
 });
 
 router.post('/add', async (req, res) => {
-  const { barcode, name, sn, description, color, purchasePrice,sellingPrice, quantity, mainCategory, subCategory, thirdCategory, condition, supplier, branchId } = req.body;
+  const { barcode, name, sn, description, color, purchasePrice, sellingPrice, quantity, mainCategory, subCategory, thirdCategory, condition, supplier, branchId } = req.body;
 
   try {
 

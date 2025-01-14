@@ -53,7 +53,6 @@ const OrderReceipt = () => {
 
             try {
                 const response = await axios.get(`https://tarek-store-backend.onrender.com/api/orders/${orderId}?branchId=${branchId}`);
-                console.log('Order data:', response.data); // Log order data
                 setOrderData(response.data);
             } catch (error) {
                 console.error('Error fetching order data:', error);
@@ -70,8 +69,10 @@ const OrderReceipt = () => {
 
     // Updated to use checkoutItems instead of items
     const { discount = 0, paid = 0, remaining = 0, clientName = "", clientPhone = "", checkoutItems = [], date = "", time = "" } = orderData;
-    const totalAmount = checkoutItems.reduce((total, item) => total + (item.price || 0), 0);
+    const totalAmount = checkoutItems.reduce((total, item) => total + (item.sellingPrice || 0), 0);
     const totalAfterDiscount = totalAmount - Number(discount);
+
+    console.log(orderData); // Check the entire orderData structure
 
     return (
         <>
@@ -100,8 +101,8 @@ const OrderReceipt = () => {
                                 <tr key={index}>
                                     <td>{item.barcode}</td>
                                     <td>{item.name}</td>
-                                    <td>{item.price}</td>
-                                </tr>
+                                    <td>{item.sellingPrice || 'Not Available'}</td>
+                                    </tr>
                             ))}
                         </tbody>
                     </table>

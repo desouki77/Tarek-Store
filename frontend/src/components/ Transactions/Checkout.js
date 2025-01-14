@@ -62,13 +62,14 @@ const Checkout = () => {
         return () => clearInterval(timer);
     }, []);
 
-    const totalAmount = checkoutItems.reduce((total, item) => total + item.price, 0);
+    const totalAmount = checkoutItems.reduce((total, item) => total + item.sellingPrice, 0);
     const totalAfterDiscount = totalAmount - (Number(discount) || 0); // Calculate total after discount
     const remaining = Math.abs((Number(paid) || 0) - totalAfterDiscount); // استخدام Math.abs لجعل المبلغ المتبقي موجبًا
     
      
 
     const handleSubmit = async () => {
+        setLoading(true);
         // Retrieve the branchId from local storage
         const branchId = localStorage.getItem('branchId');
     
@@ -106,6 +107,8 @@ const Checkout = () => {
                 }
             } catch (error) {
                 console.error('Error checking/adding client:', error.response?.data?.message || error.message);
+            }finally{
+                setLoading(false)
             }
         }
     
@@ -246,7 +249,9 @@ const Checkout = () => {
                         <tr>
                             <th>الباركود</th>
                             <th>اسم المنتج</th>
+                            <th className='HTH'>سعر الشراء</th>
                             <th>السعر</th>
+
                         </tr>
                     </thead>
                     <tbody>
@@ -254,7 +259,8 @@ const Checkout = () => {
                             <tr key={index}>
                                 <td>{item.barcode}</td>
                                 <td>{item.name}</td>
-                                <td>{item.price}</td>
+                                <td className='HTH'>{item.purchasePrice}</td>
+                                <td>{item.sellingPrice}</td>
                             </tr>
                         ))}
                     </tbody>
