@@ -42,7 +42,7 @@ const Navbar = ({ isAdmin }) => {
          // Check if the bank is closed
      const isBankOpen = localStorage.getItem('bankOpen') === 'true';
      if (isBankOpen) {
-         alert('الدرج مفتوح يرجي الرجوع الي الصفحة الرئيسية لغلق الدرج اولا');
+         alert('برجاء الرجوع للصفحة الرئيسية لتسليم الدرج قبل تسجيل الخروج');
          return;
      }
         localStorage.clear(); // Clear all local storage data
