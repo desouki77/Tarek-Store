@@ -39,6 +39,12 @@ const Navbar = ({ isAdmin }) => {
 
     // Logout function to clear user data and redirect to login
     const handleLogout = () => {
+         // Check if the bank is closed
+     const isBankOpen = localStorage.getItem('bankOpen') === 'true';
+     if (isBankOpen) {
+         alert('الدرج مفتوح يرجي الرجوع الي الصفحة الرئيسية لغلق الدرج اولا');
+         return;
+     }
         localStorage.clear(); // Clear all local storage data
         navigate('/login'); // Redirect to login page
     };
