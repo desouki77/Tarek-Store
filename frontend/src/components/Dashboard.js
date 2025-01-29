@@ -22,10 +22,11 @@
         const [bankOpen, setBankOpen] = useState(false); // Track if the bank is open
         const [bankAmount, setBankAmount] = useState(null); // Track the current bank amount
         const branchId = localStorage.getItem("branchId"); // Fetch branchId from localStorage
+        const API_URL = process.env.REACT_APP_API_URL;
 
         const fetchBankData = async (bankId) => {
             try {
-                const response = await axios.get(`https://tarek-store-backend.onrender.com/api/bank/${bankId}`);
+                const response = await axios.get(`${API_URL}/api/bank/${bankId}`);
                 const bankData = response.data;
 
                 setBankAmount(bankData.bankAmount);
@@ -51,8 +52,8 @@
             const fetchUserData = async () => {
                 try {
                     // Fetch user data
-                    const userResponse = await axios.get(`https://tarek-store-backend.onrender.com/api/users/${userId}`);
-                    const branchResponse = await axios.get(`https://tarek-store-backend.onrender.com/api/branches/${branchId}`);
+                    const userResponse = await axios.get(`${API_URL}/api/users/${userId}`);
+                    const branchResponse = await axios.get(`${API_URL}/api/branches/${branchId}`);
 
                     setWelcomeData(prevData => ({
                         ...prevData,
@@ -73,6 +74,7 @@
             if (bankId) {
                 fetchBankData(bankId);
             }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         }, [branchId]);
 
         // Handler to navigate to specific transaction pages
@@ -92,7 +94,7 @@
 
         const handleOpenBank = async () => {
             try {
-                const response = await axios.post('https://tarek-store-backend.onrender.com/api/bank', {
+                const response = await axios.post(`${API_URL}/api/bank`, {
                     bankAmount: "0", // Initial value
                     branch: branchId,
                 });

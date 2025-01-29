@@ -13,30 +13,34 @@ function SalesReport() {
     const [branches, setBranches] = useState([]); // لتخزين الفروع
     const role = localStorage.getItem('role'); // Get role from localStorage
     const navigate = useNavigate(); // إنشاء دالة التنقل
+    const API_URL = process.env.REACT_APP_API_URL;
+
 
     // جلب الفروع من الـ API
     useEffect(() => {
         const fetchBranches = async () => {
             try {
-                const response = await axios.get('https://tarek-store-backend.onrender.com/api/branches'); // API لجلب الفروع
+                const response = await axios.get(`${API_URL}/api/branches`); // API لجلب الفروع
                 setBranches(response.data); // تخزين الفروع في الحالة
             } catch (err) {
                 setError('Error fetching branches');
             }
         };
         fetchBranches();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // استخدام useCallback لتحسين الأداء
     const fetchSalesReport = useCallback(async () => {
         try {
-            const response = await axios.get('https://tarek-store-backend.onrender.com/api/sales-report', {
+            const response = await axios.get(`${API_URL}/api/sales-report`, {
                 params: { branchId, startDate, endDate },
             });
             setReportData(response.data);
         } catch (err) {
             setError('Error fetching sales report');
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [branchId, startDate, endDate]);
 
     useEffect(() => {
@@ -75,7 +79,7 @@ function SalesReport() {
     
         try {
             // إذا لم يتم تحديد فرع، نرسل null بدلًا من قيمة فارغة
-            await axios.post('https://tarek-store-backend.onrender.com/api/save-sales-report', {
+            await axios.post(`${API_URL}/api/save-sales-report`, {
                 reportName,
                 totalSales: reportData.totalSales,
                 totalItemsSold: reportData.totalItemsSold,
@@ -93,7 +97,6 @@ function SalesReport() {
         }
     };
     
-
     // دالة التنقل إلى صفحة جميع التقارير
     const navigateToAllReports = () => {
         navigate('/all-sales-reports');

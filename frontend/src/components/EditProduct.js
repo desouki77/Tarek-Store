@@ -19,6 +19,8 @@ const EditProduct = () => {
     });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const API_URL = process.env.REACT_APP_API_URL;
+
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -29,7 +31,7 @@ const EditProduct = () => {
             }
 
             try {
-                const response = await axios.get(`https://tarek-store-backend.onrender.com/api/products/${barcode}`, {
+                const response = await axios.get(`${API_URL}/api/products/${barcode}`, {
                     params: { branchId: branchId },
                 });
                 if (response.status === 200) {
@@ -44,6 +46,7 @@ const EditProduct = () => {
         };
 
         fetchProduct();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [barcode, branchId]);
 
     const handleChange = (e) => {
@@ -66,7 +69,7 @@ const EditProduct = () => {
 
         try {
             setLoading(true);
-            await axios.put(`https://tarek-store-backend.onrender.com/api/products/${barcode}`, productWithBranchId);
+            await axios.put(`${API_URL}/api/products/${barcode}`, productWithBranchId);
             alert('Product updated successfully.');
             navigate('/all-products'); // Redirect to the products page after successful update
         } catch (error) {

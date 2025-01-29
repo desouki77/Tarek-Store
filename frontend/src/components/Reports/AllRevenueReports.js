@@ -13,6 +13,7 @@ function AllRevenueReports() {
     const [noReports, setNoReports] = useState(false); // حالة عدم وجود تقارير
     const reportsPerPage = 5; // استخدم فقط القيمة الثابتة هنا
     const role = localStorage.getItem('role'); // Get role from localStorage
+    const API_URL = process.env.REACT_APP_API_URL;
 
     const navigate = useNavigate();
 
@@ -20,7 +21,7 @@ function AllRevenueReports() {
         const fetchAllReports = async () => {
             setIsLoading(true); // بدء التحميل
             try {
-                const response = await axios.get('https://tarek-store-backend.onrender.com/api/revenue-reports', {
+                const response = await axios.get(`${API_URL}/api/revenue-reports`, {
                     params: { page: currentPage, limit: reportsPerPage },
                 });
 
@@ -39,6 +40,7 @@ function AllRevenueReports() {
         };
 
         fetchAllReports();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentPage, reportsPerPage]);
 
     const handleViewReport = (reportId) => {

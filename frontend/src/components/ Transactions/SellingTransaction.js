@@ -8,6 +8,7 @@ const SellingTransaction = () => {
     const role = localStorage.getItem('role');
     const isAdmin = role === 'admin';
     const branchId = localStorage.getItem('branchId');
+    const API_URL = process.env.REACT_APP_API_URL;
 
     const navigate = useNavigate();
     const barcodeInputRef = useRef(null);
@@ -38,7 +39,7 @@ const SellingTransaction = () => {
             const endDate = new Date(today.setHours(23, 59, 59, 999)).toISOString();
 
             try {
-                const response = await axios.get('https://tarek-store-backend.onrender.com/api/day_orders', {
+                const response = await axios.get(`${API_URL}/api/day_orders`, {
                     params: { branchId, startDate, endDate, limit, page: currentPage },
                 });
                 setOrders(response.data.orders);
@@ -52,6 +53,7 @@ const SellingTransaction = () => {
         };
 
         fetchOrders();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [branchId, currentPage]);
 
     const handleInputChange = (e) => {
@@ -72,7 +74,7 @@ const SellingTransaction = () => {
             }
 
             try {
-                const response = await axios.get(`https://tarek-store-backend.onrender.com/api/products/${scannedBarcode}`, {
+                const response = await axios.get(`${API_URL}/api/products/${scannedBarcode}`, {
                     params: { branchId },
                 });
 

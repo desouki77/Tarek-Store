@@ -13,11 +13,13 @@ const TopSellingProducts = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const role = localStorage.getItem('role');
+  const API_URL = process.env.REACT_APP_API_URL;
+
 
   useEffect(() => {
     const fetchBranches = async () => {
       try {
-        const response = await axios.get('https://tarek-store-backend.onrender.com/api/branches');
+        const response = await axios.get(`${API_URL}/api/branches`);
         setBranches(response.data);
       } catch (error) {
         setError('Failed to fetch branches');
@@ -25,12 +27,13 @@ const TopSellingProducts = () => {
     };
 
     fetchBranches();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     const fetchTopSellingProducts = async () => {
       try {
-        let url = `https://tarek-store-backend.onrender.com/api/top-selling-products?page=${currentPage}&limit=10`;
+        let url = `${API_URL}/api/top-selling-products?page=${currentPage}&limit=10`;
         if (branchId) url += `&branchId=${branchId}`;
 
         console.log("Fetching top selling products from:", url);
@@ -49,6 +52,7 @@ const TopSellingProducts = () => {
     };
 
     fetchTopSellingProducts();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [branchId, currentPage]);
 
   if (loading) {

@@ -12,18 +12,21 @@ function AllSalesReports() {
     const [isLoading, setIsLoading] = useState(false); // حالة التحميل
     const [noReports, setNoReports] = useState(false); // حالة عدم وجود تقارير
     const role = localStorage.getItem('role'); // Get role from localStorage
+    const API_URL = process.env.REACT_APP_API_URL;
+
 
     // جلب الفروع من الـ API
     useEffect(() => {
         const fetchBranches = async () => {
             try {
-                const response = await axios.get('https://tarek-store-backend.onrender.com/api/branches'); // API لجلب الفروع
+                const response = await axios.get(`${API_URL}/api/branches`); // API لجلب الفروع
                 setBranches(response.data); // تخزين الفروع في الحالة
             } catch (err) {
                 setError('Error fetching branches');
             }
         };
         fetchBranches();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // جلب التقارير مع التصفية حسب الصفحة
@@ -31,7 +34,7 @@ function AllSalesReports() {
         const fetchReports = async () => {
             setIsLoading(true); // بدء التحميل
             try {
-                const response = await axios.get('https://tarek-store-backend.onrender.com/api/get-all-reports', {
+                const response = await axios.get(`${API_URL}/api/get-all-reports`, {
                     params: {
                         page: currentPage,
                         limit: 6, // يمكنك تغيير العدد حسب الحاجة
@@ -47,6 +50,7 @@ function AllSalesReports() {
             }
         };
         fetchReports();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentPage]);
 
     // دالة للحصول على اسم الفرع بناءً على branchId

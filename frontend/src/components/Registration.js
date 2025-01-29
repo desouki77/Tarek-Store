@@ -14,6 +14,7 @@ const Registration = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const [loading, setIsLoading] = useState(false);
+  const API_URL = process.env.REACT_APP_API_URL;
 
 
   const handleSubmit = async (e) => {
@@ -22,7 +23,7 @@ const Registration = () => {
     try {
       // Send registration data to the backend using Axios
       const response = await axios.post(
-        'https://tarek-store-backend.onrender.com/api/users/register',
+        `${API_URL}/api/users/register`,
         {
           username,
           password,

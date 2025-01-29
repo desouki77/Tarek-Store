@@ -17,13 +17,15 @@ const AllOrders = () => {
     const [endDate, setEndDate] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const API_URL = process.env.REACT_APP_API_URL;
+
 
     useEffect(() => {
         const fetchAllOrders = async () => {
             setLoading(true);
             try {
                 const branchId = localStorage.getItem('branchId');
-                let url = `https://tarek-store-backend.onrender.com/api/orders?branchId=${branchId}&page=${currentPage}&limit=20`;
+                let url = `${API_URL}/api/orders?branchId=${branchId}&page=${currentPage}&limit=20`;
 
                 // Add date filters if provided
                 if (startDate && endDate) {
@@ -41,6 +43,7 @@ const AllOrders = () => {
         };
 
         fetchAllOrders();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [startDate, endDate, currentPage]);
 
     if (loading) return <Loader />;

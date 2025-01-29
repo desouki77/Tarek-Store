@@ -13,6 +13,7 @@ function RevenueReport() {
     const [error, setError] = useState('');
     const role = localStorage.getItem('role'); 
     const navigate = useNavigate();  
+    const API_URL = process.env.REACT_APP_API_URL;
 
     const transactionTypeMap = {
         'sales': 'المبيعات',
@@ -47,20 +48,21 @@ function RevenueReport() {
     useEffect(() => {
         const fetchBranches = async () => {
             try {
-                const response = await axios.get('https://tarek-store-backend.onrender.com/api/branches');
+                const response = await axios.get(`${API_URL}/api/branches`);
                 setBranches(response.data || []);
             } catch (err) {
                 setError('Error fetching branches');
             }
         };
         fetchBranches();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
         if (!startDate || !endDate) return; 
         const fetchRevenueReport = async () => {
             try {
-                const response = await axios.get('https://tarek-store-backend.onrender.com/api/transactions/generate-revenue-report', {
+                const response = await axios.get(`${API_URL}/api/transactions/generate-revenue-report`, {
                     params: { startDate, endDate, branchId: selectedBranch },
                 });
                 setReportData(response.data.report || []);
@@ -69,6 +71,7 @@ function RevenueReport() {
             }
         };
         fetchRevenueReport();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [startDate, endDate, selectedBranch]);
 
     const sortDataByTransactionOrder = (data) => {
@@ -100,7 +103,7 @@ function RevenueReport() {
         };
         
         try {
-            await axios.post('https://tarek-store-backend.onrender.com/api/save-revenue-report', report);
+            await axios.post(`${API_URL}/api/save-revenue-report`, report);
             alert('تم حفظ التقرير بنجاح');
         } catch (err) {
             alert('حدث خطأ أثناء حفظ التقرير');

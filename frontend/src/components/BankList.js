@@ -14,9 +14,11 @@ const BankList = () => {
   const [totalPages, setTotalPages] = useState(1);
   const role = localStorage.getItem('role');
   const isAdmin = role === 'admin';
+  const API_URL = process.env.REACT_APP_API_URL;
+
 
   useEffect(() => {
-    const url = `https://tarek-store-backend.onrender.com/api/bank?startDate=${startDate}&endDate=${endDate}&page=${currentPage}&limit=10`;
+    const url = `${API_URL}/api/bank?startDate=${startDate}&endDate=${endDate}&page=${currentPage}&limit=10`;
 
     axios
       .get(url)
@@ -29,6 +31,7 @@ const BankList = () => {
         setError(err.message);
         setLoading(false);
       });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [startDate, endDate, currentPage]);
 
   if (loading) {

@@ -12,11 +12,12 @@ const Login = () => {
   const [error, setError] = useState('');
   const [loading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const API_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const fetchBranches = async () => {
       try {
-        const response = await axios.get('https://tarek-store-backend.onrender.com/api/branches');
+        const response = await axios.get(`${API_URL}/api/branches`);
         setBranches(response.data);
       } catch (error) {
         console.error('Error fetching branches:', error);
@@ -30,6 +31,7 @@ const Login = () => {
     if (token) {
       navigate('/dashboard');
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate]);
 
   const handleSubmit = async (e) => {
@@ -47,7 +49,7 @@ const Login = () => {
         return;
       }
 
-      const response = await axios.post('https://tarek-store-backend.onrender.com/api/users/login', {
+      const response = await axios.post(`${API_URL}/api/users/login`, {
         username,
         password,
         branchId,

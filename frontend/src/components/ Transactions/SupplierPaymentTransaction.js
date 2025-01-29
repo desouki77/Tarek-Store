@@ -19,6 +19,8 @@ const SupplierPaymentTransaction = () => {
   const role = localStorage.getItem('role');
   const type = localStorage.getItem('transactionType');
   const isAdmin = role === 'admin';
+  const API_URL = process.env.REACT_APP_API_URL;
+
   
   // Suppliers state initialized as an empty array to prevent map errors
   const [suppliers, setSuppliers] = useState([]); 
@@ -31,7 +33,7 @@ const SupplierPaymentTransaction = () => {
   useEffect(() => {
     const fetchSuppliers = async () => {
       try {
-        const response = await axios.get('https://tarek-store-backend.onrender.com/api/suppliers');
+        const response = await axios.get(`${API_URL}/api/suppliers`);
         if (response.data.suppliers && Array.isArray(response.data.suppliers)) {
           setSuppliers(response.data.suppliers); // استخدم فقط الـ suppliers من الاستجابة
         } else {
@@ -43,16 +45,18 @@ const SupplierPaymentTransaction = () => {
       }
     };
     fetchSuppliers();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchUserData = useCallback(async (userId) => {
     try {
-      const userResponse = await axios.get(`https://tarek-store-backend.onrender.com/api/users/${userId}`);
+      const userResponse = await axios.get(`${API_URL}/api/users/${userId}`);
       return { userName: userResponse.data.username };
     } catch (error) {
       console.error("Error fetching user", error);
       return { userName: 'Unknown' };
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchTransactions = useCallback(
@@ -71,7 +75,7 @@ const SupplierPaymentTransaction = () => {
       }
 
       try {
-        const response = await axios.get('https://tarek-store-backend.onrender.com/api/transactions/daysupplier_payment', {
+        const response = await axios.get(`${API_URL}/api/transactions/daysupplier_payment`, {
           params: { branchId, startDate, endDate, page, limit: 5 },
         });
 
@@ -92,6 +96,7 @@ const SupplierPaymentTransaction = () => {
         setIsLoading(false);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [branchId, fetchUserData]
   );
 
@@ -136,7 +141,7 @@ const SupplierPaymentTransaction = () => {
     }
 
     // جلب المبلغ الحالي من البنك
-    const bankResponse = await axios.get(`https://tarek-store-backend.onrender.com/api/bank/${BankId}`);
+    const bankResponse = await axios.get(`${API_URL}/api/bank/${BankId}`);
     if (!bankResponse.data || bankResponse.data.bankAmount === undefined) {
         throw new Error('Invalid bank data received');
     }
@@ -149,7 +154,7 @@ const SupplierPaymentTransaction = () => {
   }
 
     try {
-        const response = await axios.post('https://tarek-store-backend.onrender.com/api/transactions/supplier_payment', {
+        const response = await axios.post(`${API_URL}/api/transactions/supplier_payment`, {
             branchId,
             user: userId,
             type,
@@ -176,7 +181,7 @@ const SupplierPaymentTransaction = () => {
       const updatedBankAmount = currentBankAmount - Number(amount);
   
       // إرسال البيانات المحدثة إلى الخادم
-      const updateResponse = await axios.put(`https://tarek-store-backend.onrender.com/api/bank/${BankId}`, {
+      const updateResponse = await axios.put(`${API_URL}/api/bank/${BankId}`, {
           bankAmount: updatedBankAmount,
       });
   

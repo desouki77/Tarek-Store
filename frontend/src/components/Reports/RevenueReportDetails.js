@@ -10,7 +10,7 @@ function RevenueReportDetails() {
     const [report, setReport] = useState(null);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(true);  // إضافة حالة التحميل
-
+    const API_URL = process.env.REACT_APP_API_URL;
 
     const transactionTypeMap = {
         'sales': 'المبيعات',
@@ -46,7 +46,7 @@ function RevenueReportDetails() {
     useEffect(() => {
         const fetchReportDetails = async () => {
             try {
-                const response = await axios.get(`https://tarek-store-backend.onrender.com/api/revenue-reports/${reportId}`);
+                const response = await axios.get(`${API_URL}/api/revenue-reports/${reportId}`);
                 setReport(response.data);
                 setLoading(false)
             } catch (err) {
@@ -55,6 +55,7 @@ function RevenueReportDetails() {
             }
         };
         fetchReportDetails();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [reportId]);
 
     if (loading) {

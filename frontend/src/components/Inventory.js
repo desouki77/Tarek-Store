@@ -57,6 +57,8 @@ const Inventory = () => {
   const [subCategory, setSubCategory] = useState('');
   const [thirdCategory, setThirdCategory] = useState('');
   const [condition, setCondition] = useState(''); 
+  const API_URL = process.env.REACT_APP_API_URL;
+
 
   const handleChange = (e) => {
     setProduct({ ...product, [e.target.name]: e.target.value });
@@ -118,7 +120,7 @@ const Inventory = () => {
     };
   
     try {
-      const response = await axios.post('https://tarek-store-backend.onrender.com/api/products/add', productWithCategory);
+      const response = await axios.post(`${API_URL}/api/products/add`, productWithCategory);
       setAddedProduct(response.data.product);
       const addedProductName = response.data.product.name;
       // حفظ الرسالة في localStorage
@@ -160,13 +162,14 @@ const Inventory = () => {
    useEffect(() => {
     const fetchSuppliers = async () => {
       try {
-        const response = await axios.get('https://tarek-store-backend.onrender.com/api/suppliers');
+        const response = await axios.get(`${API_URL}/api/suppliers`);
         setSuppliers(response.data.suppliers);
       } catch (error) {
         console.error('Error fetching suppliers:', error);
       }
     };
     fetchSuppliers();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   
 

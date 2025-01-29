@@ -18,6 +18,8 @@ const WarrantyTransactions = () => {
   const role = localStorage.getItem('role');
   const type = localStorage.getItem('transactionType');
   const isAdmin = role === 'admin';
+  const API_URL = process.env.REACT_APP_API_URL;
+
 
     const barcodeInputRef = useRef(null); // Ref for the barcode input field
     const descriptionInputRef = useRef(null); // Ref for the description input field
@@ -32,12 +34,13 @@ const WarrantyTransactions = () => {
 
   const fetchUserData = useCallback(async (userId) => {
     try {
-      const userResponse = await axios.get(`https://tarek-store-backend.onrender.com/api/users/${userId}`);
+      const userResponse = await axios.get(`${API_URL}/api/users/${userId}`);
       return { userName: userResponse.data.username };
     } catch (error) {
       console.error("Error fetching user", error);
       return { userName: 'Unknown' };
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleInputChange = (e) => {
@@ -59,7 +62,7 @@ const WarrantyTransactions = () => {
 
         try {
             // استرجاع المنتج باستخدام الباركود فقط
-            const response = await axios.get(`https://tarek-store-backend.onrender.com/api/products/${scannedBarcode}`, {
+            const response = await axios.get(`${API_URL}/api/products/${scannedBarcode}`, {
                 params: { branchId },
             });
 
@@ -109,7 +112,7 @@ const WarrantyTransactions = () => {
       }
 
       try {
-        const response = await axios.get('https://tarek-store-backend.onrender.com/api/transactions/daywarranty', {
+        const response = await axios.get(`${API_URL}/api/transactions/daywarranty`, {
           params: { branchId, startDate, endDate, page, limit: 5 },
         });
 
@@ -130,6 +133,7 @@ const WarrantyTransactions = () => {
         setIsLoading(false);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [branchId, fetchUserData]
   );
 
@@ -169,7 +173,7 @@ const WarrantyTransactions = () => {
     try {
       // إرسال معرّفات المنتجات فقط (ObjectId)
       const productId = products.map((product) => product._id);  // استخراج الـ ObjectId فقط
-      const response = await axios.post('https://tarek-store-backend.onrender.com/api/transactions/warranty', {
+      const response = await axios.post(`${API_URL}/api/transactions/warranty`, {
         branchId,
         user: userId,
         type,
@@ -180,7 +184,7 @@ const WarrantyTransactions = () => {
 
      // Decrement the quantity for each product
   for (const product of products) {
-    await axios.put(`https://tarek-store-backend.onrender.com/api/products/${product._id}/decrement`, {
+    await axios.put(`${API_URL}/api/products/${product._id}/decrement`, {
       branchId,
       quantity: 1, // Decrease quantity by 1
     });

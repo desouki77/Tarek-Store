@@ -17,6 +17,8 @@ const OrderReceipt = () => {
         branchName: "Default Branch",
         salesName: "Default Sales",
     });
+    const API_URL = process.env.REACT_APP_API_URL;
+
 
     useEffect(() => {
         const userId = localStorage.getItem("userId");
@@ -30,8 +32,8 @@ const OrderReceipt = () => {
 
         const fetchUserData = async () => {
             try {
-                const userResponse = await axios.get(`https://tarek-store-backend.onrender.com/api/users/${userId}`);
-                const branchResponse = await axios.get(`https://tarek-store-backend.onrender.com/api/branches/${branchId}`);
+                const userResponse = await axios.get(`${API_URL}/api/users/${userId}`);
+                const branchResponse = await axios.get(`${API_URL}/api/branches/${branchId}`);
                 
                 setWelcomeData(prevData => ({
                     ...prevData,
@@ -52,7 +54,7 @@ const OrderReceipt = () => {
             if (!orderId) return;
 
             try {
-                const response = await axios.get(`https://tarek-store-backend.onrender.com/api/orders/${orderId}?branchId=${branchId}`);
+                const response = await axios.get(`${API_URL}/api/orders/${orderId}?branchId=${branchId}`);
                 setOrderData(response.data);
             } catch (error) {
                 console.error('Error fetching order data:', error);
@@ -62,6 +64,7 @@ const OrderReceipt = () => {
 
         fetchUserData();
         fetchOrderData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [orderId]);
 
     if (error) return <div>{error}</div>;

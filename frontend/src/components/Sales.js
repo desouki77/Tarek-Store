@@ -12,6 +12,8 @@ const Sales = () => {
     const [totalPages, setTotalPages] = useState(1);
     const limit = 7; // Number of items per page
     const role = localStorage.getItem('role'); // Get role from localStorage
+    const API_URL = process.env.REACT_APP_API_URL;
+
 
     const fetchSalesData = useCallback(async (page) => {
         if (role !== 'admin') {
@@ -23,7 +25,7 @@ const Sales = () => {
         setError(null);
 
         try {
-            const response = await axios.get('https://tarek-store-backend.onrender.com/api/users', {
+            const response = await axios.get(`${API_URL}/api/users`, {
                 params: { page, limit },
             });
 
@@ -35,6 +37,7 @@ const Sales = () => {
         } finally {
             setLoading(false);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [role, limit]);
 
     useEffect(() => {
@@ -45,7 +48,7 @@ const Sales = () => {
         const confirmDelete = window.confirm('هل أنت متأكد أنك تريد حذف هذا الموظف؟'); // Confirmation in Arabic
         if(confirmDelete) {
         try {
-            const response = await axios.delete(`https://tarek-store-backend.onrender.com/api/users/${id}`);
+            const response = await axios.delete(`${API_URL}/api/users/${id}`);
             if (response.status === 200) {
                 const updatedSalesData = salesData.filter(sale => sale._id !== id);
                 setSalesData(updatedSalesData);

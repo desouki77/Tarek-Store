@@ -17,6 +17,8 @@ const Clients = () => {
     const [noClients, setNoClients] = useState(false); // No clients state
     const role = localStorage.getItem('role');
     const isAdmin = role === 'admin';
+    const API_URL = process.env.REACT_APP_API_URL;
+
 
     const handleChange = (e) => {
         setClient({ ...client, [e.target.name]: e.target.value });
@@ -25,7 +27,7 @@ const Clients = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('https://tarek-store-backend.onrender.com/api/clients/add', client);
+            const response = await axios.post(`${API_URL}/api/clients/add`, client);
             setMessage(response.data.message);
             if (response.data.message === 'تم إضافة العميل بنجاح') {
                 setClient({ name: '', phoneNumber: '', amountRequired: 0 }); // Clear form
@@ -40,7 +42,7 @@ const Clients = () => {
     const fetchClients = async (page = 1) => {
         setIsLoading(true); // Start loading
         try {
-            const response = await axios.get(`https://tarek-store-backend.onrender.com/api/clients?page=${page}&limit=7`);
+            const response = await axios.get(`${API_URL}/api/clients?page=${page}&limit=7`);
             setClients(response.data.clients);
             setCurrentPage(response.data.currentPage);
             setTotalPages(response.data.totalPages);
@@ -54,13 +56,14 @@ const Clients = () => {
 
     useEffect(() => {
         fetchClients();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handleDeleteClients = async (id) => {
         const confirmDelete = window.confirm('هل أنت متأكد أنك تريد حذف هذا العميل'); // Confirmation in Arabic
         if (confirmDelete) {
             try {
-                const response = await axios.delete(`https://tarek-store-backend.onrender.com/api/clients/${id}`);
+                const response = await axios.delete(`${API_URL}api/clients/${id}`);
                 setMessage(response.data.message);
                 fetchClients(currentPage); 
             } catch (error) {

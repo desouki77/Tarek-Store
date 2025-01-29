@@ -12,6 +12,7 @@ const Checkout = () => {
     const [clientPhone, setClientPhone] = useState('');
     const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
 
+    const API_URL = process.env.REACT_APP_API_URL;
 
     const [welcomeData, setWelcomeData] = useState({
         storeName: "Tarek Phones",
@@ -41,8 +42,8 @@ const Checkout = () => {
         const fetchUserData = async () => {
             try {
                 // Fetch user data
-                const userResponse = await axios.get(`https://tarek-store-backend.onrender.com/api/users/${userId}`);
-                const branchResponse = await axios.get(`https://tarek-store-backend.onrender.com/api/branches/${branchId}`);
+                const userResponse = await axios.get(`${API_URL}/api/users/${userId}`);
+                const branchResponse = await axios.get(`${API_URL}/api/branches/${branchId}`);
 
                 setWelcomeData(prevData => ({
                     ...prevData,
@@ -60,6 +61,7 @@ const Checkout = () => {
         fetchUserData();
         // Clean up the interval on component unmount
         return () => clearInterval(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const totalAmount = checkoutItems.reduce((total, item) => total + item.sellingPrice, 0);
@@ -87,18 +89,18 @@ const Checkout = () => {
     
         if (remaining !== 0 && clientName && clientPhone) {
             try {
-                const existingClientResponse = await axios.get(`https://tarek-store-backend.onrender.com/api/clients/${clientPhone}`);
+                const existingClientResponse = await axios.get(`${API_URL}/api/clients/${clientPhone}`);
         
                 if (existingClientResponse.data) {
                     // إذا كان العميل موجودًا، قم بتحديث المبلغ المتبقي
-                    await axios.put('https://tarek-store-backend.onrender.com/api/clients/update-amount', {
+                    await axios.put(`${API_URL}/api/clients/update-amount`, {
                         clientPhone,
                         remainingAmount: remaining, // إضافة المبلغ المتبقي
                     });
                     console.log('تم تحديث المبلغ بنجاح');
                 } else {
                     // إذا لم يكن العميل موجودًا، أضفه
-                    await axios.post('https://tarek-store-backend.onrender.com/api/clients/add', {
+                    await axios.post(`${API_URL}/api/clients/add`, {
                         name: clientName,
                         phoneNumber: clientPhone,
                         amountRequired: remaining,
@@ -132,7 +134,7 @@ const Checkout = () => {
     
         try {
             // Create the order and decrease product quantities in one go
-            const response = await axios.post('https://tarek-store-backend.onrender.com/api/orders', orderData, {
+            const response = await axios.post(`${API_URL}/api/orders`, orderData, {
                 headers: {
                     'Content-Type': 'application/json',
                 }
@@ -141,7 +143,7 @@ const Checkout = () => {
             // Update quantities for the products in the order
             for (const item of checkoutItems) {
                 try {
-                    const response = await axios.put(`https://tarek-store-backend.onrender.com/api/products/${item.barcode}/decrease`, {
+                    const response = await axios.put(`${API_URL}/api/products/${item.barcode}/decrease`, {
                         quantity: 1, 
                         branchId: branchId,
                     });
@@ -160,7 +162,7 @@ const Checkout = () => {
                 }
             
                 // جلب المبلغ الحالي من البنك
-                const bankResponse = await axios.get(`https://tarek-store-backend.onrender.com/api/bank/${BankId}`);
+                const bankResponse = await axios.get(`${API_URL}/api/bank/${BankId}`);
                 if (!bankResponse.data || bankResponse.data.bankAmount === undefined) {
                     throw new Error('Invalid bank data received');
                 }
@@ -170,7 +172,7 @@ const Checkout = () => {
                 const updatedBankAmount = currentBankAmount + Number(paid);
             
                 // إرسال البيانات المحدثة إلى الخادم
-                const updateResponse = await axios.put(`https://tarek-store-backend.onrender.com/api/bank/${BankId}`, {
+                const updateResponse = await axios.put(`${API_URL}/api/bank/${BankId}`, {
                     bankAmount: updatedBankAmount,
                 });
             
@@ -206,7 +208,7 @@ const Checkout = () => {
     
         try {
             // استدعاء API لجلب بيانات العميل
-            const response = await axios.get(`https://tarek-store-backend.onrender.com/api/clients/${phone}`);
+            const response = await axios.get(`${API_URL}/api/clients/${phone}`);
             if (response.data) {
                 setClientName(response.data.name || ""); // تحديث اسم العميل فقط
             } else {

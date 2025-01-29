@@ -19,6 +19,7 @@ const Suppliers = () => {
     const [noSuppliers, setNoSuppliers] = useState(false);  // Track if no suppliers
     const role = localStorage.getItem('role');
     const isAdmin = role === 'admin';
+    const API_URL = process.env.REACT_APP_API_URL;
 
     const handleChange = (e) => {
         setSupplier({ ...supplier, [e.target.name]: e.target.value });
@@ -27,7 +28,7 @@ const Suppliers = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('https://tarek-store-backend.onrender.com/api/suppliers/add', supplier);
+            const response = await axios.post(`${API_URL}/api/suppliers/add`, supplier);
             setMessage(response.data.message);
             setSupplier({ name: '', phoneNumber: '', company: '', notes: '', moneyOwed: 0 });
             fetchSuppliers();
@@ -40,7 +41,7 @@ const Suppliers = () => {
     const fetchSuppliers = async (page = 1) => {
         setIsLoading(true);  // Set loading to true before fetching
         try {
-            const response = await axios.get(`https://tarek-store-backend.onrender.com/api/suppliers?page=${page}&limit=7`);
+            const response = await axios.get(`${API_URL}/api/suppliers?page=${page}&limit=7`);
             if (response.data.suppliers.length === 0) {
                 setNoSuppliers(true);  // Set noSuppliers to true if no data is returned
             } else {
@@ -68,7 +69,7 @@ const Suppliers = () => {
         const confirmDelete = window.confirm('هل أنت متأكد أنك تريد حذف هذا المورد'); // Confirmation in Arabic
         if (confirmDelete) {
             try {
-                const response = await axios.delete(`https://tarek-store-backend.onrender.com/api/suppliers/${id}`);
+                const response = await axios.delete(`${API_URL}/api/suppliers/${id}`);
                 setMessage(response.data.message);
                 fetchSuppliers(currentPage);
             } catch (error) {
@@ -80,6 +81,7 @@ const Suppliers = () => {
 
     useEffect(() => {
         fetchSuppliers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const [editingSuppliertId, setEditingSupplierId] = useState(null); // Track the supplier being edited
@@ -93,7 +95,7 @@ const Suppliers = () => {
     const handleEditSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.put(`https://tarek-store-backend.onrender.com/api/suppliers/id/${editingSuppliertId}`, editFormData);
+            await axios.put(`${API_URL}/api/suppliers/id/${editingSuppliertId}`, editFormData);
             // Update the products state with the edited product
             setSuppliers(suppliers.map(editSupplier => (editSupplier._id === editingSuppliertId ? { ...editSupplier, ...editFormData } : editSupplier)));
             setEditingSupplierId(null); // Reset the editing state
