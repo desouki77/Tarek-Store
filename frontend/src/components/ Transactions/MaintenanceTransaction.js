@@ -137,7 +137,7 @@ const MaintenanceTransaction = () => {
       }
   
       // جلب المبلغ الحالي من البنك
-      const bankResponse = await axios.get(`${API_URL}api/bank/${BankId}`);
+      const bankResponse = await axios.get(`${API_URL}/api/bank/${BankId}`);
       if (!bankResponse.data || bankResponse.data.bankAmount === undefined) {
           throw new Error('Invalid bank data received');
       }
