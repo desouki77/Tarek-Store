@@ -11,7 +11,15 @@
   margin-top: 20px;
 }
 
-.inventory__heading {
+.inventory__heading1 {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.inventory__heading2 {
   font-size: 1.5rem;
   font-weight: bold;
   color: #333;
@@ -59,6 +67,9 @@
   background-color: #0056b3;
 }
 
+.snbtn{
+  margin-right: 10px;
+}
 .inventory__all-products-btn {
   display: inline-block;
   padding: 0.6rem 1rem;
@@ -72,6 +83,7 @@
   text-align: center;
   transition: background-color 0.3s ease;
   width: 300px;
+  margin-left: 10px;
 }
 
 .inventory__all-products-btn:hover {
@@ -84,6 +96,35 @@
   margin-top: 1rem;
   text-align: center;
 }
+
+.inventory-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.inventory-input-field {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.inventory-submit-button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 30%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.inventory-submit-button:hover {
+  background-color: #0056b3;
+}
+
 
 /* Responsive styling for mobile devices */
 @media (max-width: 480px) {
@@ -107,4 +148,18 @@
       padding: 0.5rem;
       width: 200px;
   }
+}
+
+.inventory__buttons-container {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.inventory__submit-btn--without-invoice {
+  background-color: #6c757d;
+}
+
+.inventory__submit-btn--without-invoice:hover {
+  background-color: #5a6268;
 }

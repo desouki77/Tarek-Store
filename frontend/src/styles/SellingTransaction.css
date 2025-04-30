@@ -244,3 +244,54 @@
         
     }
 }
+
+
+/* Add to your SellingTransaction.css */
+.serial-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    z-index: 1000;
+    width: 80%;
+    max-width: 500px;
+  }
+  
+  .serial-list {
+    max-height: 300px;
+    overflow-y: auto;
+    margin: 15px 0;
+  }
+  
+  .serial-item {
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: center;
+  }
+  
+  .serial-item input {
+    margin-left: 10px;
+  }
+  
+  .serial-modal button {
+    margin: 5px;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .serial-modal button:first-of-type {
+    background-color: #28a745;
+    color: white;
+  }
+  
+  .serial-modal button:last-of-type {
+    background-color: #dc3545;
+    color: white;
+  }

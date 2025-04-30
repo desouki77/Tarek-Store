@@ -148,9 +148,13 @@
                                     <button className="close-bank" onClick={handleCloseBank}>
                                         تسليم الدرج
                                     </button>
+                                    
                                 </>
                             )}
+
                         </div>
+                        <button className="bank-list" onClick={() => handleTransactionClick('bank')} >سجلات الدرج</button>
+
                     </div>
                     {/* Transaction Buttons */}
                     <div className='transaction-container'>
@@ -162,14 +166,13 @@
                             <button className="transaction" onClick={() => handleTransactionClick('maintenance')}>صيانة</button>
                             <button className="transaction" onClick={() => handleTransactionClick('supplier_payment')}>سداد موردين</button>
                             <button className="transaction" onClick={() => handleTransactionClick('customer_payment')}>سداد عملاء</button>
-                            <button className="transaction" onClick={() => handleTransactionClick('purchasing')}>مشتروات</button>
                             <button className="transaction" onClick={() => handleTransactionClick('returns')}>مرتجعات</button>
                             <button className="transaction" onClick={() => handleTransactionClick('warranty')} >الضمان</button>
                             <button className="transaction" onClick={() => handleTransactionClick('output_staff')} >مسحوبات موظفين</button>
-                            <button className="transaction" onClick={() => handleTransactionClick('bank')} >الدرج</button>
 
                         </div>
                     </div>
+
                 </div>
             </>
         );

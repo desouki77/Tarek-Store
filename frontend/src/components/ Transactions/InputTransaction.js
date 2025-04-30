@@ -164,19 +164,19 @@ const InputTransaction = () => {
       <div className="input-transaction">
         <h2>مدخلات</h2>
         <form className="input-transaction-form" onSubmit={handleSubmit}>
+        <input
+            type="number"
+            placeholder="المبلغ"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            required
+            className="input-transaction-input"
+          />
           <input
             type="text"
             placeholder="الوصف"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            required
-            className="input-transaction-input"
-          />
-          <input
-            type="number"
-            placeholder="المبلغ"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
             required
             className="input-transaction-input"
           />

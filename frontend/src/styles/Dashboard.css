@@ -24,35 +24,59 @@
 }
 
 .transaction-buttons {
-    display: grid; /* Use grid layout */
-    grid-template-columns: repeat(4, 1fr); /* 4 columns for larger screens */
-    gap: 20px; /* Space between buttons */
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
     width: 100%;
-    max-width: 800px; /* Max width of the button grid */
-    margin-top: 40px;
+    max-width: 900px;
+    margin: 40px auto;
+    justify-items: center;
 }
 
-
-.transaction{
-    width: 150px; /* Button width */
-    height: 150px; /* Button height */
-    font-size: 24px; /* Font size */
-    border-radius: 5px; /* Rounded corners */
+.transaction {
+    width: 150px;
+    height: 150px;
+    font-size: 24px;
+    border-radius: 5px;
     display: flex;
     justify-content: center;
     align-items: center;
-    cursor: pointer; /* Pointer cursor on hover */
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    background-color:darkcyan ;
-    
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-color: darkcyan;
+    color: white;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
-
 
 .transaction:hover {
-    background-color: darkslategray;
     transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    opacity: 0.9;
 }
 
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .transaction-buttons {
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    }
+    .transaction {
+        width: 130px;
+        height: 130px;
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .transaction-buttons {
+        grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+        gap: 15px;
+    }
+    .transaction {
+        width: 110px;
+        height: 110px;
+        font-size: 18px;
+    }
+}
 
 .bank-amount-container {
     display: flex;
@@ -90,6 +114,7 @@
 .close-bank:hover{
     background-color: #c82333;
 }
+
 
 
 

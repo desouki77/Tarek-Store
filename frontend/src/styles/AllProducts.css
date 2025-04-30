@@ -178,7 +178,8 @@
 
 .allproduct-pagination-btn:disabled {
   background-color: #ccc;
-  cursor: not-allowed;}
+  cursor: not-allowed;
+}
 
 @media (max-width: 1200px) {
   .allproduct-table {

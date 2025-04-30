@@ -56,7 +56,7 @@ function RevenueReportDetails() {
         };
         fetchReportDetails();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [reportId]);
+    }, [reportId,API_URL]);
 
     if (loading) {
         return  <Loader />;

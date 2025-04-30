@@ -15,50 +15,104 @@ const AllProducts = () => {
   const productsPerPage = 10; // Number of products per page
   const [totalProducts, setTotalProducts] = useState(0); // عدد المنتجات
   const [loading, setLoading] = useState(true); // حالة التحميل
-  const API_URL = process.env.REACT_APP_API_URL;
+  // eslint-disable-next-line no-unused-vars
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:4321";
 
 
-  const [categories] = useState({
-    اجهزة: {
-      موبايلات: ['سامسونج', 'آيفون', 'هواوي', 'اوبو', 'ريلمي', 'فيفو', 'ريدمي ( شاومي )', 'هونر', 'نوكيا', 'جوجل', 'اخري'],
-      سماعات: ['سماعات سلكية', 'سماعات اير بودز', 'سماعات بيتس', 'سماعات ستريو', 'اخري'],
-      ساعات: ['ايفون', 'سامسونج', 'هواوي', 'اخري'],
-      اضائات: ['رينج لايت', 'اخري'],
-      ميكات: []
-    },
-    اكسسوارات: {
-      جرابات: ['جرابات موبايلات', 'جرابات اير بودز', 'جرابات ساعات'],
-      اسكرينات: [],
-      شواحن: [],
-      كابلات: [],
-      'سترابات ساعات': [],
-      'ميموري كارد': [],
-      فلاشات: [],
-      'لينسات كاميرة': [],
-      'باور بانك': [],
-      'حوامل موبايلات': [],
-      بطاريات: []
-    },
-    others: {}
-  });
+    const [mainCategories, setMainCategories] = useState([]);
+    const [subCategories, setSubCategories] = useState([]);
+    const [thirdCategories, setThirdCategories] = useState([]);
+
+    const [mainCategory, setMainCategory] = useState('');
+    const [subCategory, setSubCategory] = useState('');
+    const [thirdCategory, setThirdCategory] = useState('');
+    const [condition, setCondition] = useState('');
+
+  useEffect(() => {
+    const fetchMainCategories = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/api/categories/main`);
+        setMainCategories(response.data);
+      } catch (error) {
+        console.error("Error fetching main categories:", error);
+      }
+    };
   
-  const [mainCategory, setMainCategory] = useState('');
-  const [subCategory, setSubCategory] = useState('');
-  const [thirdCategory, setThirdCategory] = useState('');
-  const [condition, setCondition] = useState('');
+    fetchMainCategories();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const handleMainCategoryChange = (e) => {
-    setMainCategory(e.target.value);
-    setSubCategory('');
-    setThirdCategory('');
-    setCondition('');
+  const handleMainCategoryChange = async (e) => {
+    const selectedValue = e.target.value; // This is the value of the selected option
+
+    if (!selectedValue) {
+      setSubCategory('');
+  }
+
+    // If a valid category is selected
+    setMainCategory(selectedValue); // Store the ID, not the name
+    setSubCategory("");
+    setThirdCategory("");
+    setCondition("");
+  
+    try {
+      const response = await axios.get(`${API_URL}/api/categories/sub/${selectedValue}`);
+      setSubCategories(response.data);
+    } catch (error) {
+      console.error("Error fetching subcategories:", error);
+    }
   };
 
-  const handleSubCategoryChange = (e) => {
-    setSubCategory(e.target.value);
-    setThirdCategory('');
-    setCondition('');
+  const handleSubCategoryChange = async (e) => {
+    const selectedSubCategory = e.target.value;
+  
+    setSubCategory(selectedSubCategory);
+    setThirdCategory("");
+    setCondition("");
+  
+    try {
+      const response = await axios.get(`${API_URL}/api/categories/third/${selectedSubCategory}`);
+      setThirdCategories(response.data);
+    } catch (error) {
+      console.error("Error fetching third-level categories:", error);
+    }
   };
+
+  const handleThirdCategoryChange = async (e) => {
+    const selectedThirdCategory = e.target.value;
+
+    setThirdCategory(selectedThirdCategory);
+    setCondition("");
+  };
+
+  const [suppliers, setSuppliers] = useState([]);
+  
+  useEffect(() => {
+    const fetchSuppliers = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/api/suppliers`);
+setSuppliers(response.data.suppliers || []);
+      } catch (error) {
+        console.error('Error fetching suppliers:', error);
+      }
+    };
+  
+    fetchSuppliers();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const getSupplierName = (supplierId) => {
+    if (!Array.isArray(suppliers)) {
+      console.error("Suppliers is not an array:", suppliers);
+      return "غير معروف";
+    }
+  
+    const supplier = suppliers.find((sup) => sup._id === supplierId);
+    return supplier ? supplier.name : "غير معروف";
+  };
+  
+  
+  
 
 
   useEffect(() => {
@@ -166,6 +220,8 @@ const totalPages = Math.ceil(products.length / productsPerPage);
             onChange={(e) => setSearchQuery(e.target.value)}
             className="allproduct-search-input"
           />
+
+
             {/* Main Category Selection */}
             <select
             className="allproduct-category-select"
@@ -175,15 +231,15 @@ const totalPages = Math.ceil(products.length / productsPerPage);
             required
           >
             <option value="">اختر التصنيف الرئيسي</option>
-            {Object.keys(categories).map((category) => (
-              <option key={category} value={category}>
-                {category === 'اجهزة' ? 'اجهزة' : category === 'اكسسوارات' ? 'اكسسوارات' : 'اخري'}
+            {mainCategories.map((category, index) => (
+              <option key={category._id || index} value={category._id}> {/* Use _id for value */}
+                {category.name}
               </option>
             ))}
           </select>
 
           {/* Subcategory Selection */}
-          {mainCategory && Object.keys(categories[mainCategory]).length > 0 && (
+          {mainCategory && mainCategory !== "67a20580dd7f21b281d8de66" &&(
             <select
               className="allproduct-category-select"
               name="subCategory"
@@ -192,36 +248,34 @@ const totalPages = Math.ceil(products.length / productsPerPage);
               required
             >
               <option value="">اختر التصنيف الفرعي</option>
-              {Object.keys(categories[mainCategory]).map((sub, index) => (
-                <option key={index} value={sub}>
-                  {sub}
+              {subCategories.map((sub, index) => (
+                <option key={sub.id || index} value={sub._id}>
+                  {sub.name}
                 </option>
               ))}
             </select>
           )}
 
           {/* Third Category Selection */}
-          {subCategory &&
-            categories[mainCategory][subCategory] &&
-            categories[mainCategory][subCategory].length > 0 && (
+          {subCategory && thirdCategories.length >= 0 && (
               <select
                 className="allproduct-category-select"
                 name="thirdCategory"
                 value={thirdCategory}
-                onChange={(e) => setThirdCategory(e.target.value)}
+                onChange={handleThirdCategoryChange}
                 required
               >
                 <option value="">اختر النوع</option>
-                {categories[mainCategory][subCategory].map((type, index) => (
-                  <option key={index} value={type}>
-                    {type}
-                  </option>
-                ))}
+                {thirdCategories.map((type, index) => (
+              <option key={type._id || index} value={type._id}>
+                {type.name}
+              </option>
+            ))}
               </select>
             )}
 
              {/* Fourth Category Selection for Condition */}
-          {mainCategory === 'اجهزة' && (
+          {mainCategory === '67a1f26527d7cae17d78f812' && (
             <select
               className="allproduct-category-select"
               name="condition"
@@ -252,7 +306,6 @@ const totalPages = Math.ceil(products.length / productsPerPage);
                     <th>باركود</th>
                     <th>اسم المنتج</th>
                     <th>رقم السريال</th>
-                    <th>الوصف</th>
                     <th>اللون</th>
                     <th>التصنيف</th>
                     <th>المورد</th>
@@ -269,15 +322,14 @@ const totalPages = Math.ceil(products.length / productsPerPage);
                         <td>{item.barcode}</td>
                         <td>{item.name}</td>
                         <td>{item.sn}</td>
-                        <td>{item.description}</td>
                         <td>{item.color}</td>
                         <td>
-                          {item.mainCategory} <br />
-                          {item.subCategory} <br />
-                          {item.thirdCategory} <br />
+                        {item.mainCategory ? item.mainCategory.name : ""} <br />
+                        {item.subCategory ? item.subCategory.name : ""} <br />
+                        {item.thirdCategory ? item.thirdCategory.name : ""} <br />
                           {item.condition}
                         </td>
-                        <td>{item.supplier}</td>
+                        <td>{getSupplierName(item.supplier)}</td>
                         <td>{item.quantity}</td>
                         <td>{item.purchasePrice}</td>
                         <td>{item.sellingPrice}</td>
@@ -292,14 +344,14 @@ const totalPages = Math.ceil(products.length / productsPerPage);
                       </tr>
                       {editingProductId === item._id && (
                         <tr className="allproduct-edit-form-row">
-                          <td colSpan={11}>
+                          <td colSpan={10}>
                             <form onSubmit={handleEditSubmit} className="allproduct-edit-form">
                             <div className="allproduct-form-group">
-                                <label>سعر الشراء:</label>
+                                <label>الاسم</label>
                                 <input
-                                  type="number"
-                                  name="purchasePrice"
-                                  value={editFormData.purchasePrice || ''}
+                                  type="string"
+                                  name="name"
+                                  value={editFormData.name || ''}
                                   onChange={handleEditChange}
                                   required
                                   className="allproduct-form-input"

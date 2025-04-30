@@ -4,6 +4,8 @@ import axios from 'axios';
 import '../styles/Login.css';
 import Loader from './Loader';
 
+
+
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -67,8 +69,14 @@ const Login = () => {
         navigate('/dashboard');
       }
     } catch (error) {
+      if(error.response.status === 401) {
+        setError('خطا في كلمة المرور');
+      }else if(error.response.status === 404) {
+        setError('خطا في اسم المستخدم');
+      }else {
+        setError('خطا في الاتصال بالخادم');
+      }
       console.error('Login error:', error);
-      setError('خطا في اسم المستخدم ام كلمة المرور');
     }
   };
 
@@ -77,6 +85,9 @@ const Login = () => {
 }
 
   return (
+    <>
+    <div className="login-component">
+    <img src={`${process.env.PUBLIC_URL}/TarekLogo.png`} alt="Store Logo" className='login-component-logo' />
     <div className="login-component-container">
           <h2 className="login-component-title">تسجيل الدخول</h2>
           {error && <p className="login-component-error">{error}</p>}
@@ -123,6 +134,9 @@ const Login = () => {
             <button type="submit" className="login-component-btn">دخول</button>
           </form>
     </div>
+    </div>
+    </>
+
   );
 };
 

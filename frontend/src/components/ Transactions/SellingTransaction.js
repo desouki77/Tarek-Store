@@ -19,6 +19,7 @@ const SellingTransaction = () => {
         itemDescription: '',
         purchasePrice: 0,
     });
+    const [selectedSn, setSelectedSn] = useState({}); // Track selected SNs for each product
     const [errorMessage, setErrorMessage] = useState('');
     const [orders, setOrders] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -53,8 +54,7 @@ const SellingTransaction = () => {
         };
 
         fetchOrders();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [branchId, currentPage]);
+    }, [branchId, currentPage, API_URL]);
 
     const handleInputChange = (e) => {
         setOrderData((prevData) => ({
@@ -88,7 +88,15 @@ const SellingTransaction = () => {
                             description: productData.description || '',
                             purchasePrice: productData.purchasePrice,
                             sellingPrice: productData.sellingPrice,
+                            sn: productData.sn || [], // Include SN array
+                            selectedSn: '' // Initialize selected SN
                         };
+
+                        // Initialize selected SN for this product
+                        setSelectedSn(prev => ({
+                            ...prev,
+                            [scannedBarcode]: productData.sn?.[0] || ''
+                        }));
 
                         setProducts((prevProducts) => [...prevProducts, product]);
                         setOrderData({ barcode: '', itemName: '', itemDescription: '', sellingPrice: 0 });
@@ -113,6 +121,13 @@ const SellingTransaction = () => {
         }
     };
 
+    const handleSnChange = (barcode, value) => {
+        setSelectedSn(prev => ({
+            ...prev,
+            [barcode]: value
+        }));
+    };
+
     const totalAmount = products.reduce((total, product) => total + product.sellingPrice, 0);
 
     const handleCheckout = () => {
@@ -128,13 +143,35 @@ const SellingTransaction = () => {
             return;
         }
 
-        sessionStorage.setItem('checkoutItems', JSON.stringify(products));
+    // Prepare products with selected SN
+    const productsWithSn = products.map(product => {
+        // Get the selected SN and ensure it's a string
+        const selectedSnValue = selectedSn[product.barcode];
+        const snValue = Array.isArray(selectedSnValue) ? selectedSnValue[0] : selectedSnValue;
+
+        return {
+            ...product,
+            sn: snValue || null, // Store as string or null
+            selectedSn: snValue || null // Also keep in selectedSn for consistency
+        };
+    });
+
+    sessionStorage.setItem('checkoutItems', JSON.stringify(productsWithSn));
         setProducts([]);
+        setSelectedSn({});
         navigate('/checkout');
     };
 
     const removeProduct = (index) => {
+        const productToRemove = products[index];
         setProducts((prevProducts) => prevProducts.filter((_, i) => i !== index));
+        
+        // Remove the selected SN for this product
+        setSelectedSn(prev => {
+            const newSelectedSn = {...prev};
+            delete newSelectedSn[productToRemove.barcode];
+            return newSelectedSn;
+        });
     };
 
     const viewOrderDetails = (orderId) => {
@@ -173,6 +210,7 @@ const SellingTransaction = () => {
                                         <th>اسم المنتج</th>
                                         <th>سعر الشراء</th>
                                         <th>سعر البيع</th>
+                                        <th>السريال</th>
                                         <th>عمليات</th>
                                     </tr>
                                 </thead>
@@ -183,6 +221,19 @@ const SellingTransaction = () => {
                                             <td>{product.name}</td>
                                             <td>{product.purchasePrice} EGP</td>
                                             <td>{product.sellingPrice} EGP</td>
+                                            <td>
+                                                {product.sn && product.sn.length > 0 ? (
+                                                    <select
+                                                        value={selectedSn[product.barcode] || ''}
+                                                        onChange={(e) => handleSnChange(product.barcode, e.target.value)}
+                                                    >
+                                                        <option value="">اختر السريال</option>
+                                                        {product.sn.map((sn, i) => (
+                                                            <option key={i} value={sn}>{sn}</option>
+                                                        ))}
+                                                    </select>
+                                                ) : 'لا يوجد'}
+                                            </td>
                                             <td>
                                                 <button
                                                     onClick={() => removeProduct(index)}

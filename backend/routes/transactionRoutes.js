@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const isValidObjectId = mongoose.isValidObjectId; // Alternative import
 const express = require('express');
 const router = express.Router();
 const Transaction = require('../models/Transaction');
@@ -7,6 +8,7 @@ const validateBranchId = require('../middlewares/validateBranch');
 const Supplier = require('../models/Supplier'); // تأكد من استيراد نموذج المورد
 const Client = require('../models/Client'); // تأكد من استيراد نموذج المورد
 const Order = require('../models/Order'); // تأكد من مسار الموديل الصحيح
+const ProductInvoice = require('../models/ProductInvoice'); // تأكد من مسار الموديل الصحيح
 
 
 
@@ -463,50 +465,79 @@ router.get('/maintenance', validateBranchId, async (req, res) => {
     }
 });
 
-// Create a transaction with a specific type (e.g., "supplier_payment")
+
+
 router.post('/supplier_payment', validateBranchId, async (req, res) => {
-    const { branchId, description, amount, user, type, date, supplier } = req.body;
-
+    const { branchId, description, amount, user, type, date, supplier, invoiceId } = req.body;
+  
     if (!branchId) {
-        return res.status(400).json({ message: 'branchId is required' });
+      return res.status(400).json({ message: 'branchId is required' });
     }
-
+  
     try {
-        let supplierId = null;
-
-        // Validate and fetch supplier if provided
-        if (supplier) {
-            const existingSupplier = await Supplier.findOne({ name: supplier });
-
-            if (!existingSupplier) {
-                return res.status(400).json({ message: 'Supplier not found' });
-            }
-
-            // Update the owed amount
-            existingSupplier.moneyOwed = Math.max(0, existingSupplier.moneyOwed - amount);
-            await existingSupplier.save();
-
-            supplierId = existingSupplier._id; // Get supplier ID
+      let supplierId = null;
+  
+      // Validate and fetch supplier if provided
+      if (supplier) {
+        // Check if supplier is a valid ObjectId
+        if (!isValidObjectId(supplier)) { // Ensure this line is correct
+          return res.status(400).json({ message: 'Invalid supplier ID' });
         }
-
-        // Save the transaction
-        const transaction = new Transaction({
-            branchId,
-            description,
-            amount,
-            user,
-            type,
-            date,
-            supplier: supplierId, // Use supplier ID if available
-        });
-
-        const savedTransaction = await transaction.save();
-        res.status(201).json(savedTransaction);
+  
+        const existingSupplier = await Supplier.findById(supplier); // Fetch by _id
+  
+        if (!existingSupplier) {
+          return res.status(404).json({ message: 'Supplier not found' });
+        }
+  
+        // Update the owed amount
+        existingSupplier.moneyOwed = Math.max(0, existingSupplier.moneyOwed - amount);
+        await existingSupplier.save();
+  
+        supplierId = existingSupplier._id; // Get supplier ID
+      }
+  
+      // Save the transaction
+      const transaction = new Transaction({
+        branchId,
+        description,
+        amount,
+        user,
+        type,
+        date,
+        supplier: supplierId, // Use supplier ID if available
+        productInvoice: invoiceId, // Link to the invoice if provided
+      });
+  
+      const savedTransaction = await transaction.save();
+  
+      // Update the invoice status and remaining amount if invoiceId is provided
+      if (invoiceId) {
+        const invoice = await ProductInvoice.findById(invoiceId);
+        if (!invoice) {
+          return res.status(404).json({ message: 'Invoice not found' });
+        }
+  
+        if (amount >= invoice.remaining) {
+          // Full payment
+          invoice.invoiceStatus = "خالص";
+          invoice.remaining = 0;
+        } else {
+          // Partial payment
+          invoice.remaining -= amount;
+        }
+        await invoice.save();
+      }
+  
+      // Populate supplier data in the response
+      const populatedTransaction = await Transaction.findById(savedTransaction._id).populate('supplier', 'name');
+  
+      res.status(201).json(populatedTransaction);
     } catch (error) {
-        console.error('Error saving transaction:', error);
-        res.status(500).json({ message: 'Internal server error', error: error.message });
+      console.error('Error saving transaction:', error);
+      res.status(500).json({ message: 'Internal server error', error: error.message });
     }
-});
+  });
 
 router.get('/daysupplier_payment', validateBranchId, async (req, res) => {
     const { branchId, startDate, endDate, page = 1, limit = 10 } = req.query;
@@ -605,8 +636,7 @@ router.get('/supplier_payment', validateBranchId, async (req, res) => {
 
 // Create a transaction with a specific type (e.g., "customer_payment")
 router.post('/customer_payment', validateBranchId, async (req, res) => {
-
-    const { branchId, description, amount, user, type, date, client } = req.body;
+    const { branchId, amount, user, type, date, client, description } = req.body;
 
     if (!branchId) {
         return res.status(400).json({ message: 'branchId is required' });
@@ -614,20 +644,27 @@ router.post('/customer_payment', validateBranchId, async (req, res) => {
 
     try {
         let clientId = null;
+        let clientName = null;
+        let transactionDescription = description;
 
         if (client) {
-            const existingClient = await Client.findOne({ name: client });
+            // Find client by ID instead of name
+            const existingClient = await Client.findById(client);
             if (!existingClient) {
                 return res.status(400).json({ message: 'Client not found' });
             }
-            existingClient.amountRequired = Math.max(0, existingClient.amountRequired - amount);
-            await existingClient.save();
+            
             clientId = existingClient._id;
+            clientName = existingClient.name;
+            
+            // Generate appropriate description
+            const remainingAmount = existingClient.amountRequired - amount;
+            transactionDescription = `دفع ${clientName} ${remainingAmount > 0 ? `والباقي ${remainingAmount}` : 'خالص'}`;
         }
 
         const transaction = new Transaction({
             branchId,
-            description,
+            description: transactionDescription,
             amount,
             user,
             type,
@@ -636,7 +673,6 @@ router.post('/customer_payment', validateBranchId, async (req, res) => {
         });
 
         const savedTransaction = await transaction.save();
-        console.log("Saved Transaction:", savedTransaction);
         res.status(201).json(savedTransaction);
     } catch (error) {
         console.error('Error saving transaction:', error);

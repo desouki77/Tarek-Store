@@ -56,7 +56,7 @@ function RevenueReport() {
         };
         fetchBranches();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [API_URL]);
 
     useEffect(() => {
         if (!startDate || !endDate) return; 
@@ -116,8 +116,9 @@ function RevenueReport() {
             <div className="revenue-reports-container">
                 <h1>انشاء تقرير الإيرادات</h1>
                 {error && <div className="revenue-reports-error-message">{error}</div>}
-                <div>
-                    <label htmlFor="branch">اختر الفرع:</label>
+                <div className="revnueFilters">
+                
+                <label htmlFor="branch">فرع:</label>
                     <select
                         id="branch"
                         value={selectedBranch}
@@ -130,13 +131,11 @@ function RevenueReport() {
                             </option>
                         ))}
                     </select>
-                </div>
-    
-                <div>
-                    <label>من تاريخ:</label>
+                    <label htmlFor="startDate">من:</label>
                     <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
-                    <label>إلى تاريخ:</label>
+                    <label htmlFor="endDate">إلى:</label>
                     <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+                
                 </div>
     
                 {/* الجدول سيظهر فقط إذا تم تحديد تاريخ البداية والنهاية */}

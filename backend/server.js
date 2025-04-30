@@ -13,6 +13,8 @@ const suppliersRoutes = require('./routes/suppliers');
 const ClientsRoutes = require('./routes/clients');
 const salesReport = require('./routes/salesReport');
 const revenueReport = require('./routes/revenueReport');
+const category = require('./routes/category');
+const productInvoice = require('./routes/productInvoice');
 
 dotenv.config(); // Load environment variables from .env file
 
@@ -41,6 +43,8 @@ app.use('/api/clients', ClientsRoutes);
 app.use('/api/bank', bankRoutes);
 app.use('/api', salesReport);
 app.use('/api', revenueReport);
+app.use('/api/categories', category );
+app.use('/api/productinvoice', productInvoice);
 
 // Serve static files from React app
 app.use(express.static(path.join(__dirname, '/frontend/build')));

@@ -12,6 +12,7 @@ const CustomerPaymentTransaction = () => {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [isLoadingClients, setIsLoadingClients] = useState(false);
 
   const navigate = useNavigate();
   const userId = localStorage.getItem('userId');
@@ -21,32 +22,33 @@ const CustomerPaymentTransaction = () => {
   const isAdmin = role === 'admin';
   const API_URL = process.env.REACT_APP_API_URL;
 
-  
-  // Suppliers state initialized as an empty array to prevent map errors
-  const [clients, setClients] = useState([]); 
+  const [clients, setClients] = useState([]);
+  const [selectedClient, setSelectedClient] = useState('');
+  const [paymentType, setPaymentType] = useState('full');
+  const [partialAmount, setPartialAmount] = useState(0);
+  const [moneyOwed, setMoneyOwed] = useState(0);
 
-  
-  
-  const [selectedClient, setSelectedClient] = useState(''); 
-
-  // Fetch suppliers from API
+  // Fetch clients from API
   useEffect(() => {
-    const fetchClient = async () => {
+    const fetchClients = async () => {
       try {
-        const response = await axios.get(`${API_URL}/api/clients`);
+        const response = await axios.get(`${API_URL}/api/clients/with-debt`, {
+          params: {
+            page: 1,
+            limit: 100 // or whatever number you need
+          }
+        });
         if (response.data.clients && Array.isArray(response.data.clients)) {
-          setClients(response.data.clients); // استخدم فقط الـ suppliers من الاستجابة
-        } else {
-          setClients([]); // في حالة عدم وجود الموردين
+          setClients(response.data.clients);
         }
       } catch (error) {
-        console.error('Error fetching suppliers:', error);
-        setClients([]); // في حال فشل الاتصال
+        console.error('Error fetching clients:', error);
+        setError('Failed to load clients list');
       }
     };
-    fetchClient();
+    fetchClients();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [API_URL]);
 
   const fetchUserData = useCallback(async (userId) => {
     try {
@@ -57,56 +59,194 @@ const CustomerPaymentTransaction = () => {
       return { userName: 'Unknown' };
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [API_URL]);
 
-  const fetchTransactions = useCallback(
-    async (page) => {
-      setIsLoading(true);
-      setError(null);
+  const fetchTransactions = useCallback(async (page) => {
+    setIsLoading(true);
+    setError(null);
 
-      const today = new Date();
-      const startDate = new Date(today.setHours(0, 0, 0, 0)).toISOString();
-      const endDate = new Date(today.setHours(23, 59, 59, 999)).toISOString();
+    const today = new Date();
+    const startDate = new Date(today.setHours(0, 0, 0, 0)).toISOString();
+    const endDate = new Date(today.setHours(23, 59, 59, 999)).toISOString();
 
-      if (!branchId) {
-        console.error('Branch ID is not available.');
-        setIsLoading(false);
-        return;
-      }
+    try {
+      const response = await axios.get(`${API_URL}/api/transactions/daycustomer_payment`, {
+        params: { branchId, startDate, endDate, page, limit: 5 },
+      });
 
-      try {
-        const response = await axios.get(`${API_URL}/api/transactions/daycustomer_payment`, {
-          params: { branchId, startDate, endDate, page, limit: 5 },
-        });
+      const transactionsWithUserData = await Promise.all(
+        response.data.transactions.map(async (transaction) => {
+          const { userName } = await fetchUserData(transaction.user);
+          return {
+            ...transaction,
+            userName,
+            clientName: transaction.client?.name || 'غير متوفر',
+          };
+        })
+      );
 
-        const transactionsWithUserData = await Promise.all(
-          response.data.transactions.map(async (transaction) => {
-            const { userName } = await fetchUserData(transaction.user);
-            return { ...transaction, userName };
-          })
-        );
-
-        setTransactions(transactionsWithUserData);
-        setCurrentPage(response.data.currentPage);
-        setTotalPages(response.data.totalPages);
-      } catch (error) {
-        console.error('Error fetching transactions:', error);
-        setError(error.message);
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [branchId, fetchUserData]
-  );
+      setTransactions(transactionsWithUserData);
+      setCurrentPage(response.data.currentPage);
+      setTotalPages(response.data.totalPages);
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+      setError(error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [API_URL, branchId, fetchUserData]);
 
   useEffect(() => {
     fetchTransactions(currentPage);
   }, [fetchTransactions, currentPage]);
 
-  const goToAllTransactions = () => {
-    navigate('/all-transactions');
-  };
+  const handleClientChange = async (e) => {
+    const clientId = e.target.value;
+    setSelectedClient(clientId);
+    setMoneyOwed(0);
+    setError(null); // Reset error state
+  
+    if (!clientId) return;
+  
+    setIsLoadingClients(true);
+    try {
+        console.log('Attempting to fetch client with ID:', clientId); // Debug log
+        const response = await axios.get(`${API_URL}/api/clients/id/${clientId}`);
+        console.log("Client API response:", response.data);
+        
+        if (response.data.success && response.data.client) {
+            setMoneyOwed(response.data.client.amountRequired || 0);
+        } else {
+            const errorMsg = response.data.message || 'Failed to load client data';
+            console.error('Client fetch error:', errorMsg);
+            setError(errorMsg);
+        }
+    } catch (error) {
+        console.error('Error fetching client:', error);
+        const errorMsg = error.response?.data?.message || 
+                        error.message || 
+                        'Error fetching client data';
+        setError(errorMsg);
+        
+        // Additional debug info
+        if (error.response) {
+            console.error('Response data:', error.response.data);
+            console.error('Response status:', error.response.status);
+            console.error('Response headers:', error.response.headers);
+        }
+    } finally {
+        setIsLoadingClients(false);
+    }
+};
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (!userId || !branchId) {
+    console.error("User ID or branch ID is not set");
+    return;
+  }
+
+  const isBankOpen = localStorage.getItem('bankOpen') === 'true';
+  if (!isBankOpen) {
+    alert('الدرج مغلق يرجي الرجوع الي الصفحة الرئيسية لفتح الدرج اولا');
+    return;
+  }
+
+  setIsLoading(true);
+  setError(null);
+
+  const isRandomPayment = !selectedClient;
+  let paymentAmount;
+  let selectedClientData = null;
+
+  if (!isRandomPayment) {
+    selectedClientData = clients.find((client) => client._id === selectedClient);
+    if (!selectedClientData) {
+      setError('العميل المحدد غير موجود');
+      setIsLoading(false);
+      return;
+    }
+    
+    paymentAmount = paymentType === 'full' ? selectedClientData.amountRequired : Number(partialAmount);
+
+    if (paymentType === 'partial' && (isNaN(paymentAmount) || paymentAmount <= 0 || paymentAmount > selectedClientData.amountRequired)) {
+      setError('المبلغ الجزئي غير صحيح');
+      setIsLoading(false);
+      return;
+    }
+  } else {
+    paymentAmount = parseFloat(amount);
+    if (isNaN(paymentAmount) || paymentAmount <= 0) {
+      setError('المبلغ غير صحيح');
+      setIsLoading(false);
+      return;
+    }
+  }
+
+  const BankId = localStorage.getItem('bankID');
+  if (!BankId) {
+    setError('Bank ID not found');
+    setIsLoading(false);
+    return;
+  }
+
+  try {
+    const bankResponse = await axios.get(`${API_URL}/api/bank/${BankId}`);
+    const currentBankAmount = parseFloat(bankResponse.data.bankAmount || 0);
+
+    if (currentBankAmount < paymentAmount) {
+      setError('لا يوجد رصيد كافي في الدرج');
+      setIsLoading(false);
+      return;
+    }
+
+    // Create the transaction payload
+    const payload = {
+      branchId,
+      amount: paymentAmount,
+      user: userId,
+      type,
+      date: new Date(),
+      client: selectedClient,
+      description: isRandomPayment ? description : undefined // Only use custom description for random payments
+    };
+
+    // Save the transaction
+    const response = await axios.post(`${API_URL}/api/transactions/customer_payment`, payload);
+    setTransactions((prev) => [response.data, ...prev]);
+
+    if (!isRandomPayment) {
+      // Update client's amount
+      await axios.put(`${API_URL}/api/clients/dec-amount`, {
+        clientId: selectedClient,
+        amountPaid: paymentAmount,
+      });
+    }
+
+    // Update bank amount
+    await axios.put(`${API_URL}/api/bank/${BankId}`, {
+      bankAmount: currentBankAmount + paymentAmount,
+    });
+
+    // Reset form
+    setDescription('');
+    setAmount('');
+    setSelectedClient('');
+    setPartialAmount(0);
+    setMoneyOwed(0);
+    
+    // Refresh transactions
+    fetchTransactions(currentPage);
+
+  } catch (error) {
+    console.error("Error:", error.response?.data || error.message);
+    setError(error.response?.data?.message || error.message);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
@@ -114,120 +254,92 @@ const CustomerPaymentTransaction = () => {
     }
   };
 
-
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!userId || !branchId) {
-        console.error("User ID or branch ID is not set in localStorage");
-        return;
-    }
-
-     // Check if the bank is open
-     const isBankOpen = localStorage.getItem('bankOpen') === 'true';
-    
-     if (!isBankOpen) {
-         alert('الدرج مغلق يرجي الرجوع الي الصفحة الرئيسية لفتح الدرج اولا');
-         return;
-     }
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-        const response = await axios.post(`${API_URL}/api/transactions/customer_payment`, {
-            branchId,
-            user: userId,
-            type,
-            description,
-            amount: parseFloat(amount),
-            date: new Date(),
-            client: selectedClient, // Send the name directly
-        });
-
-        const newTransaction = response.data;
-        setTransactions((prevTransactions) => [newTransaction, ...prevTransactions]);
-        setDescription('');
-        setAmount('');
-        setSelectedClient('');
-    } catch (error) {
-        console.error("Error adding transaction:", error.response ? error.response.data : error.message);
-        setError(error.message);
-    } finally {
-        setIsLoading(false);
-    }
-
-    try {
-      const BankId = localStorage.getItem('bankID');
-      if (!BankId) {
-          throw new Error('Bank ID not found in localStorage');
-      }
-  
-      // جلب المبلغ الحالي من البنك
-      const bankResponse = await axios.get(`${API_URL}/api/bank/${BankId}`);
-      if (!bankResponse.data || bankResponse.data.bankAmount === undefined) {
-          throw new Error('Invalid bank data received');
-      }
-      const currentBankAmount = parseFloat(bankResponse.data.bankAmount || 0);
-  
-      // حساب المبلغ المحدث
-      const updatedBankAmount = currentBankAmount + Number(amount);
-  
-      // إرسال البيانات المحدثة إلى الخادم
-      const updateResponse = await axios.put(`${API_URL}/api/bank/${BankId}`, {
-          bankAmount: updatedBankAmount,
-      });
-  
-      console.log('Bank amount updated successfully:', updateResponse.data);
-  } catch (error) {
-      console.error('Error updating bank amount:', error.response?.data || error.message);
-  }
-};
-
-
-  const handleClientChange = (e) => {
-    setSelectedClient(e.target.value);
-  };
-
   return (
     <>
       <Navbar isAdmin={isAdmin} />
       <div className="input-transaction">
-        <h1>سداد عملاء</h1>
         <form className="input-transaction-form" onSubmit={handleSubmit}>
-          <input
-            type="text"
-            placeholder="الوصف"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-            className="input-transaction-input"
-          />
-          <input
-            type="number"
-            placeholder="المبلغ"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            required
-            className="input-transaction-input"
-          />
           <h1>اختيار العميل</h1>
           <select
             value={selectedClient}
             onChange={handleClientChange}
             className="input-transaction-input"
+            disabled={isLoading}
           >
             <option value="">اختر عميل</option>
-            {clients.map((client) => (
-              <option key={client._id} value={client.name}>
-                {client.name}
-              </option>
-            ))}
+            {clients.length > 0 ? (
+              clients.map((client) => (
+                <option key={client._id} value={client._id}>
+                  {client.name} - المتبقي: {client.amountRequired || 0} جنيه
+                </option>
+              ))
+            ) : (
+              <option disabled>لا يوجد عملاء متاحين</option>
+            )}
           </select>
 
-          <button type="submit" className="input-transaction-button">
-            اضافة
+          {isLoadingClients && <div>جاري تحميل بيانات العميل...</div>}
+
+          {selectedClient && moneyOwed > 0 && (
+            <>
+              <h2>المبلغ المطلوب: {moneyOwed} جنيه</h2>
+              <h2>نوع الدفع</h2>
+              <label>
+                <input 
+                  type="radio" 
+                  value="full" 
+                  checked={paymentType === "full"} 
+                  onChange={() => setPaymentType("full")}
+                  disabled={isLoading}
+                />
+                دفع كامل
+              </label>
+              <label>
+                <input 
+                  type="radio" 
+                  value="partial" 
+                  checked={paymentType === "partial"} 
+                  onChange={() => setPaymentType("partial")}
+                  disabled={isLoading}
+                />
+                دفع جزئي
+              </label>
+
+              {paymentType === "partial" && (
+                <input
+                  type="number"
+                  placeholder="المبلغ الجزئي"
+                  value={partialAmount}
+                  onChange={(e) => setPartialAmount(Number(e.target.value))}
+                  className="input-transaction-input"
+                  disabled={isLoading}
+                  min="0"
+                  max={moneyOwed}
+                />
+              )}
+            </>
+          )}
+
+          <h1>سداد عميل عشوائي</h1>
+          <input
+            type="number"
+            placeholder="المبلغ"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            className="input-transaction-input"
+            disabled={isLoading}
+          />
+          <input
+            type="text"
+            placeholder="الوصف"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="input-transaction-input"
+            disabled={isLoading}
+          />
+
+          <button type="submit" className="input-transaction-button" disabled={isLoading}>
+            {isLoading ? 'جاري المعالجة...' : 'دفع'}
           </button>
         </form>
 
@@ -257,7 +369,7 @@ const CustomerPaymentTransaction = () => {
                     <tr key={transaction._id}>
                       <td>{transaction.description}</td>
                       <td>{transaction.amount}</td>
-                      <td>{transaction.client ? transaction.client.name : 'غير متوفر'}</td>
+                      <td>{transaction.clientName}</td>
                       <td>{new Date(transaction.date).toLocaleDateString()}</td>
                       <td>{new Date(transaction.date).toLocaleTimeString()}</td>
                       <td>{transaction.userName}</td>
@@ -269,7 +381,7 @@ const CustomerPaymentTransaction = () => {
             <div className="input-transaction-pagination">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
+                disabled={currentPage === 1 || isLoading}
                 className="input-transaction-page-button"
               >
                 السابق
@@ -277,7 +389,7 @@ const CustomerPaymentTransaction = () => {
               <span>الصفحة {currentPage} من {totalPages}</span>
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
+                disabled={currentPage === totalPages || isLoading}
                 className="input-transaction-page-button"
               >
                 التالي
@@ -286,7 +398,11 @@ const CustomerPaymentTransaction = () => {
           </>
         )}
 
-        <button className="input-transaction-all-transactions-button" onClick={goToAllTransactions}>
+        <button 
+          className="input-transaction-all-transactions-button" 
+          onClick={() => navigate('/all-transactions')}
+          disabled={isLoading}
+        >
           عرض الكل
         </button>
       </div>

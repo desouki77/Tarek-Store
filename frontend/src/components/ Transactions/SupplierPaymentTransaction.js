@@ -12,6 +12,7 @@ const SupplierPaymentTransaction = () => {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [isLoadingInvoices, setIsLoadingInvoices] = useState(false);
 
   const navigate = useNavigate();
   const userId = localStorage.getItem('userId');
@@ -19,34 +20,50 @@ const SupplierPaymentTransaction = () => {
   const role = localStorage.getItem('role');
   const type = localStorage.getItem('transactionType');
   const isAdmin = role === 'admin';
+  
   const API_URL = process.env.REACT_APP_API_URL;
 
-  
-  // Suppliers state initialized as an empty array to prevent map errors
   const [suppliers, setSuppliers] = useState([]); 
-
-  
-  
   const [selectedSupplier, setSelectedSupplier] = useState(''); 
+  const [invoices, setInvoices] = useState([]);
+  const [selectedInvoice, setSelectedInvoice] = useState('');
+  const [paymentType, setPaymentType] = useState('full');
+  const [partialAmount, setPartialAmount] = useState(0);
+  const [moneyOwed, setMoneyOwed] = useState(0);
 
   // Fetch suppliers from API
   useEffect(() => {
     const fetchSuppliers = async () => {
+      let allSuppliers = [];
+      let page = 1;
+      const limit = 10; // Same limit as in the backend
+  
       try {
-        const response = await axios.get(`${API_URL}/api/suppliers`);
-        if (response.data.suppliers && Array.isArray(response.data.suppliers)) {
-          setSuppliers(response.data.suppliers); // استخدم فقط الـ suppliers من الاستجابة
-        } else {
-          setSuppliers([]); // في حالة عدم وجود الموردين
+        while (true) {
+          const response = await axios.get(`${API_URL}/api/suppliers`, {
+            params: { page, limit }
+          });
+  
+          if (response.data.suppliers && Array.isArray(response.data.suppliers)) {
+            allSuppliers = [...allSuppliers, ...response.data.suppliers];
+          }
+  
+          // If we have fetched all suppliers, exit the loop
+          if (page >= response.data.totalPages) {
+            break;
+          }
+  
+          page += 1; // Move to the next page
         }
+  
+        setSuppliers(allSuppliers); // Set the suppliers to state
       } catch (error) {
         console.error('Error fetching suppliers:', error);
-        setSuppliers([]); // في حال فشل الاتصال
       }
     };
+  
     fetchSuppliers();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [API_URL]);
 
   const fetchUserData = useCallback(async (userId) => {
     try {
@@ -57,183 +74,312 @@ const SupplierPaymentTransaction = () => {
       return { userName: 'Unknown' };
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [API_URL]);
 
-  const fetchTransactions = useCallback(
-    async (page) => {
-      setIsLoading(true);
-      setError(null);
+  const fetchTransactions = useCallback(async (page) => {
+    setIsLoading(true);
+    setError(null);
 
-      const today = new Date();
-      const startDate = new Date(today.setHours(0, 0, 0, 0)).toISOString();
-      const endDate = new Date(today.setHours(23, 59, 59, 999)).toISOString();
+    const today = new Date();
+    const startDate = new Date(today.setHours(0, 0, 0, 0)).toISOString();
+    const endDate = new Date(today.setHours(23, 59, 59, 999)).toISOString();
 
-      if (!branchId) {
-        console.error('Branch ID is not available.');
-        setIsLoading(false);
-        return;
-      }
+    try {
+      const response = await axios.get(`${API_URL}/api/transactions/daysupplier_payment`, {
+        params: { branchId, startDate, endDate, page, limit: 5 },
+      });
 
-      try {
-        const response = await axios.get(`${API_URL}/api/transactions/daysupplier_payment`, {
-          params: { branchId, startDate, endDate, page, limit: 5 },
-        });
+      const transactionsWithUserData = await Promise.all(
+        response.data.transactions.map(async (transaction) => {
+          const { userName } = await fetchUserData(transaction.user);
+          return {
+            ...transaction,
+            userName,
+            supplierName: transaction.supplier?.name || 'غير متوفر',
+          };
+        })
+      );
 
-        const transactionsWithUserData = await Promise.all(
-          response.data.transactions.map(async (transaction) => {
-            const { userName } = await fetchUserData(transaction.user);
-            return { ...transaction, userName };
-          })
-        );
-
-        setTransactions(transactionsWithUserData);
-        setCurrentPage(response.data.currentPage);
-        setTotalPages(response.data.totalPages);
-      } catch (error) {
-        console.error('Error fetching transactions:', error);
-        setError(error.message);
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [branchId, fetchUserData]
-  );
+      setTransactions(transactionsWithUserData);
+      setCurrentPage(response.data.currentPage);
+      setTotalPages(response.data.totalPages);
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+      setError(error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [API_URL, branchId, fetchUserData]);
 
   useEffect(() => {
     fetchTransactions(currentPage);
   }, [fetchTransactions, currentPage]);
 
-  const goToAllTransactions = () => {
-    navigate('/all-transactions');
-  };
-
-  const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= totalPages) {
-      setCurrentPage(newPage);
+  const handleSupplierChange = async (e) => {
+    const supplierId = e.target.value;
+    setSelectedSupplier(supplierId);
+    setInvoices([]);
+    setSelectedInvoice('');
+    setMoneyOwed(0);
+  
+    if (!supplierId) return;
+  
+    setIsLoadingInvoices(true);
+    try {
+      const response = await axios.get(`${API_URL}/api/productinvoice/supplier/${supplierId}`);
+      console.log("Invoices API response:", response.data); // Debug log
+      
+      if (response.data.invoices) {
+        const unpaidInvoices = response.data.invoices.filter(
+          invoice => invoice.invoiceStatus === "غير خالص"
+        );
+        
+        // Verify moneyOwed exists in each invoice
+        const verifiedInvoices = unpaidInvoices.map(invoice => ({
+          ...invoice,
+          moneyOwed: invoice.moneyOwed || invoice.purchasePrice - invoice.amountPaid || 0
+        }));
+        
+        setInvoices(verifiedInvoices);
+      }
+    } catch (error) {
+      console.error('Error fetching invoices:', error);
+    } finally {
+      setIsLoadingInvoices(false);
     }
   };
 
-
+  const handleInvoiceChange = (e) => {
+    const selectedId = e.target.value;
+    setSelectedInvoice(selectedId);
+    
+    const selectedInvoice = invoices.find(inv => inv._id === selectedId);
+    if (selectedInvoice) {
+      console.log("Selected invoice data:", selectedInvoice); // Debug log
+      setMoneyOwed(selectedInvoice.moneyOwed || 0);
+    } else {
+      setMoneyOwed(0);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!userId || !branchId) {
-        console.error("User ID or branch ID is not set in localStorage");
-        return;
+      console.error("User ID or branch ID is not set");
+      return;
     }
 
-      // Check if the bank is open
-      const isBankOpen = localStorage.getItem('bankOpen') === 'true';
-    
-      if (!isBankOpen) {
-          alert('الدرج مغلق يرجي الرجوع الي الصفحة الرئيسية لفتح الدرج اولا');
-          return;
-      }
+    const isBankOpen = localStorage.getItem('bankOpen') === 'true';
+    if (!isBankOpen) {
+      alert('الدرج مغلق يرجي الرجوع الي الصفحة الرئيسية لفتح الدرج اولا');
+      return;
+    }
 
     setIsLoading(true);
     setError(null);
 
+    const isRandomPayment = !selectedInvoice;
+    let paymentAmount;
+
+    if (!isRandomPayment) {
+      const selectedInv = invoices.find((inv) => inv._id === selectedInvoice);
+      if (!selectedInv) {
+        setError('الفاتورة المحددة غير موجودة');
+        setIsLoading(false);
+        return;
+      }
+      
+      paymentAmount = paymentType === 'full' ? selectedInv.moneyOwed : Number(partialAmount);
+
+      if (paymentType === 'partial' && (isNaN(paymentAmount) || paymentAmount <= 0 || paymentAmount > selectedInv.moneyOwed)) {
+        setError('المبلغ الجزئي غير صحيح');
+        setIsLoading(false);
+        return;
+      }
+    } else {
+      paymentAmount = parseFloat(amount);
+      if (isNaN(paymentAmount)) {
+        setError('المبلغ غير صحيح');
+        setIsLoading(false);
+        return;
+      }
+    }
+
     const BankId = localStorage.getItem('bankID');
     if (!BankId) {
-        throw new Error('Bank ID not found in localStorage');
-    }
-
-    // جلب المبلغ الحالي من البنك
-    const bankResponse = await axios.get(`${API_URL}/api/bank/${BankId}`);
-    if (!bankResponse.data || bankResponse.data.bankAmount === undefined) {
-        throw new Error('Invalid bank data received');
-    }
-    const currentBankAmount = parseFloat(bankResponse.data.bankAmount || 0);
-
-    if (currentBankAmount < Number(amount)) {
-      setError('لا يوجد رصيد كافي في الدرج');
+      setError('Bank ID not found');
       setIsLoading(false);
       return;
-  }
-
-    try {
-        const response = await axios.post(`${API_URL}/api/transactions/supplier_payment`, {
-            branchId,
-            user: userId,
-            type,
-            description,
-            amount: parseFloat(amount),
-            date: new Date(),
-            supplier: selectedSupplier, // Send the name directly
-        });
-
-        const newTransaction = response.data;
-        setTransactions((prevTransactions) => [newTransaction, ...prevTransactions]);
-        setDescription('');
-        setAmount('');
-        setSelectedSupplier('');
-    } catch (error) {
-        console.error("Error adding transaction:", error.response ? error.response.data : error.message);
-        setError(error.message);
-    } finally {
-        setIsLoading(false);
     }
 
     try {
-      // حساب المبلغ المحدث
-      const updatedBankAmount = currentBankAmount - Number(amount);
-  
-      // إرسال البيانات المحدثة إلى الخادم
-      const updateResponse = await axios.put(`${API_URL}/api/bank/${BankId}`, {
-          bankAmount: updatedBankAmount,
+      const bankResponse = await axios.get(`${API_URL}/api/bank/${BankId}`);
+      const currentBankAmount = parseFloat(bankResponse.data.bankAmount || 0);
+
+      if (currentBankAmount < paymentAmount) {
+        setError('لا يوجد رصيد كافي في الدرج');
+        setIsLoading(false);
+        return;
+      }
+
+      const payload = {
+        branchId,
+        amount: paymentAmount,
+        user: userId,
+        type,
+        date: new Date(),
+        supplier: selectedSupplier,
+        invoiceId: selectedInvoice || null,
+      };
+
+      if (!isRandomPayment) {
+        const selectedInv = invoices.find((inv) => inv._id === selectedInvoice);
+        if (selectedInv) {
+          payload.description = `دفع فاتورة ${selectedInv.productName}، ${paymentType === 'full' ? 'خالص' : 'غير خالص'}`;
+        }
+      } else {
+        payload.description = description || 'سداد مورد عشوائي';
+      }
+
+      const response = await axios.post(`${API_URL}/api/transactions/supplier_payment`, payload);
+      setTransactions((prev) => [response.data, ...prev]);
+
+      if (!isRandomPayment) {
+        await axios.put(`${API_URL}/api/productinvoice/update-moneyowed`, {
+          invoiceId: selectedInvoice,
+          paymentType,
+          partialAmount: paymentType === 'partial' ? paymentAmount : null,
+        });
+
+        const supplierInvoicesResponse = await axios.get(`${API_URL}/api/productinvoice/supplier/${selectedSupplier}`);
+        setInvoices(supplierInvoicesResponse.data.invoices.filter(inv => inv.invoiceStatus === "غير خالص"));
+      }
+
+      // Update bank amount
+      await axios.put(`${API_URL}/api/bank/${BankId}`, {
+        bankAmount: currentBankAmount - paymentAmount,
       });
-  
-      console.log('Bank amount updated successfully:', updateResponse.data);
-  } catch (error) {
-      console.error('Error updating bank amount:', error.response?.data || error.message);
-  }
-};
 
+      // Reset form
+      setDescription('');
+      setAmount('');
+      setSelectedSupplier('');
+      setSelectedInvoice('');
+      setPartialAmount(0);
+      setMoneyOwed(0);
+      window.location.reload();
 
-  const handleSupplierChange = (e) => {
-    setSelectedSupplier(e.target.value);
+    } catch (error) {
+      console.error("Error:", error.response?.data || error.message);
+      setError(error.response?.data?.message || error.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <>
       <Navbar isAdmin={isAdmin} />
       <div className="input-transaction">
-        <h1>سداد موردين</h1>
         <form className="input-transaction-form" onSubmit={handleSubmit}>
-          <input
-            type="text"
-            placeholder="الوصف"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-            className="input-transaction-input"
-          />
-          <input
-            type="number"
-            placeholder="المبلغ"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            required
-            className="input-transaction-input"
-          />
           <h1>اختيار المورد</h1>
           <select
             value={selectedSupplier}
             onChange={handleSupplierChange}
-            className="input-transaction-input"
+            className="input-transaction-input select-dropdown"
+            disabled={isLoading}
           >
             <option value="">اختر مورد</option>
             {suppliers.map((supplier) => (
-              <option key={supplier._id} value={supplier.name}>
+              <option key={supplier._id} value={supplier._id}>
                 {supplier.name}
               </option>
             ))}
           </select>
 
-          <button type="submit" className="input-transaction-button">
-            اضافة
+          {isLoadingInvoices && <div>جاري تحميل الفواتير...</div>}
+
+          {selectedSupplier && invoices.length > 0 && (
+            <>
+              <h2>اختيار الفاتورة</h2>
+              <select 
+                value={selectedInvoice} 
+                onChange={handleInvoiceChange} 
+                className="input-transaction-input"
+                disabled={isLoading}
+              >
+                <option value="">اختر الفاتورة</option>
+                {invoices.map((invoice) => (
+                  <option key={invoice._id} value={invoice._id}>
+    {invoice.productName} - المتبقي: {invoice.moneyOwed || 0} جنيه
+    </option>
+                ))}
+              </select>
+            </>
+          )}
+
+          {selectedInvoice && (
+            <>
+    <h2>مبلغ الفاتورة: {moneyOwed !== undefined ? `${moneyOwed} جنيه` : "جاري التحميل..."}</h2>
+    <h2>نوع الدفع</h2>
+              <label>
+                <input 
+                  type="radio" 
+                  value="full" 
+                  checked={paymentType === "full"} 
+                  onChange={() => setPaymentType("full")}
+                  disabled={isLoading}
+                />
+                دفع كامل
+              </label>
+              <label>
+                <input 
+                  type="radio" 
+                  value="partial" 
+                  checked={paymentType === "partial"} 
+                  onChange={() => setPaymentType("partial")}
+                  disabled={isLoading}
+                />
+                دفع جزئي
+              </label>
+
+              {paymentType === "partial" && (
+                <input
+                  type="number"
+                  placeholder="المبلغ الجزئي"
+                  value={partialAmount}
+                  onChange={(e) => setPartialAmount(Number(e.target.value))}
+                  className="input-transaction-input"
+                  disabled={isLoading}
+                  min="0"
+                  max={moneyOwed}
+                />
+              )}
+            </>
+          )}
+
+          <h1>سداد مورد عشوائي</h1>
+          <input
+            type="number"
+            placeholder="المبلغ"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            className="input-transaction-input"
+            disabled={isLoading}
+          />
+          <input
+            type="text"
+            placeholder="الوصف"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="input-transaction-input"
+            disabled={isLoading}
+          />
+
+          <button type="submit" className="input-transaction-button" disabled={isLoading}>
+            {isLoading ? 'جاري المعالجة...' : 'دفع'}
           </button>
         </form>
 
@@ -263,7 +409,7 @@ const SupplierPaymentTransaction = () => {
                     <tr key={transaction._id}>
                       <td>{transaction.description}</td>
                       <td>{transaction.amount}</td>
-                      <td>{transaction.supplier ? transaction.supplier.name : 'غير متوفر'}</td>
+                      <td>{transaction.supplierName}</td>
                       <td>{new Date(transaction.date).toLocaleDateString()}</td>
                       <td>{new Date(transaction.date).toLocaleTimeString()}</td>
                       <td>{transaction.userName}</td>
@@ -274,16 +420,18 @@ const SupplierPaymentTransaction = () => {
             </div>
             <div className="input-transaction-pagination">
               <button
+                // eslint-disable-next-line no-undef
                 onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
+                disabled={currentPage === 1 || isLoading}
                 className="input-transaction-page-button"
               >
                 السابق
               </button>
               <span>الصفحة {currentPage} من {totalPages}</span>
               <button
+                // eslint-disable-next-line no-undef
                 onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
+                disabled={currentPage === totalPages || isLoading}
                 className="input-transaction-page-button"
               >
                 التالي
@@ -292,7 +440,11 @@ const SupplierPaymentTransaction = () => {
           </>
         )}
 
-        <button className="input-transaction-all-transactions-button" onClick={goToAllTransactions}>
+        <button 
+          className="input-transaction-all-transactions-button" 
+          onClick={() => navigate('/all-transactions')}
+          disabled={isLoading}
+        >
           عرض الكل
         </button>
       </div>

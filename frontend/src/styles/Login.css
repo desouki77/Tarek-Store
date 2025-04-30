@@ -1,4 +1,19 @@
 /* Centering the login component */
+.login-component {
+    height: 100%; /* Full viewport height */
+    background-color: #333; /* Light background for contrast */
+}
+
+.login-component-logo{
+    width: 100px; /* Adjust as needed */
+    height: auto; /* Maintain aspect ratio */
+    margin-bottom: 20px; /* Space between logo and title */
+    display: block; /* Center the logo */
+    margin-left: auto;
+    margin-right: auto;
+
+}
+
 .login-component-container {
     max-width: 400px;
     width: 600px;

@@ -116,3 +116,22 @@
         font-size: 14px;
     }
 }
+.error-message {
+    padding: 20px;
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    margin: 20px;
+    text-align: center;
+}
+
+.no-items-message {
+    text-align: center;
+    padding: 20px;
+    color: #856404;
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+    border-radius: 4px;
+    margin: 20px 0;
+}

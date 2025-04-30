@@ -82,18 +82,19 @@ const Navbar = ({ isAdmin }) => {
                 {/* Admin-only links */}
                 {isAdmin && (
                     <>
-                        <li className="nav-item">
-                            <Link to="/registration" className="nav-link">تسجيل جديد</Link>
-                        </li>
+
                         <li className="nav-item">
                             <Link to="/sales" className="nav-link">الموظفين</Link>
                         </li>
                         <li className="nav-item">
-                            <Link to="/reports" className="nav-link">التقارير</Link>
+                            <Link to="/registration" className="nav-link">تسجيل موظف جديد</Link>
                         </li>
+
                     </>
                 )}
-
+                                        <li className="nav-item">
+                            <Link to="/reports" className="nav-link">التقارير</Link>
+                        </li>
                 {/* Common links */}
                 <li className="nav-item">
                     <Link to="/suppliers" className="nav-link">الموردين</Link>
@@ -104,6 +105,7 @@ const Navbar = ({ isAdmin }) => {
                 <li className="nav-item">
                     <Link to="/inventory" className="nav-link">المخزن</Link>
                 </li>
+
                 <li className="nav-item" onClick={handleLogout}>
                     <span className="nav-link" style={{ cursor: 'pointer' }}>تسجيل الخروج</span>
                 </li>

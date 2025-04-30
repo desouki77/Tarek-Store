@@ -37,11 +37,15 @@ import RevenueReportDetails from './components/Reports/RevenueReportDetails';
 import TopSellingProducts from './components/Reports/TopSellingProducts';
 import BankList from './components/BankList';
 import StockReport from './components/Reports/SrockReport';
+import ProductInvoicesList from './components/ProductInvoicesList';
+import SupplierInvoices from './components/SupplierInvoices';
+import Footer from './components/Footer';
 
 function App() {
   const [loading, setLoading] = useState(false); // Track loading state
   const location = useLocation(); // Get the current location
-  
+
+
 
   // Show the loader during page transitions
   useEffect(() => {
@@ -54,6 +58,7 @@ function App() {
 
   return (
     <>
+    <div className="app-container">
       {loading && <Loader />} {/* Show loader if loading is true */}
       {!loading && (
         <div className="main-content"> {/* Wrap your content in this div */}
@@ -105,13 +110,17 @@ function App() {
 
             <Route path='/transactions/bank' element={<BankList />}/>
 
-
-
+            <Route path='/all-products-invoices' element={<ProductInvoicesList />} />
+            <Route path='/supplier/:supplierId/invoices' element={<SupplierInvoices/>}/>
 
 
           </Routes>
+          
+
         </div>
       )}
+      <Footer />
+      </div>
     </>
   );
 }

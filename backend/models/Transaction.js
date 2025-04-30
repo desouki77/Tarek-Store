@@ -19,7 +19,7 @@ const transactionSchema = new mongoose.Schema({
     },
     description: {
         type: String,
-        required: true,
+        required: false,
         trim: true, // Remove whitespace from both ends
     },
     amount: {
@@ -42,6 +42,8 @@ const transactionSchema = new mongoose.Schema({
         required: false, 
     },
     products: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: false },
+    productInvoice: { type: mongoose.Schema.Types.ObjectId, ref: 'ProductInvoice', required: false },
+    
 
 }, {
     timestamps: true, // Automatically manage createdAt and updatedAt fields

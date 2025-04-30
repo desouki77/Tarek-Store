@@ -1,47 +1,46 @@
+// models/Order.js
 const mongoose = require('mongoose');
 
 const OrderSchema = new mongoose.Schema({
-    branchId: { // New field to associate the order with a specific branch
+    branchId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Branch', // Reference to a Branch model (you'll need to create this if you haven't already)
-        required: true, // Make this field required
+        ref: 'Branch',
+        required: true,
     },
     checkoutItems: [{
         barcode: String,
         name: String,
         sellingPrice: Number,
-        quantity: { // Add quantity to track how many of each item is being ordered
+        quantity: {
             type: Number,
             required: false,
+            default: 1
         },
+        sn: {
+            type: String,  // Change from Mixed to String
+            required: false
+        },
+        purchasePrice: { // Add purchase price for reference
+            type: Number,
+            required: false
+        }
     }],
-    discount: { 
-        type: Number,
-    },
-    paid: { 
+    discount: Number,
+    paid: {
         type: Number,
         required: true,
     },
-    remaining: { 
-        type: Number,
-        required: false,
-    },
-    clientName: { 
-        type: String,
-        required: false,
-    },
-    clientPhone: { 
-        type: String,
-        required: false,
-    },
-    date: { 
+    remaining: Number,
+    clientName: String,
+    clientPhone: String,
+    date: {
         type: String,
         required: true,
     },
-    time: { 
+    time: {
         type: String,
         required: true,
     },
-}, { timestamps: true }); // Enable timestamps
+}, { timestamps: true });
 
 module.exports = mongoose.model('Order', OrderSchema);

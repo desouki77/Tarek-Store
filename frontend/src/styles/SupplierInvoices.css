@@ -1,0 +1,226 @@
+/* Container Styling */
+.supplierinvoice-container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+    background: #ffffff;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+/* Heading */
+.supplierinvoice-title {
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* Table Styling */
+.supplierinvoice-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    overflow-x: auto;
+}
+
+/* Table Headers */
+.supplierinvoice-table thead {
+    background: #007bff;
+    color: white;
+}
+
+.supplierinvoice-table th {
+    padding: 12px;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* Table Rows */
+.supplierinvoice-table tbody tr {
+    border-bottom: 1px solid #ddd;
+    transition: background 0.3s;
+}
+
+.supplierinvoice-table tbody tr:nth-child(even) {
+    background: #f9f9f9;
+}
+
+.supplierinvoice-table tbody tr:hover {
+    background: #e9ecef;
+}
+
+/* Table Cells */
+.supplierinvoice-table td {
+    padding: 10px;
+    text-align: center;
+}
+
+/* Invoice Status Styling */
+.supplierinvoice-status {
+    font-weight: bold;
+    padding: 6px 10px;
+    border-radius: 4px;
+}
+
+.supplierinvoice-status.paid {
+    color: #fff;
+    background: #28a745;
+}
+
+.supplierinvoice-status.unpaid {
+    color: #fff;
+    background: #dc3545;
+}
+
+/* أزرار الفلترة */
+.supplierinvoice-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.filter-btn {
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s;
+}
+
+.filter-btn:hover {
+    background-color: #0056b3;
+}
+
+/* زر إعادة عرض كل الفواتير */
+.reset-btn {
+    padding: 10px 15px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s;
+}
+
+.reset-btn:hover {
+    background-color: #1e7e34;
+}
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .supplierinvoice-container {
+        padding: 10px;
+    }
+
+    .supplierinvoice-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    .supplierinvoice-title {
+        font-size: 20px;
+    }
+}
+/* Add these new styles to your existing CSS file */
+
+/* Date Filter */
+.supplierinvoice-date-filter {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    align-items: center;
+}
+
+.supplierinvoice-date-filter label {
+    font-weight: bold;
+}
+
+.supplierinvoice-date-filter input {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* Pagination Styles */
+.supplierinvoice-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+    gap: 15px;
+}
+
+.supplierinvoice-pagination-button {
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.supplierinvoice-pagination-button:hover {
+    background-color: #0056b3;
+}
+
+.supplierinvoice-pagination-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.supplierinvoice-page-info {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0 10px;
+}
+
+/* Loading and No Data Styles */
+.supplierinvoice-loading,
+.supplierinvoice-noData {
+    text-align: center;
+    padding: 20px;
+    font-size: 18px;
+}
+
+/* Active filter button style */
+.filter-btn.active {
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px #007bff;
+}
+
+.reset-btn.active {
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px #28a745;
+}
+
+/* Table Container */
+.supplierinvoice-table-container {
+    overflow-x: auto;
+    margin-bottom: 20px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .supplierinvoice-date-filter {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .supplierinvoice-buttons {
+        flex-wrap: wrap;
+    }
+    
+    .supplierinvoice-pagination {
+        flex-wrap: wrap;
+    }
+}

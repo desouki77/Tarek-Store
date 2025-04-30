@@ -7,21 +7,29 @@ const mongoose = require('mongoose');
 
 
 // Route to get a product by barcode 
-router.get('/:barcode' , async (req, res) => {
+router.get('/:barcode', async (req, res) => {
   try {
-    const product = await Product.findOne({ 
-      barcode: req.params.barcode, 
-    });
-    if (!product) return res.status(404).send('المنتج غير متوفر');
+    const { barcode } = req.params;
+    const { branchId } = req.query;
+
+    const product = await Product
+    .findOne({ barcode, branchId })
+    .populate('mainCategory subCategory thirdCategory supplier');
+
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
     res.json(product);
+
   } catch (error) {
-    console.error('خطأ في استرجاع المنتجات', error);
-    res.status(500).send('خطأ في السيرفر');
+
+    console.error("Error fetching product:", error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
 router.post('/add', async (req, res) => {
-  const { barcode, name, sn, description, color, purchasePrice, sellingPrice, quantity, mainCategory, subCategory, thirdCategory, condition, supplier, branchId } = req.body;
+  const { barcode, name, sn, color, mainCategory, subCategory, thirdCategory, condition, supplier, quantity, purchasePrice, amountPaid, sellingPrice, branchId } = req.body;
 
   try {
 
@@ -31,6 +39,10 @@ router.post('/add', async (req, res) => {
 
     if (!barcode || !name || !sellingPrice || !quantity || !mainCategory || !branchId) {
       return res.status(400).json({ message: 'الرجاء تعبئة جميع الحقول المطلوبة' });
+    }
+
+    if (!Array.isArray(sn)) {
+      return res.status(400).json({ message: 'SN يجب أن يكون مصفوفة' });
     }
     
     // Check if the product already exists in the same branch
@@ -44,16 +56,20 @@ router.post('/add', async (req, res) => {
       barcode,
       name,
       sn,
-      description,
       color,
-      purchasePrice,
-      sellingPrice,
-      quantity,
+
       mainCategory,
       subCategory,
       thirdCategory,
       condition,
+
       supplier,
+      quantity,
+
+      purchasePrice,
+      amountPaid,
+      sellingPrice,
+
       branchId, 
     });
 
@@ -74,15 +90,9 @@ router.get('/', async (req, res) => {
 
   const filter = { branchId }; // تصفية حسب الفرع
 
-  if (mainCategory) {
-    filter.mainCategory = { $regex: `^${mainCategory}`, $options: 'i' };
-  }
-  if (subCategory) {
-    filter.subCategory = { $regex: `^${subCategory}`, $options: 'i' };
-  }
-  if (thirdCategory) {
-    filter.thirdCategory = { $regex: `^${thirdCategory}`, $options: 'i' };
-  }
+  if (mainCategory) filter.mainCategory = mainCategory;
+  if (subCategory) filter.subCategory = subCategory;
+  if (thirdCategory) filter.thirdCategory = thirdCategory;
   if (condition) {
     filter.condition = { $regex: `^${condition}`, $options: 'i' };
   }
@@ -94,7 +104,11 @@ router.get('/', async (req, res) => {
   }
 
   try {
-    const products = await Product.find(filter).sort({ createdAt: -1 });
+    const products = await Product.find(filter)
+    .populate('mainCategory', 'name')  // جلب اسم التصنيف الرئيسي
+    .populate('subCategory', 'name')   // جلب اسم التصنيف الفرعي
+    .populate('thirdCategory', 'name') // جلب اسم التصنيف الثالث
+    .sort({ createdAt: -1 });
     res.json(products);
   } catch (error) {
     console.error(error);
@@ -145,6 +159,33 @@ router.put('/:barcode', async (req, res) => {
   } catch (error) {
     console.error('خطأ في تحديث المنتج', error);
     res.status(500).json({ message: 'خطأ في السيرفر' });
+  }
+});
+
+// Route to remove a specific SN from a product
+router.put('/:barcode/remove-sn', async (req, res) => {
+  const { barcode } = req.params;
+  const { sn, branchId } = req.body;
+
+  try {
+      // Find the product and remove the SN
+      const product = await Product.findOneAndUpdate(
+          { barcode, branchId },
+          { 
+              $pull: { sn: sn }, // Remove the specific SN
+              $inc: { quantity: -1 } // Decrease quantity by 1
+          },
+          { new: true }
+      );
+
+      if (!product) {
+          return res.status(404).json({ message: 'المنتج غير متوفر' });
+      }
+
+      res.json({ message: 'تم تحديث المنتج بنجاح', product });
+  } catch (error) {
+      console.error('خطأ في تحديث المنتج', error);
+      res.status(500).json({ message: 'خطأ في السيرفر' });
   }
 });
 

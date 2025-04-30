@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios'; 
 import '../styles/Registration.css';
 import Loader from './Loader';
+import Navbar from './Navbar';
+
 
 
 const Registration = () => {
@@ -15,7 +17,8 @@ const Registration = () => {
   const navigate = useNavigate();
   const [loading, setIsLoading] = useState(false);
   const API_URL = process.env.REACT_APP_API_URL;
-
+  const roleFromApp = localStorage.getItem('role'); // Get role from localStorage
+  const isAdmin = roleFromApp === 'admin'; // Determine if the user is an admin
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -59,7 +62,9 @@ const Registration = () => {
 }
 
   return (
-    <div className="registration-container">
+    <div className="registration-component">
+                <Navbar isAdmin={isAdmin} />
+                <div className="registration-container">
       <h2 className="registration-component-title">تسجيل حساب جديد</h2>
       {error && <p className="login-component-error">{error}</p>}
       <form onSubmit={handleSubmit} className="login-component-form">
@@ -117,6 +122,7 @@ const Registration = () => {
         
         <button type="submit" className="registration-component-btn">تسجيل</button>
       </form>
+    </div>
     </div>
   );
 };

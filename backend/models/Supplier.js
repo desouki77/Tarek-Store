@@ -4,28 +4,28 @@ const mongoose = require('mongoose');
 const supplierSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: false,
+        required: true,
     },
     phoneNumber: {
         type: String,
-        required: false,
+        required: true,
     },
     company: {
         type: String,
         required: false,
     },
-    notes: {
-        type: String,
+    moneyOwed: {
+        type: Number,
+        default: 0,
         required: false,
     },
-    moneyOwed: {
-        type: String,
-        required: false,
+    productInvoice: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'ProductInvoice',
     }
 }, {
     timestamps: true,
 });
 
 const Supplier = mongoose.model('Supplier', supplierSchema);
-
 module.exports = Supplier;

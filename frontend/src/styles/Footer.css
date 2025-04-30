@@ -1,0 +1,37 @@
+.footer {
+  text-align: center;
+  padding: 10px 0;
+  color: #fff;
+  background-color: #222;
+  width: 100%;
+  font-size: 14px;
+  flex-shrink: 0; /* Prevents footer from shrinking */
+
+  }
+  @media (max-width: 480px) {
+    .footer {
+      font-size: 12px;
+    }
+  }
+    @media (max-width: 768px) {
+        .footer {
+        font-size: 13px;
+        }
+    }
+
+
+    .copyright {
+      margin: 0;
+      font-size: 0.9rem;
+    }
+    
+    .version {
+      color: #aaa;
+      font-size: 0.8rem;
+    }
+    
+    .powered-by {
+      margin: 0.5rem 0 0;
+      font-size: 0.8rem;
+      color: #888;
+    }

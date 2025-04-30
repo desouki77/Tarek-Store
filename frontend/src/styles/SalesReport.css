@@ -10,7 +10,7 @@
 }
 
 /* Filters Section */
-.filters {
+.salesFilters {
     margin-bottom: 20px;
     display: flex;
     justify-content: space-between;
@@ -18,14 +18,14 @@
     gap: 10px;
 }
 
-.filters label {
+.salesFilters label {
     font-size: 1rem;
     color: #333;
     padding-top: 9px;
 }
 
-.filters input,
-.filters select {
+.salesFilters input,
+.salesFilters select {
     padding: 8px;
     font-size: 1rem;
     border-radius: 5px;
@@ -64,7 +64,7 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    .filters {
+    .salesFilters {
         flex-direction: column;
         align-items: center;
     }

@@ -5,7 +5,7 @@ const validateBranchId = require('../middlewares/validateBranch');
 const { getTopSellingProducts } = require('../controllers/orderController'); // تأكد من المسار الصحيح
 
 
-// POST /orders - Create a new order, including branchId
+// POST /orders - Create a new order
 router.post('/orders', validateBranchId, async (req, res) => {
     try {
         const { branchId, checkoutItems, discount, paid, remaining, clientName, clientPhone, date, time } = req.body;
@@ -14,24 +14,38 @@ router.post('/orders', validateBranchId, async (req, res) => {
             return res.status(400).json({ message: 'branchId is required' });
         }
 
+        // Process checkout items to ensure SN is properly formatted
+        const processedItems = checkoutItems.map(item => {
+            // Convert SN array to string if needed
+            let snValue = item.sn;
+            if (Array.isArray(item.sn)) {
+                snValue = item.sn[0]; // Take the first SN if it's an array
+            }
+            
+            return {
+                barcode: item.barcode,
+                name: item.name,
+                sellingPrice: item.sellingPrice,
+                quantity: item.quantity || 1,
+                sn: snValue || null, // Ensure it's either a string or null
+                purchasePrice: item.purchasePrice || 0
+            };
+        });
+
         const newOrder = new Order({
             branchId,
-            checkoutItems,
-            discount,
+            checkoutItems: processedItems,
+            discount: discount || 0,
             paid,
-            remaining,
-            clientName,
-            clientPhone,
+            remaining: remaining || 0,
+            clientName: clientName || '',
+            clientPhone: clientPhone || '',
             date,
             time,
         });
 
-
-
-
-        
         await newOrder.save();
-        res.status(201).json({ message: 'Order saved successfully!' });
+        res.status(201).json({ message: 'Order saved successfully!', order: newOrder });
         
     } catch (error) {
         console.error('Failed to save order:', error);
@@ -143,27 +157,39 @@ router.get('/day_orders', validateBranchId, async (req, res) => {
 });
 
 
-// GET /orders/:orderId - Get a specific order by ID, with branchId check
+// GET /orders/:orderId
 router.get('/orders/:orderId', validateBranchId, async (req, res) => {
     try {
         const { orderId } = req.params;
         const { branchId } = req.query;
 
         if (!branchId) {
-            return res.status(400).json({ message: 'branchId is required' });
+            return res.status(400).json({ 
+                success: false,
+                message: 'branchId is required' 
+            });
         }
 
-        // Fetch the order by ID and verify it belongs to the specified branchId
-        const order = await Order.findOne({ _id: orderId, branchId });
+        const order = await Order.findOne({ _id: orderId, branchId })
+                              .lean(); // Convert to plain object
 
         if (!order) {
-            return res.status(404).json({ message: 'Order not found for this branchID' });
+            return res.status(404).json({ 
+                success: false,
+                message: 'Order not found' 
+            });
         }
 
-        res.json(order);
+        res.json({ 
+            success: true,
+            data: order 
+        });
     } catch (error) {
         console.error('Error fetching order by ID:', error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ 
+            success: false,
+            message: 'Server error' 
+        });
     }
 });
 

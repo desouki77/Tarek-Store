@@ -27,7 +27,7 @@ function AllSalesReports() {
         };
         fetchBranches();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [API_URL]);
 
     // جلب التقارير مع التصفية حسب الصفحة
     useEffect(() => {

@@ -41,7 +41,7 @@ function AllRevenueReports() {
 
         fetchAllReports();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [currentPage, reportsPerPage]);
+    }, [currentPage, reportsPerPage,API_URL]);
 
     const handleViewReport = (reportId) => {
         navigate(`/revenue-report/${reportId}`);

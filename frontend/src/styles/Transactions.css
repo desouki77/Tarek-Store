@@ -142,3 +142,9 @@ overflow: auto;
 
  
 }
+
+
+.select-dropdown {
+  max-height: 200px; /* Adjust the height */
+  overflow-y: scroll;
+}

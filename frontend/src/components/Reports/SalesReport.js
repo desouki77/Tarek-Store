@@ -28,7 +28,7 @@ function SalesReport() {
         };
         fetchBranches();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [API_URL]);
 
     // استخدام useCallback لتحسين الأداء
     const fetchSalesReport = useCallback(async () => {
@@ -108,7 +108,7 @@ function SalesReport() {
 
         <div className="sales-report-container">
             <h1>انشاء تقرير المبيعات</h1>
-            <div className="filters">
+            <div className="salesFilters">
                 <label htmlFor="branch">فرع:</label>
                 <select
                     id="branch"

@@ -19,6 +19,9 @@ const Clients = () => {
     const isAdmin = role === 'admin';
     const API_URL = process.env.REACT_APP_API_URL;
 
+    const [totalAmount, setTotalAmount] = useState(0);
+
+
 
     const handleChange = (e) => {
         setClient({ ...client, [e.target.name]: e.target.value });
@@ -39,6 +42,16 @@ const Clients = () => {
         }
     };
 
+    const fetchTotalAmount = async () => {
+        try {
+            const response = await axios.get(`${API_URL}/api/clients/total-amount`);
+            setTotalAmount(response.data.totalAmount);
+        } catch (error) {
+            console.error('Error fetching total amount', error);
+        }
+    };
+    
+
     const fetchClients = async (page = 1) => {
         setIsLoading(true); // Start loading
         try {
@@ -56,6 +69,7 @@ const Clients = () => {
 
     useEffect(() => {
         fetchClients();
+        fetchTotalAmount(); // Fetch total
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -84,53 +98,12 @@ const Clients = () => {
         <>
             <Navbar isAdmin={isAdmin} />
 
+            <div className="total-amount-banner">
+    <h3>إجمالي المبالغ المطلوبة من العملاء: {totalAmount} جنيه</h3>
+</div>
+
             <div className="clients-container">
-                {/* Add Client Form */}
-                <div className="clients-form-container">
-                    <h2 className="clients-form-title">اضافة عميل جديد</h2>
-                    {message && <p>{message}</p>}
-                    <form onSubmit={handleSubmit}>
-                        <div className="clients-form-group">
-                            <label htmlFor="name">الاسم:</label>
-                            <input
-                                type="text"
-                                id="name"
-                                name="name"
-                                value={client.name}
-                                onChange={handleChange}
-                                className="clients-form-input"
-                                required
-                            />
-                        </div>
-                        <div className="clients-form-group">
-                            <label htmlFor="phoneNumber">رقم الموبايل:</label>
-                            <input
-                                type="text"
-                                id="phoneNumber"
-                                name="phoneNumber"
-                                value={client.phoneNumber}
-                                onChange={handleChange}
-                                className="clients-form-input"
-                                required
-                            />
-                        </div>
-                        <div className="clients-form-group">
-                            <label htmlFor="amountRequired">المبلغ المطلوب:</label>
-                            <input
-                                type="text"
-                                id="amountRequired"
-                                name="amountRequired"
-                                value={client.amountRequired}
-                                onChange={handleChange}
-                                className="clients-form-input"
-                                required
-                            />
-                        </div>
-                        <button type="submit" className="clients-form-button">
-                            اضافة عميل
-                        </button>
-                    </form>
-                </div>
+
 
                 {/* Client Table */}
                 {isLoading ? (
@@ -194,6 +167,54 @@ const Clients = () => {
                         </div>
                     </>
                 )}
+
+                                {/* Add Client Form */}
+                                <div className="clients-form-container">
+                    <h2 className="clients-form-title">اضافة عميل جديد</h2>
+                    {message && <p>{message}</p>}
+                    <form onSubmit={handleSubmit}>
+                        <div className="clients-form-group">
+                            <label htmlFor="name">الاسم:</label>
+                            <input
+                                type="text"
+                                id="name"
+                                name="name"
+                                value={client.name}
+                                onChange={handleChange}
+                                className="clients-form-input"
+                                required
+                            />
+                        </div>
+                        <div className="clients-form-group">
+                            <label htmlFor="phoneNumber">رقم الموبايل:</label>
+                            <input
+                                type="text"
+                                id="phoneNumber"
+                                name="phoneNumber"
+                                value={client.phoneNumber}
+                                onChange={handleChange}
+                                className="clients-form-input"
+                                required
+                            />
+                        </div>
+                        <div className="clients-form-group">
+                            <label htmlFor="amountRequired">المبلغ المطلوب:</label>
+                            <input
+                                type="text"
+                                id="amountRequired"
+                                name="amountRequired"
+                                value={client.amountRequired}
+                                onChange={handleChange}
+                                className="clients-form-input"
+                                required
+                            />
+                        </div>
+                        <button type="submit" className="clients-form-button">
+                            اضافة عميل
+                        </button>
+                    </form>
+                </div>
+                
             </div>
         </>
     );

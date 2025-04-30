@@ -1,33 +1,36 @@
 /* General styles */
 .revenue-reports-container {
-    font-family: Arial, sans-serif;
+    max-width: 800px;
+    margin: 20px auto;
     padding: 20px;
-    max-width: 1200px;
-    margin: auto;
-}
-
-.revenue-reports-container h1 {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     text-align: center;
-    color: #2c3e50;
-    margin-bottom: 30px;
 }
 
-.revenue-reports-container label {
-    font-size: 16px;
-    margin-right: 10px;
+/* Filters Section */
+.revnueFilters {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
-.revenue-reports-container select,
-.revenue-reports-container input {
+.revnueFilters label {
+    font-size: 1rem;
+    color: #333;
+    padding-top: 9px;
+}
+
+.revnueFilters input,
+.revnueFilters select {
     padding: 8px;
-    font-size: 16px;
-    width: 100%;
-    margin: 10px 0;
-    max-width: 300px;
-    margin-right: 10px;
-    box-sizing: border-box;
-    margin-left: auto !important;
-    margin-right: auto !important;
+    font-size: 1rem;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    width: 150px;
 }
 
 .revenue-reports-table {
@@ -67,22 +70,13 @@
 }
 
 .revenue-reports-button {
-    background-color: #3498db;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    font-size: 16px;
-    cursor: pointer;
-    margin-top: 10px;
-    width: 100%;
-    max-width: 200px;
-    margin: auto;
-    display: block;
+    background-color: #007bff;
     margin-top: 20px;
 }
 
+
 .revenue-reports-button:hover {
-    background-color: #2980b9;
+    background-color: #0056b3;
 }
 
 .revenue-reports-error-message {
@@ -97,9 +91,9 @@
         padding: 30px;
     }
 
-    .revenue-reports-container select,
-    .revenue-reports-container input {
-        max-width: 200px;
+    .revnueFilters {
+        flex-direction: column;
+        align-items: center;
     }
 
     .revenue-reports-table {

@@ -3,11 +3,41 @@ body {
   text-align: center;
   direction: rtl;
   margin: 0;
-  background-color: #f0f0f0; /* Light background color */
+  padding: 0;
+  background-color: #f0f0f0;
+  min-height: 100vh;
 }
 
-.App {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1 0 auto; /* This makes the content grow and push footer down */
+  padding-bottom: 60px; /* Space for footer */
+}
+
+.footer {
+  text-align: center;
+  padding: 10px 0;
+  color: #fff;
+  background-color: #222;
+  width: 100%;
+  font-size: 14px;
+  flex-shrink: 0; /* Prevents footer from shrinking */
+}
+
+@media (max-width: 768px) {
+  .footer {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer {
+    font-size: 12px;
+  padding: 15px 0; /* More padding on mobile */
+  }
 }

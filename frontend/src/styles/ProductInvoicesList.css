@@ -1,0 +1,199 @@
+.productInvoice-container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
+  background: #ffffff;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.productInvoice-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.productInvoice-searchContainer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.productInvoice-searchInput, .productInvoice-dateInput {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.productInvoice-searchInput:focus, .productInvoice-dateInput:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0px 3px 6px rgba(0, 123, 255, 0.3);
+}
+
+.productInvoice-searchButton {
+  padding: 12px 18px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 16px;
+}
+
+.productInvoice-searchButton:hover {
+  background-color: #0056b3;
+}
+
+
+.productInvoice-table-container {
+  overflow-x: auto;
+}
+.productInvoice-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  overflow: hidden;
+}
+
+.productInvoice-table th, 
+.productInvoice-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+}
+
+.productInvoice-table th {
+  background-color: #333;
+}
+
+.productInvoice-status-paid {
+  color: green;
+  font-weight: bold;
+}
+
+.productInvoice-status-unpaid {
+  color: red;
+  font-weight: bold;
+}
+
+.productInvoice-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.productInvoice-pagination button {
+  padding: 6px 10px;
+  margin: 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #007BFF;
+  cursor: pointer;
+  font-size: 14px;
+  color: #fff;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  min-width: 45px;
+}
+.productInvoice-pagination button:hover {
+  background-color: darkslategray;
+  color: #fff;
+}
+
+.productInvoice-pagination button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.productInvoice-dateContainer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+
+.productInvoice-statusPaid {
+  color: #fff;
+  background: #28a745;
+}
+
+.productInvoice-statusDue {
+  color: #fff;
+  background: #dc3545;
+}
+
+
+/* أزرار الفلترة */
+.productInvoice-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.filter-btn {
+  padding: 10px 15px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.3s;
+}
+
+.filter-btn:hover {
+  background-color: #0056b3;
+}
+
+/* زر إعادة عرض كل الفواتير */
+.reset-btn {
+  padding: 10px 15px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.3s;
+}
+
+.reset-btn:hover {
+  background-color: #1e7e34;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .productInvoice-searchContainer {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .productInvoice-table th, 
+  .productInvoice-table td {
+    padding: 8px;
+    font-size: 14px;
+  }
+
+  .productInvoice-pagination {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .productInvoice-dateContainer {
+    flex-direction: column;
+    align-items: center;
+  }
+}
