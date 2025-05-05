@@ -54,7 +54,7 @@ const StockReport = () => {
 
     const fetchBranchSummary = async (branchId) => {
         try {
-            const response = await axios.get(`${API_URL}//api/products?branchId=${branchId}`);
+            const response = await axios.get(`${API_URL}/api/products?branchId=${branchId}`);
             const totalProducts = response.data.length;
             const totalQuantity = response.data.reduce((sum, product) => sum + product.quantity, 0);
             setBranchSummary({ totalProducts, totalQuantity });
