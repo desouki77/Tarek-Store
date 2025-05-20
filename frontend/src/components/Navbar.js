@@ -3,11 +3,34 @@ import { Link, useNavigate } from 'react-router-dom';
 import '../styles/Navbar.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faHome, faTimes } from '@fortawesome/free-solid-svg-icons'; // Import faTimes for close icon
+import axios from 'axios';
+
 
 const Navbar = ({ isAdmin }) => {
     const [burgerOpen, setBurgerOpen] = useState(false);
     const burgerRef = useRef(null);
     const navigate = useNavigate();
+    const [branchName, setBranchName] = useState('');
+    //const API_URL = process.env.REACT_APP_API_URL;
+
+
+
+        // Fetch branch name when component mounts
+    useEffect(() => {
+        const fetchBranchName = async () => {
+            const branchId = localStorage.getItem('branchId');
+            if (branchId) {
+                try {
+                    const response = await axios.get(`http://localhost:4321/api/branches/${branchId}`);
+                    setBranchName(response.data.name);
+                } catch (error) {
+                    console.error('Error fetching branch name:', error);
+                }
+            }
+        };
+
+        fetchBranchName();
+    }, []);
 
     // Toggle the burger menu
     const toggleBurger = () => {
@@ -53,11 +76,18 @@ const Navbar = ({ isAdmin }) => {
         <nav className={`navbar ${burgerOpen ? 'navbar-hidden' : ''}`}>
             {/* Logo on the right */}
             <div className="logo">
+                                {branchName && (
+                    <div className="branch-name">
+                         {branchName}
+                    </div>
+                )}
+
                 <img 
                     src={`${process.env.PUBLIC_URL}/TarekLogo.png`} 
                     alt="Store Logo" 
                     className="logo-img" 
                 />
+
             </div>
 
             {/* Burger Icon */}
@@ -89,12 +119,13 @@ const Navbar = ({ isAdmin }) => {
                         <li className="nav-item">
                             <Link to="/registration" className="nav-link">تسجيل موظف جديد</Link>
                         </li>
+                                                                <li className="nav-item">
+                            <Link to="/reports" className="nav-link">التقارير</Link>
+                        </li>
 
                     </>
                 )}
-                                        <li className="nav-item">
-                            <Link to="/reports" className="nav-link">التقارير</Link>
-                        </li>
+
                 {/* Common links */}
                 <li className="nav-item">
                     <Link to="/suppliers" className="nav-link">الموردين</Link>

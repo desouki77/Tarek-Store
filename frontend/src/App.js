@@ -40,6 +40,7 @@ import StockReport from './components/Reports/SrockReport';
 import ProductInvoicesList from './components/ProductInvoicesList';
 import SupplierInvoices from './components/SupplierInvoices';
 import Footer from './components/Footer';
+import ProfitReports from './components/Reports/ProfitReports';
 
 function App() {
   const [loading, setLoading] = useState(false); // Track loading state
@@ -107,12 +108,11 @@ function App() {
             <Route path="/revenue-report/:reportId" element={<RevenueReportDetails />} />
             <Route path="/reports/bestSellerReport" element={<TopSellingProducts />} />
             <Route path="/reports/stockReport" element={<StockReport />} />
-
+            <Route path="/reports/profitReport" element={<ProfitReports />} />
             <Route path='/transactions/bank' element={<BankList />}/>
 
             <Route path='/all-products-invoices' element={<ProductInvoicesList />} />
             <Route path='/supplier/:supplierId/invoices' element={<SupplierInvoices/>}/>
-
 
           </Routes>
           

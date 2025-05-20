@@ -3,8 +3,7 @@ import axios from "axios";
 import "../styles/ProductInvoicesList.css";
 import Navbar from './Navbar';
 
-const role = localStorage.getItem('role');
-const isAdmin = role === 'admin';
+
 
 const ProductInvoicesList = () => {
   const [invoices, setInvoices] = useState([]);
@@ -21,6 +20,8 @@ const ProductInvoicesList = () => {
   const branchId = localStorage.getItem("branchId") || null;
   const limit = 30;
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:4321";
+          const role = localStorage.getItem('role'); // Get role from localStorage
+        const isAdmin = role === 'admin'; // Determine if the user is an admin
 
 
   useEffect(() => {
@@ -91,7 +92,7 @@ const ProductInvoicesList = () => {
 
   return (
     <>
-      <Navbar isAdmin={isAdmin} />
+                <Navbar isAdmin={isAdmin} />
       <div className="productInvoice-container">
         <h2 className="productInvoice-title">قائمة فواتير المنتجات للفرع</h2>
 

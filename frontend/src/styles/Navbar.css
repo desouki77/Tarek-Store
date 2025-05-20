@@ -11,6 +11,19 @@
 /* Logo on the right side */
 .logo {
     order: 2;
+        display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.branch-name {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #333;
+    background-color: #f5f5f5;
+    padding: 5px 10px;
+    border-radius: 4px;
+    border-right: 3px solid #1890ff;
 }
 
 .logo-img {

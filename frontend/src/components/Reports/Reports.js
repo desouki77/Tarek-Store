@@ -26,6 +26,8 @@ function Reports() {
                     <button className="report" onClick={() => handleReportClick('revenueReport')}>
                         تقرير الايرادات
                     </button>
+                    <button className="report" onClick={() => handleReportClick('profitReport')}>
+                        تقرير الارباح</button>
                     <button className="report" onClick={() => handleReportClick('bestSellerReport')}>
                         تقرير الاكثر مبيعا
                     </button>

@@ -90,6 +90,11 @@ router.get('/', async (req, res) => {
 
   const filter = { branchId }; // تصفية حسب الفرع
 
+          if (branchId && branchId !== 'all') {
+            filter.branchId = branchId;
+        }
+        
+
   if (mainCategory) filter.mainCategory = mainCategory;
   if (subCategory) filter.subCategory = subCategory;
   if (thirdCategory) filter.thirdCategory = thirdCategory;
@@ -281,5 +286,50 @@ router.put('/:productId/decrement', async (req, res) => {
   }
 });
 
+
+router.get('/reports/added-summary', async (req, res) => {
+    try {
+        const { branchId, startDate, endDate } = req.query;
+
+        if (!branchId) {
+            return res.status(400).json({ message: 'Branch ID is required' });
+        }
+
+        const filter = { branchId };
+        if (branchId !== 'all') {
+            inventoryFilter.branchId = branchId;
+        }
+        
+        if (startDate && endDate) {
+            filter.createdAt = {
+                $gte: new Date(startDate),
+                $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999))
+            };
+        }
+
+        const products = await Product.find(filter, 'quantity purchasePrice');
+        
+        const summary = products.reduce((acc, product) => {
+            acc.count++;
+            acc.totalQuantity += product.quantity || 0;
+            acc.totalValue += (product.purchasePrice || 0) * (product.quantity || 0);
+            return acc;
+        }, { count: 0, totalQuantity: 0, totalValue: 0 });
+        
+        res.json({
+            success: true,
+            ...summary,
+            dateRange: { startDate, endDate }
+        });
+
+    } catch (error) {
+        console.error('Error getting products summary:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Error getting products summary',
+            error: error.message
+        });
+    }
+});
 
 module.exports = router;
