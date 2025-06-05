@@ -104,7 +104,7 @@ const Suppliers = () => {
     const handleEditSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.put(`${API_URL}/api/suppliers/id/${editingSuppliertId}`, editFormData);
+            await axios.put(`${API_URL}/api/suppliers/${editingSuppliertId}`, editFormData);
             const updatedSuppliers = suppliers.map(sup =>
                 sup._id === editingSuppliertId ? { ...sup, ...editFormData } : sup
             );
@@ -117,7 +117,7 @@ const Suppliers = () => {
             setEditingSupplierId(null);
         } catch (error) {
             console.error('Error updating product:', error);
-            alert('فشل تحديث المنتج.');
+            setMessage('خطأ في تحديث المورد');
         }
     };
 
