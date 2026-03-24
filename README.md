@@ -1,5 +1,4 @@
 # Tarek Store
-
 Full-stack store management system for inventory, sales, branches, suppliers, clients, orders, and reporting. The UI is primarily **Arabic**; the API is a **REST** service built with **Node.js** and **MongoDB**.
 
 ## Overview
