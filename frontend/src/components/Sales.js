@@ -25,7 +25,7 @@ const Sales = () => {
         setError(null);
 
         try {
-            const response = await axios.get(`${API_URL}/api/users`, {
+            const response = await axios.get(`http://localhost:4321/api/users`, {
                 params: { page, limit },
             });
 
@@ -48,7 +48,7 @@ const Sales = () => {
         const confirmDelete = window.confirm('هل أنت متأكد أنك تريد حذف هذا الموظف؟'); // Confirmation in Arabic
         if(confirmDelete) {
         try {
-            const response = await axios.delete(`${API_URL}/api/users/${id}`);
+            const response = await axios.delete(`http://localhost:4321/api/users/${id}`);
             if (response.status === 200) {
                 const updatedSalesData = salesData.filter(sale => sale._id !== id);
                 setSalesData(updatedSalesData);

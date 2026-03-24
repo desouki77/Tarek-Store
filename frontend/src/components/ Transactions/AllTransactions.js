@@ -22,7 +22,7 @@ const AllTransactions = () => {
 
     const fetchUserData = async (userId) => {
         try {
-            const response = await axios.get(`${API_URL}/api/users/${userId}`);
+            const response = await axios.get(`http://localhost:4321/api/users/${userId}`);
             return response.data.username;
         } catch (error) {
             console.error("Error fetching user data:", error);
@@ -44,7 +44,7 @@ const AllTransactions = () => {
     
         setLoading(true); // Start loading
         try {
-            let url = `${API_URL}/api/transactions/${transactionType}?branchId=${branchId}&page=${page}&limit=${limit}`;
+            let url = `http://localhost:4321/api/transactions/${transactionType}?branchId=${branchId}&page=${page}&limit=${limit}`;
             if (startDate) url += `&startDate=${startDate}`;
             if (endDate) url += `&endDate=${endDate}`;
     

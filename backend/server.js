@@ -24,6 +24,13 @@ const app = express();
 app.use(express.json()); // To parse JSON requests
 app.use(cors()); // Enable CORS for frontend requests
 
+// Avoid browser/proxy caching for API JSON responses (prevents 304 with empty body in some clients)
+app.disable('etag');
+app.use('/api', (req, res, next) => {
+    res.set('Cache-Control', 'no-store');
+    next();
+});
+
 // Connect Database
 connectDB();
 

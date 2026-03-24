@@ -32,7 +32,7 @@ const ProductInvoicesList = () => {
   const fetchInvoices = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_URL}/api/productinvoice`, {
+      const response = await axios.get(`http://localhost:4321/api/productinvoice`, {
         params: {
           page,
           limit,

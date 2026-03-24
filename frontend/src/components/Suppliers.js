@@ -30,7 +30,7 @@ const Suppliers = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post(`${API_URL}/api/suppliers/add`, supplier);
+            const response = await axios.post(`http://localhost:4321/api/suppliers/add`, supplier);
             setMessage(response.data.message);
             setSupplier({ name: '', phoneNumber: '', company: '', moneyOwed: 0 });
             fetchSuppliers();
@@ -43,7 +43,7 @@ const Suppliers = () => {
     const fetchSuppliers = async (page = 1) => {
         setIsLoading(true);
         try {
-            const response = await axios.get(`${API_URL}/api/suppliers?page=${page}&limit=7`);
+            const response = await axios.get(`http://localhost:4321/api/suppliers?page=${page}&limit=7`);
             const fetchedSuppliers = response.data.suppliers;
 
             if (fetchedSuppliers.length === 0) {
@@ -78,7 +78,7 @@ const Suppliers = () => {
         const confirmDelete = window.confirm('هل أنت متأكد أنك تريد حذف هذا المورد');
         if (confirmDelete) {
             try {
-                const response = await axios.delete(`${API_URL}/api/suppliers/${id}`);
+                const response = await axios.delete(`http://localhost:4321/api/suppliers/${id}`);
                 setMessage(response.data.message);
                 fetchSuppliers(currentPage);
             } catch (error) {
@@ -104,7 +104,7 @@ const Suppliers = () => {
     const handleEditSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.put(`${API_URL}/api/suppliers/${editingSuppliertId}`, editFormData);
+            await axios.put(`http://localhost:4321/api/suppliers/${editingSuppliertId}`, editFormData);
             const updatedSuppliers = suppliers.map(sup =>
                 sup._id === editingSuppliertId ? { ...sup, ...editFormData } : sup
             );

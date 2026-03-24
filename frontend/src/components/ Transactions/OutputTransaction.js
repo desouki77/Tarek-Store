@@ -24,7 +24,7 @@ const OutputTransaction = () => {
 
   const fetchUserData = useCallback(async (userId) => {
     try {
-      const userResponse = await axios.get(`${API_URL}/api/users/${userId}`);
+      const userResponse = await axios.get(`http://localhost:4321/api/users/${userId}`);
       return { userName: userResponse.data.username };
     } catch (error) {
       console.error("Error fetching user", error);
@@ -49,7 +49,7 @@ const OutputTransaction = () => {
       }
 
       try {
-        const response = await axios.get(`${API_URL}/api/transactions/dayoutput`, {
+        const response = await axios.get(`http://localhost:4321/api/transactions/dayoutput`, {
           params: { branchId, startDate, endDate, page, limit: 5 },
         });
 
@@ -113,7 +113,7 @@ const OutputTransaction = () => {
     }
 
     // جلب المبلغ الحالي من البنك
-    const bankResponse = await axios.get(`${API_URL}/api/bank/${BankId}`);
+    const bankResponse = await axios.get(`http://localhost:4321/api/bank/${BankId}`);
     if (!bankResponse.data || bankResponse.data.bankAmount === undefined) {
         throw new Error('Invalid bank data received');
     }
@@ -126,7 +126,7 @@ const OutputTransaction = () => {
     }
 
     try {
-      const response = await axios.post(`${API_URL}/api/transactions/output`, {
+      const response = await axios.post(`http://localhost:4321/api/transactions/output`, {
         branchId,
         user: userId,
         type,
@@ -154,7 +154,7 @@ const OutputTransaction = () => {
       const updatedBankAmount = currentBankAmount - Number(amount);
   
       // إرسال البيانات المحدثة إلى الخادم
-      const updateResponse = await axios.put(`${API_URL}/api/bank/${BankId}`, {
+      const updateResponse = await axios.put(`http://localhost:4321/api/bank/${BankId}`, {
           bankAmount: updatedBankAmount,
       });
   

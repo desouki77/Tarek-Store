@@ -41,12 +41,6 @@ router.post('/login', async (req, res) => {
     const { username, password, branchId } = req.body; // Added branchId
   
     try {
-        // Check if branchId is valid (assuming you have a Branch model)
-        const validBranch = await Branch.findById(branchId); // Make sure to import the Branch model
-        if (!validBranch) {
-            return res.status(400).json({ message: 'رقم الفرع غير صالح' }); // Invalid branch ID
-        }
-  
         // Find the user by username
         const user = await User.findOne({ username });
         if (!user) {
@@ -58,10 +52,34 @@ router.post('/login', async (req, res) => {
         if (!match) {
             return res.status(401).json({ message: 'كلمة المرور غير صالحة' });
         }
+
+        // For non-admin users we require a valid branchId.
+        // For admin users, branchId is optional.
+        let resolvedBranchId = branchId ?? null;
+        if (user.role !== 'admin') {
+            if (!branchId) {
+                return res.status(400).json({ message: 'رقم الفرع مطلوب' });
+            }
+            const validBranch = await Branch.findById(branchId);
+            if (!validBranch) {
+                return res.status(400).json({ message: 'رقم الفرع غير صالح' });
+            }
+            resolvedBranchId = branchId;
+        } else if (branchId) {
+            // If admin provided branchId, validate it.
+            const validBranch = await Branch.findById(branchId);
+            if (!validBranch) {
+                return res.status(400).json({ message: 'رقم الفرع غير صالح' });
+            }
+            resolvedBranchId = branchId;
+        }
   
         // Generate JWT Token
+        if (!process.env.JWT_SECRET) {
+            return res.status(500).json({ message: 'JWT_SECRET غير موجود في السيرفر' });
+        }
         const token = jwt.sign(
-            { id: user._id, role: user.role, branchId }, // Include branchId in token
+            { id: user._id, role: user.role, branchId: resolvedBranchId }, // Include branchId in token
             process.env.JWT_SECRET,
             { expiresIn: '1h' } // Token expiration
         );
@@ -70,10 +88,10 @@ router.post('/login', async (req, res) => {
         res.status(200).json({
             message: 'تم تسجيل الدخول بنجاح',
             token,
-            user: { id: user._id, username: user.username, role: user.role, branchId }, // Include branchId in response
+            user: { id: user._id, username: user.username, role: user.role, branchId: resolvedBranchId }, // Include branchId in response
         });
     } catch (error) {
-        res.status(500).json({ error: 'خطا في السيرفر' });
+        res.status(500).json({ error: 'خطا في السيرفر', details: error.message });
     }
 });
 

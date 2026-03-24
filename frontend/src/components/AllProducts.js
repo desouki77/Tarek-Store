@@ -31,7 +31,7 @@ const AllProducts = () => {
   useEffect(() => {
     const fetchMainCategories = async () => {
       try {
-        const response = await axios.get(`${API_URL}/api/categories/main`);
+        const response = await axios.get(`http://localhost:4321/api/categories/main`);
         setMainCategories(response.data);
       } catch (error) {
         console.error("Error fetching main categories:", error);
@@ -56,7 +56,7 @@ const AllProducts = () => {
     setCondition("");
   
     try {
-      const response = await axios.get(`${API_URL}/api/categories/sub/${selectedValue}`);
+      const response = await axios.get(`http://localhost:4321/api/categories/sub/${selectedValue}`);
       setSubCategories(response.data);
     } catch (error) {
       console.error("Error fetching subcategories:", error);
@@ -71,7 +71,7 @@ const AllProducts = () => {
     setCondition("");
   
     try {
-      const response = await axios.get(`${API_URL}/api/categories/third/${selectedSubCategory}`);
+      const response = await axios.get(`http://localhost:4321/api/categories/third/${selectedSubCategory}`);
       setThirdCategories(response.data);
     } catch (error) {
       console.error("Error fetching third-level categories:", error);
@@ -90,7 +90,7 @@ const AllProducts = () => {
   useEffect(() => {
     const fetchSuppliers = async () => {
       try {
-        const response = await axios.get(`${API_URL}/api/suppliers`);
+        const response = await axios.get(`http://localhost:4321/api/suppliers`);
 setSuppliers(response.data.suppliers || []);
       } catch (error) {
         console.error('Error fetching suppliers:', error);
@@ -121,7 +121,7 @@ setSuppliers(response.data.suppliers || []);
       try {
    
         // إرسال التصنيف مع البحث
-        const response = await axios.get(`${API_URL}/api/products`, {
+        const response = await axios.get(`http://localhost:4321/api/products`, {
           params: {
             mainCategory, // إرسال mainCategory
             subCategory,  // إرسال subCategory
@@ -162,7 +162,7 @@ setSuppliers(response.data.suppliers || []);
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`${API_URL}/api/products/id/${editingProductId}`, editFormData);
+      await axios.put(`http://localhost:4321/api/products/id/${editingProductId}`, editFormData);
       // Update the products state with the edited product
       setProducts(products.map(product => (product._id === editingProductId ? { ...product, ...editFormData } : product)));
       setEditingProductId(null); // Reset the editing state
@@ -176,7 +176,7 @@ setSuppliers(response.data.suppliers || []);
     const confirmDelete = window.confirm('هل أنت متأكد أنك تريد حذف هذا المنتج؟'); // Confirmation in Arabic
     if (confirmDelete) {
       try {
-        await axios.delete(`${API_URL}/api/products/${barcode}`);
+        await axios.delete(`http://localhost:4321/api/products/${barcode}`);
 
         // Remove the deleted product from the state
         setProducts(products.filter(product => product.barcode !== barcode));

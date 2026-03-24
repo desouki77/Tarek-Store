@@ -32,7 +32,7 @@ const CustomerPaymentTransaction = () => {
   useEffect(() => {
     const fetchClients = async () => {
       try {
-        const response = await axios.get(`${API_URL}/api/clients/with-debt`, {
+        const response = await axios.get(`http://localhost:4321/api/clients/with-debt`, {
           params: {
             page: 1,
             limit: 100 // or whatever number you need
@@ -52,7 +52,7 @@ const CustomerPaymentTransaction = () => {
 
   const fetchUserData = useCallback(async (userId) => {
     try {
-      const userResponse = await axios.get(`${API_URL}/api/users/${userId}`);
+      const userResponse = await axios.get(`http://localhost:4321/api/users/${userId}`);
       return { userName: userResponse.data.username };
     } catch (error) {
       console.error("Error fetching user", error);
@@ -70,7 +70,7 @@ const CustomerPaymentTransaction = () => {
     const endDate = new Date(today.setHours(23, 59, 59, 999)).toISOString();
 
     try {
-      const response = await axios.get(`${API_URL}/api/transactions/daycustomer_payment`, {
+      const response = await axios.get(`http://localhost:4321/api/transactions/daycustomer_payment`, {
         params: { branchId, startDate, endDate, page, limit: 5 },
       });
 
@@ -112,7 +112,7 @@ const CustomerPaymentTransaction = () => {
     setIsLoadingClients(true);
     try {
         console.log('Attempting to fetch client with ID:', clientId); // Debug log
-        const response = await axios.get(`${API_URL}/api/clients/id/${clientId}`);
+        const response = await axios.get(`http://localhost:4321/api/clients/id/${clientId}`);
         console.log("Client API response:", response.data);
         
         if (response.data.success && response.data.client) {
@@ -193,7 +193,7 @@ const handleSubmit = async (e) => {
   }
 
   try {
-    const bankResponse = await axios.get(`${API_URL}/api/bank/${BankId}`);
+    const bankResponse = await axios.get(`http://localhost:4321/api/bank/${BankId}`);
     const currentBankAmount = parseFloat(bankResponse.data.bankAmount || 0);
 
     if (currentBankAmount < paymentAmount) {
@@ -214,19 +214,19 @@ const handleSubmit = async (e) => {
     };
 
     // Save the transaction
-    const response = await axios.post(`${API_URL}/api/transactions/customer_payment`, payload);
+    const response = await axios.post(`http://localhost:4321/api/transactions/customer_payment`, payload);
     setTransactions((prev) => [response.data, ...prev]);
 
     if (!isRandomPayment) {
       // Update client's amount
-      await axios.put(`${API_URL}/api/clients/dec-amount`, {
+      await axios.put(`http://localhost:4321/api/clients/dec-amount`, {
         clientId: selectedClient,
         amountPaid: paymentAmount,
       });
     }
 
     // Update bank amount
-    await axios.put(`${API_URL}/api/bank/${BankId}`, {
+    await axios.put(`http://localhost:4321/api/bank/${BankId}`, {
       bankAmount: currentBankAmount + paymentAmount,
     });
 

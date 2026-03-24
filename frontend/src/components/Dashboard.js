@@ -26,7 +26,7 @@
 
         const fetchBankData = async (bankId) => {
             try {
-                const response = await axios.get(`${API_URL}/api/bank/${bankId}`);
+                const response = await axios.get(`http://localhost:4321/api/bank/${bankId}`);
                 const bankData = response.data;
 
                 setBankAmount(bankData.bankAmount);
@@ -52,8 +52,8 @@
             const fetchUserData = async () => {
                 try {
                     // Fetch user data
-                    const userResponse = await axios.get(`${API_URL}/api/users/${userId}`);
-                    const branchResponse = await axios.get(`${API_URL}/api/branches/${branchId}`);
+                    const userResponse = await axios.get(`http://localhost:4321/api/users/${userId}`);
+                    const branchResponse = await axios.get(`http://localhost:4321/api/branches/${branchId}`);
 
                     setWelcomeData(prevData => ({
                         ...prevData,
@@ -94,7 +94,7 @@
 
         const handleOpenBank = async () => {
             try {
-                const response = await axios.post(`${API_URL}/api/bank`, {
+                const response = await axios.post(`http://localhost:4321/api/bank`, {
                     bankAmount: "0", // Initial value
                     branch: branchId,
                 });

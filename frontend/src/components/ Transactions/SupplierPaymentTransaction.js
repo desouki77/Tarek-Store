@@ -40,7 +40,7 @@ const SupplierPaymentTransaction = () => {
   
       try {
         while (true) {
-          const response = await axios.get(`${API_URL}/api/suppliers`, {
+          const response = await axios.get(`http://localhost:4321/api/suppliers`, {
             params: { page, limit }
           });
   
@@ -67,7 +67,7 @@ const SupplierPaymentTransaction = () => {
 
   const fetchUserData = useCallback(async (userId) => {
     try {
-      const userResponse = await axios.get(`${API_URL}/api/users/${userId}`);
+      const userResponse = await axios.get(`http://localhost:4321/api/users/${userId}`);
       return { userName: userResponse.data.username };
     } catch (error) {
       console.error("Error fetching user", error);
@@ -85,7 +85,7 @@ const SupplierPaymentTransaction = () => {
     const endDate = new Date(today.setHours(23, 59, 59, 999)).toISOString();
 
     try {
-      const response = await axios.get(`${API_URL}/api/transactions/daysupplier_payment`, {
+      const response = await axios.get(`http://localhost:4321/api/transactions/daysupplier_payment`, {
         params: { branchId, startDate, endDate, page, limit: 5 },
       });
 
@@ -127,7 +127,7 @@ const SupplierPaymentTransaction = () => {
   
     setIsLoadingInvoices(true);
     try {
-      const response = await axios.get(`${API_URL}/api/productinvoice/supplier/${supplierId}`);
+      const response = await axios.get(`http://localhost:4321/api/productinvoice/supplier/${supplierId}`);
       console.log("Invoices API response:", response.data); // Debug log
       
       if (response.data.invoices) {
@@ -215,7 +215,7 @@ const SupplierPaymentTransaction = () => {
     }
 
     try {
-      const bankResponse = await axios.get(`${API_URL}/api/bank/${BankId}`);
+      const bankResponse = await axios.get(`http://localhost:4321/api/bank/${BankId}`);
       const currentBankAmount = parseFloat(bankResponse.data.bankAmount || 0);
 
       if (currentBankAmount < paymentAmount) {
@@ -243,22 +243,22 @@ const SupplierPaymentTransaction = () => {
         payload.description = description || 'سداد مورد عشوائي';
       }
 
-      const response = await axios.post(`${API_URL}/api/transactions/supplier_payment`, payload);
+      const response = await axios.post(`http://localhost:4321/api/transactions/supplier_payment`, payload);
       setTransactions((prev) => [response.data, ...prev]);
 
       if (!isRandomPayment) {
-        await axios.put(`${API_URL}/api/productinvoice/update-moneyowed`, {
+        await axios.put(`http://localhost:4321/api/productinvoice/update-moneyowed`, {
           invoiceId: selectedInvoice,
           paymentType,
           partialAmount: paymentType === 'partial' ? paymentAmount : null,
         });
 
-        const supplierInvoicesResponse = await axios.get(`${API_URL}/api/productinvoice/supplier/${selectedSupplier}`);
+        const supplierInvoicesResponse = await axios.get(`http://localhost:4321/api/productinvoice/supplier/${selectedSupplier}`);
         setInvoices(supplierInvoicesResponse.data.invoices.filter(inv => inv.invoiceStatus === "غير خالص"));
       }
 
       // Update bank amount
-      await axios.put(`${API_URL}/api/bank/${BankId}`, {
+      await axios.put(`http://localhost:4321/api/bank/${BankId}`, {
         bankAmount: currentBankAmount - paymentAmount,
       });
 

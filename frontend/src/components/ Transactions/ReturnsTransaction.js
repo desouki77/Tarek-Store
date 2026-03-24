@@ -35,7 +35,7 @@ const ReturnsTransaction = () => {
 
   const fetchUserData = useCallback(async (userId) => {
     try {
-      const userResponse = await axios.get(`${API_URL}/api/users/${userId}`);
+      const userResponse = await axios.get(`http://localhost:4321/api/users/${userId}`);
       return { userName: userResponse.data.username };
     } catch (error) {
       console.error("Error fetching user", error);
@@ -63,7 +63,7 @@ const ReturnsTransaction = () => {
 
         try {
             // استرجاع المنتج باستخدام الباركود فقط
-            const response = await axios.get(`${API_URL}/api/products/${scannedBarcode}`, {
+            const response = await axios.get(`http://localhost:4321/api/products/${scannedBarcode}`, {
                 params: { branchId },
             });
 
@@ -113,7 +113,7 @@ const ReturnsTransaction = () => {
       }
 
       try {
-        const response = await axios.get(`${API_URL}/api/transactions/dayreturns`, {
+        const response = await axios.get(`http://localhost:4321/api/transactions/dayreturns`, {
           params: { branchId, startDate, endDate, page, limit: 5 },
         });
 
@@ -185,7 +185,7 @@ const ReturnsTransaction = () => {
     }
 
     // جلب المبلغ الحالي من البنك
-    const bankResponse = await axios.get(`${API_URL}/api/bank/${BankId}`);
+    const bankResponse = await axios.get(`http://localhost:4321/api/bank/${BankId}`);
     if (!bankResponse.data || bankResponse.data.bankAmount === undefined) {
         throw new Error('Invalid bank data received');
     }
@@ -200,7 +200,7 @@ const ReturnsTransaction = () => {
     try {
       // إرسال معرّفات المنتجات فقط (ObjectId)
       const productId = products.map((product) => product._id);  // استخراج الـ ObjectId فقط
-      const response = await axios.post(`${API_URL}/api/transactions/returns`, {
+      const response = await axios.post(`http://localhost:4321/api/transactions/returns`, {
         branchId,
         user: userId,
         type,
@@ -212,7 +212,7 @@ const ReturnsTransaction = () => {
 
       // هنا ستقوم بزيادة الكمية للمنتج
     for (const product of products) {
-      await axios.put(`${API_URL}/api/products/${product._id}/increment`, {
+      await axios.put(`http://localhost:4321/api/products/${product._id}/increment`, {
         branchId,
         quantity: 1, // زيادة الكمية بمقدار 1
       });
@@ -243,7 +243,7 @@ const ReturnsTransaction = () => {
       const updatedBankAmount = currentBankAmount - Number(amount);
   
       // إرسال البيانات المحدثة إلى الخادم
-      const updateResponse = await axios.put(`${API_URL}/api/bank/${BankId}`, {
+      const updateResponse = await axios.put(`http://localhost:4321/api/bank/${BankId}`, {
           bankAmount: updatedBankAmount,
       });
   

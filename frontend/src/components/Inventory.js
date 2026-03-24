@@ -91,7 +91,7 @@ const Inventory = () => {
   useEffect(() => {
     const fetchMainCategories = async () => {
       try {
-        const response = await axios.get(`${API_URL}/api/categories/main`);
+        const response = await axios.get(`http://localhost:4321/api/categories/main`);
         setMainCategories(response.data);
       } catch (error) {
         console.error("Error fetching main categories:", error);
@@ -118,7 +118,7 @@ const Inventory = () => {
   
 
     try {
-      const response = await axios.get(`${API_URL}/api/categories/sub/${selectedValue}`);
+      const response = await axios.get(`http://localhost:4321/api/categories/sub/${selectedValue}`);
       if (response.data.length > 0) {
         setSubCategories(response.data);
       }
@@ -132,7 +132,7 @@ const Inventory = () => {
     const newMainCategory = prompt("أدخل اسم التصنيف الرئيسي الجديد");
     if (newMainCategory) {
       try {
-        const response = await axios.post(`${API_URL}/api/categories/add`, {
+        const response = await axios.post(`http://localhost:4321/api/categories/add`, {
           name: newMainCategory,
           parent: null,
           level: 1,
@@ -158,7 +158,7 @@ const Inventory = () => {
     setCondition("");
   
     try {
-      const response = await axios.get(`${API_URL}/api/categories/third/${selectedSubCategory}`);
+      const response = await axios.get(`http://localhost:4321/api/categories/third/${selectedSubCategory}`);
       setThirdCategories(response.data);
     } catch (error) {
       console.error("Error fetching third-level categories:", error);
@@ -169,7 +169,7 @@ const Inventory = () => {
     const newSubCategory = prompt("أدخل اسم التصنيف الفرعي الجديد");
     if (newSubCategory) {
       try {
-        const response = await axios.post(`${API_URL}/api/categories/add`, {
+        const response = await axios.post(`http://localhost:4321/api/categories/add`, {
           name: newSubCategory,
           parent: mainCategory, // Use the selected main category as the parent
           level: 2,
@@ -197,7 +197,7 @@ const Inventory = () => {
     const newThirdCategory = prompt("أدخل اسم النوع الجديد");
     if (newThirdCategory) {
       try {
-        const response = await axios.post(`${API_URL}/api/categories/add`, {
+        const response = await axios.post(`http://localhost:4321/api/categories/add`, {
           name: newThirdCategory,
           parent: subCategory, // Use the selected subcategory as the parent
           level: 3,
@@ -262,7 +262,7 @@ const Inventory = () => {
         }
 
         try {
-            const response = await axios.get(`${API_URL}/api/products/${scannedBarcode}`, {
+            const response = await axios.get(`http://localhost:4321/api/products/${scannedBarcode}`, {
                 params: { branchId },
             });
 
@@ -295,7 +295,7 @@ const Inventory = () => {
   useEffect(() => {
    const fetchSuppliers = async () => {
      try {
-       const response = await axios.get(`${API_URL}/api/suppliers`);
+       const response = await axios.get(`http://localhost:4321/api/suppliers`);
        if (response.data && response.data.suppliers) {
          setSuppliers(response.data.suppliers);
        }
@@ -335,7 +335,7 @@ const [newSupplier, setNewSupplier] = useState({
 
 const addNewSupplier = async () => {
   try {
-    const response = await axios.post(`${API_URL}/api/suppliers/add`, {
+    const response = await axios.post(`http://localhost:4321/api/suppliers/add`, {
       name: newSupplier.name,
       phoneNumber: newSupplier.phoneNumber,
       company: newSupplier.company,
@@ -355,7 +355,7 @@ const addNewSupplier = async () => {
   
   useEffect(() => {
     if (mainCategory) {
-      axios.get(`${API_URL}/api/categories/sub/${mainCategory}`)
+      axios.get(`http://localhost:4321/api/categories/sub/${mainCategory}`)
         .then((response) => setSubCategories(response.data))
         .catch((error) => console.error("Error fetching subcategories:", error));
     }
@@ -364,7 +364,7 @@ const addNewSupplier = async () => {
 
   useEffect(() => {
     if (subCategory) {
-      axios.get(`${API_URL}/api/categories/third/${subCategory}`)
+      axios.get(`http://localhost:4321/api/categories/third/${subCategory}`)
         .then((response) => setThirdCategories(response.data))
         .catch((error) => console.error("Error fetching third categories:", error));
     }
@@ -411,12 +411,12 @@ const addNewSupplier = async () => {
       let productResponse;
       if (product._id) {
         // If product exists, update it
-        productResponse = await axios.put(`${API_URL}/api/products/id/${product._id}`,
+        productResponse = await axios.put(`http://localhost:4321/api/products/id/${product._id}`,
           existingProduct,
         );
       } else {
         // Otherwise, create a new product
-        productResponse = await axios.post(`${API_URL}/api/products/add`, productWithCategory);
+        productResponse = await axios.post(`http://localhost:4321/api/products/add`, productWithCategory);
       }
   
       if (productResponse.status === 200 || productResponse.status === 201) {
@@ -427,7 +427,7 @@ const addNewSupplier = async () => {
         if(selectedSupplier){
           try {
             // Fetch the current supplier data to get their existing debt
-            const supplierResponse = await axios.get(`${API_URL}/api/suppliers/${selectedSupplier}`);
+            const supplierResponse = await axios.get(`http://localhost:4321/api/suppliers/${selectedSupplier}`);
             console.log("Supplier Response:", supplierResponse.data);
             
             // Extract the current money owed from supplier data
@@ -474,11 +474,11 @@ const addNewSupplier = async () => {
             console.log("Invoice Data:", invoiceData);
             
             // Create product invoice
-            await axios.post(`${API_URL}/api/productinvoice`, invoiceData);
+            await axios.post(`http://localhost:4321/api/productinvoice`, invoiceData);
             
             // Update supplier with new total debt
             const supplierUpdateResponse = await axios.put(
-              `${API_URL}/api/suppliers/${selectedSupplier}`, 
+              `http://localhost:4321/api/suppliers/${selectedSupplier}`, 
               { moneyOwed: totalMoneyOwed }
             );
             console.log("Supplier Update Response:", supplierUpdateResponse.data);
@@ -541,12 +541,12 @@ const addNewSupplier = async () => {
       let productResponse;
       if (product._id) {
         // If product exists, update it
-        productResponse = await axios.put(`${API_URL}/api/products/id/${product._id}`,
+        productResponse = await axios.put(`http://localhost:4321/api/products/id/${product._id}`,
           existingProduct,
         );
       } else {
         // Otherwise, create a new product
-        productResponse = await axios.post(`${API_URL}/api/products/add`, productWithCategory);
+        productResponse = await axios.post(`http://localhost:4321/api/products/add`, productWithCategory);
       }
   
       if (productResponse.status === 200 || productResponse.status === 201) {

@@ -18,7 +18,7 @@ const BankList = () => {
 
 
   useEffect(() => {
-    const url = `${API_URL}/api/bank?startDate=${startDate}&endDate=${endDate}&page=${currentPage}&limit=10`;
+    const url = `http://localhost:4321/api/bank?startDate=${startDate}&endDate=${endDate}&page=${currentPage}&limit=10`;
 
     axios
       .get(url)

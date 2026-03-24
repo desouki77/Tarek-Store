@@ -25,7 +25,7 @@ const AllOrders = () => {
             setLoading(true);
             try {
                 const branchId = localStorage.getItem('branchId');
-                let url = `${API_URL}/api/orders?branchId=${branchId}&page=${currentPage}&limit=20`;
+                let url = `http://localhost:4321/api/orders?branchId=${branchId}&page=${currentPage}&limit=20`;
 
                 // Add date filters if provided
                 if (startDate && endDate) {

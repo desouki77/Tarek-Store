@@ -19,7 +19,7 @@ const Login = () => {
   useEffect(() => {
     const fetchBranches = async () => {
       try {
-        const response = await axios.get(`${API_URL}/api/branches`);
+        const response = await axios.get(`http://localhost:4321/api/branches`);
         setBranches(response.data);
       } catch (error) {
         console.error('Error fetching branches:', error);
@@ -51,7 +51,7 @@ const Login = () => {
         return;
       }
 
-      const response = await axios.post(`${API_URL}/api/users/login`, {
+      const response = await axios.post(`http://localhost:4321/api/users/login`, {
         username,
         password,
         branchId,

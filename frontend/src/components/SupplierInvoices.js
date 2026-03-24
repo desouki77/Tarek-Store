@@ -29,7 +29,7 @@ const SupplierInvoices = () => {
             setIsLoading(true);
             try {
                 // Fetch invoices with pagination
-                const response = await axios.get(`${API_URL}/api/productinvoice/supplier/${supplierId}`, {
+                const response = await axios.get(`http://localhost:4321/api/productinvoice/supplier/${supplierId}`, {
                     params: {
                         page,
                         limit,
@@ -54,7 +54,7 @@ const SupplierInvoices = () => {
                 // Fetch supplier name
                 const storedSupplierId = localStorage.getItem('supplierId'); 
                 if (storedSupplierId) {
-                    const supplierResponse = await axios.get(`${API_URL}/api/suppliers/${storedSupplierId}`);
+                    const supplierResponse = await axios.get(`http://localhost:4321/api/suppliers/${storedSupplierId}`);
                     setSupplierName(supplierResponse.data.name);
                 }
             } catch (error) {

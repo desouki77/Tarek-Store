@@ -31,8 +31,8 @@ const OrderReceipt = () => {
 
         const fetchUserData = async () => {
             try {
-                const userResponse = await axios.get(`${API_URL}/api/users/${userId}`);
-                const branchResponse = await axios.get(`${API_URL}/api/branches/${branchId}`);
+                const userResponse = await axios.get(`http://localhost:4321/api/users/${userId}`);
+                const branchResponse = await axios.get(`http://localhost:4321/api/branches/${branchId}`);
                 
                 setWelcomeData(prevData => ({
                     ...prevData,
@@ -49,7 +49,7 @@ const OrderReceipt = () => {
             if (!orderId) return;
 
             try {
-                const response = await axios.get(`${API_URL}/api/orders/${orderId}?branchId=${branchId}`);
+                const response = await axios.get(`http://localhost:4321/api/orders/${orderId}?branchId=${branchId}`);
                 if (response.data) {
                     setOrderData(response.data.data);
                 } else {

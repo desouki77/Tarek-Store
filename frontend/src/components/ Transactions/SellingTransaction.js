@@ -40,7 +40,7 @@ const SellingTransaction = () => {
             const endDate = new Date(today.setHours(23, 59, 59, 999)).toISOString();
 
             try {
-                const response = await axios.get(`${API_URL}/api/day_orders`, {
+                const response = await axios.get(`http://localhost:4321/api/day_orders`, {
                     params: { branchId, startDate, endDate, limit, page: currentPage },
                 });
                 setOrders(response.data.orders);
@@ -74,7 +74,7 @@ const SellingTransaction = () => {
             }
 
             try {
-                const response = await axios.get(`${API_URL}/api/products/${scannedBarcode}`, {
+                const response = await axios.get(`http://localhost:4321/api/products/${scannedBarcode}`, {
                     params: { branchId },
                 });
 

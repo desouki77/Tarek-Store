@@ -40,8 +40,8 @@ const Checkout = () => {
                 const userId = localStorage.getItem("userId");
                 const branchId = localStorage.getItem("branchId");
                 
-                const userResponse = await axios.get(`${API_URL}/api/users/${userId}`);
-                const branchResponse = await axios.get(`${API_URL}/api/branches/${branchId}`);
+                const userResponse = await axios.get(`http://localhost:4321/api/users/${userId}`);
+                const branchResponse = await axios.get(`http://localhost:4321/api/branches/${branchId}`);
 
                 setWelcomeData(prevData => ({
                     ...prevData,
@@ -65,7 +65,7 @@ const Checkout = () => {
 
     const handleClientCreation = async () => {
         try {
-            const response = await axios.post(`${API_URL}/api/clients/add`, {
+            const response = await axios.post(`http://localhost:4321/api/clients/add`, {
                 name: clientName,
                 phoneNumber: clientPhone,
                 amountRequired: remaining
@@ -73,7 +73,7 @@ const Checkout = () => {
             
             if (response.status === 400) {
                 // If client exists, try updating instead
-                await axios.put(`${API_URL}/api/clients/inc-amount`, {
+                await axios.put(`http://localhost:4321/api/clients/inc-amount`, {
                     clientPhone,
                     remainingAmount: remaining
                 });
@@ -84,7 +84,7 @@ const Checkout = () => {
             if (error.response?.status === 400) {
                 // Client exists, try updating
                 try {
-                    await axios.put(`${API_URL}/api/clients/update-amount`, {
+                    await axios.put(`http://localhost:4321/api/clients/update-amount`, {
                         clientPhone,
                         remainingAmount: remaining
                     });
@@ -150,18 +150,18 @@ const Checkout = () => {
             };
 
             // Create the order
-            await axios.post(`${API_URL}/api/orders`, orderData);
+            await axios.post(`http://localhost:4321/api/orders`, orderData);
 
             // Update product quantities
             for (const item of checkoutItems) {
                 try {
                     if (item.sn && item.selectedSn) {
-                        await axios.put(`${API_URL}/api/products/${item.barcode}/remove-sn`, {
+                        await axios.put(`http://localhost:4321/api/products/${item.barcode}/remove-sn`, {
                             sn: item.selectedSn,
                             branchId,
                         });
                     } else {
-                        await axios.put(`${API_URL}/api/products/${item.barcode}/decrease`, {
+                        await axios.put(`http://localhost:4321/api/products/${item.barcode}/decrease`, {
                             quantity: 1, 
                             branchId,
                         });
@@ -175,9 +175,9 @@ const Checkout = () => {
             try {
                 const BankId = localStorage.getItem('bankID');
                 if (BankId) {
-                    const bankResponse = await axios.get(`${API_URL}/api/bank/${BankId}`);
+                    const bankResponse = await axios.get(`http://localhost:4321/api/bank/${BankId}`);
                     const updatedBankAmount = parseFloat(bankResponse.data.bankAmount || 0) + Number(paid);
-                    await axios.put(`${API_URL}/api/bank/${BankId}`, {
+                    await axios.put(`http://localhost:4321/api/bank/${BankId}`, {
                         bankAmount: updatedBankAmount,
                     });
                 }
@@ -204,7 +204,7 @@ const Checkout = () => {
             return;
         }
         try {
-            const response = await axios.get(`${API_URL}/api/clients/phone/${phone}`);
+            const response = await axios.get(`http://localhost:4321/api/clients/phone/${phone}`);
             setClientName(response.data?.name || "");
         } catch (error) {
             setClientName('');

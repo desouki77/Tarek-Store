@@ -88,11 +88,11 @@ router.post('/add', async (req, res) => {
 router.get('/', async (req, res) => {
   const { branchId, mainCategory, subCategory, thirdCategory, condition, query, barcode } = req.query;
 
-  const filter = { branchId }; // تصفية حسب الفرع
-
-          if (branchId && branchId !== 'all') {
-            filter.branchId = branchId;
-        }
+  // Build filter dynamically. If branchId is missing or "all", do not filter by branch.
+  const filter = {};
+  if (branchId && branchId !== 'all') {
+    filter.branchId = branchId;
+  }
         
 
   if (mainCategory) filter.mainCategory = mainCategory;
